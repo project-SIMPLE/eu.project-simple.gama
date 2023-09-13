@@ -26,7 +26,6 @@ buildNumber.properties
 
 .gradle
 **/build/
-!src/**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -61,7 +60,6 @@ release/*
 *.class
 .metadata/
 .metadata/*
-/*/gaml/
 /*/bin/
 /*/.apt_generated/
 stderr

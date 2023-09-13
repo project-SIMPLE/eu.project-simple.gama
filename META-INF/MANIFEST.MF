@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unity
+Bundle-SymbolicName: gaml.extension.unity;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: msi.gama.core;bundle-version="1.9.2",
+ msi.gama.ext;bundle-version="1.9.2",
+ ummisco.gama.network;bundle-version="1.9.2"
+Automatic-Module-Name: gaml.extension.unity
+Bundle-RequiredExecutionEnvironment: JavaSE-17
