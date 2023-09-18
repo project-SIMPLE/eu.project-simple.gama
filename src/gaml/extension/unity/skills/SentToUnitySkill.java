@@ -24,7 +24,7 @@ import msi.gaml.statements.IStatement.WithArgs;
 import msi.gaml.types.IType;
 
 @vars ({ @variable (
-		name = SentToUnitySkill.HEADING,
+		name = SentToUnitySkill.HEADING, 
 		type = IType.FLOAT,
 		doc = @doc ("the heading of the agent to send")),
 		@variable (
