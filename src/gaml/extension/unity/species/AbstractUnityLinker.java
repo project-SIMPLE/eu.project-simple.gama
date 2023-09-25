@@ -38,70 +38,70 @@ import msi.gaml.types.IType;
 import msi.gaml.types.Types;
 import ummisco.gama.network.skills.INetworkSkill;
 
-@species(name = "unity_linker", skills={"network"})
+@species(name = "abstract_unity_linker", skills={"network"})
 @vars({ 
-	@variable(name = UnityLinker.CONNECT_TO_UNITY, type = IType.BOOL, init = "true",
+	@variable(name = AbstractUnityLinker.CONNECT_TO_UNITY, type = IType.BOOL, init = "true",
 			doc = { @doc ("Activate the unity connection; if activated, the model will wait for an connection from Unity to start")}), 
-	@variable(name = UnityLinker.UNITY_CLIENT, type = IType.NONE,
+	@variable(name = AbstractUnityLinker.UNITY_CLIENT, type = IType.NONE,
 	doc = { @doc ("Client for Unity")}), 
-	@variable(name =UnityLinker.PORT, type = IType.INT, init="8000",
+	@variable(name =AbstractUnityLinker.PORT, type = IType.INT, init="8000",
 			doc = { @doc ("Connection port")}), 
-	@variable(name = UnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, init = "&&&", 
+	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, init = "&&&", 
 			doc = { @doc ("Symbol used to end a message sent to Unity")}), 
-	@variable(name = UnityLinker.PRECISION, type = IType.INT, init = "10000", 
+	@variable(name = AbstractUnityLinker.PRECISION, type = IType.INT, init = "10000", 
 			doc = { @doc ("Number of decimal for the data (location, rotation)")}), 
-	@variable(name = UnityLinker.DELAY_AFTER_MES, type = IType.FLOAT, init = "0.0", 
+	@variable(name = AbstractUnityLinker.DELAY_AFTER_MES, type = IType.FLOAT, init = "0.0", 
 			doc = { @doc ("Delay after moving the player (in ms)")}), 
-	@variable(name = UnityLinker.WAITING_MESSAGE, type = IType.STRING, 
+	@variable(name = AbstractUnityLinker.WAITING_MESSAGE, type = IType.STRING, 
 	doc = { @doc ("Which message GAMA should wait before receiving infomation ")}), 
 
-	@variable(name = UnityLinker.AGENTS_TO_SEND, type = IType.LIST, of =  IType.AGENT, 
+	@variable(name = AbstractUnityLinker.AGENTS_TO_SEND, type = IType.LIST, of =  IType.AGENT, 
 			doc = { @doc ("List of agents to sent to Unity. It could be updated each simulation step")}),  
 	
-	@variable(name = UnityLinker.BACKGROUND_GEOMS, type = IType.LIST, of =  IType.GEOMETRY, 
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS, type = IType.LIST, of =  IType.GEOMETRY, 
 			doc = { @doc ("List of static geometries sent to Unity. Only sent once at the initialization of the connection")}), 
 
-	@variable(name = UnityLinker.BACKGROUND_GEOMS_HEIGHTS, type = IType.LIST, of =  IType.INT, 
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS, type = IType.LIST, of =  IType.INT, 
 			doc = { @doc ("For each geometry sent to Unity, the height of this one.")}),  
 
-	@variable(name = UnityLinker.BACKGROUND_GEOMS_COLLIDERS, type = IType.LIST, of =  IType.BOOL, 
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS, type = IType.LIST, of =  IType.BOOL, 
 			doc = { @doc ("For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? ")}),  
 
-	@variable(name = UnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
 			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
 	
-	@variable(name = UnityLinker.DO_SEND_WORLD, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.DO_SEND_WORLD, type = IType.BOOL, init="true", 
 			doc = { @doc ("Has the agents has to be sent to unity?")}),  
 	
-	@variable(name = UnityLinker.INITIALIZED, type = IType.BOOL, init="false", 
+	@variable(name = AbstractUnityLinker.INITIALIZED, type = IType.BOOL, init="false", 
 	doc = { @doc ("Has the world being initialized yet?")}),  
 
-	@variable(name = UnityLinker.PLAYER_SPECIES, type = IType.STRING, 
+	@variable(name = AbstractUnityLinker.PLAYER_SPECIES, type = IType.STRING, 
 	doc = { @doc ("Species of the player agent")}),  
 	
-	@variable(name = UnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="true", 
 	doc = { @doc ("should GAMA receive information from Unity?")}),  
 
-	@variable(name = UnityLinker.MOVE_PLAYER_EVENT, type = IType.BOOL, init="false", 
+	@variable(name = AbstractUnityLinker.MOVE_PLAYER_EVENT, type = IType.BOOL, init="false", 
 			doc = { @doc ("Does the player agent moved from GAMA?")}),
-	@variable(name = UnityLinker.CREATE_PLAYER, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.CREATE_PLAYER, type = IType.BOOL, init="true", 
 	doc = { @doc ("Has a player agent to be created?")}),
 
-	@variable(name = UnityLinker.MOVE_PLAYER_FROM_UNITY, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY, type = IType.BOOL, init="true", 
 			doc = { @doc ("Has the player to move in GAMA as it moves in Unity?")}), 
 	
-	@variable(name = UnityLinker.USE_PHYSICS_FOR_PLAYERS, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.USE_PHYSICS_FOR_PLAYERS, type = IType.BOOL, init="true", 
 			doc = { @doc ("Does the player should has a physical exitence in Unity (i.e. cannot pass through specific geometries)?")}),  
 	
-	@variable(name = UnityLinker.NEW_PLAYER_POSITION, type = IType.LIST, of = IType.INT, 
+	@variable(name = AbstractUnityLinker.NEW_PLAYER_POSITION, type = IType.LIST, of = IType.INT, 
 			doc = { @doc ("The new poistion of the player to be sent to Unity - list of int [x,y]")}), 
-	@variable(name = UnityLinker.LOCATION_INIT, type = IType.POINT, init="{50.0, 50.0}", 
+	@variable(name = AbstractUnityLinker.LOCATION_INIT, type = IType.POINT, init="{50.0, 50.0}", 
 		doc = { @doc ("Init location of the player in the environment - this information will be sent to Unity to move the player accordingly")}), 
 
-	@variable(name = UnityLinker.THE_PLAYER, type = IType.AGENT, 
+	@variable(name = AbstractUnityLinker.THE_PLAYER, type = IType.AGENT, 
 	doc = { @doc ("Player agent")}), 
 })
-public class UnityLinker extends GamlAgent {
+public class AbstractUnityLinker extends GamlAgent {
 	public static final String PLAYER_SPECIES = "player_species";
 	
 	public static final String CONNECT_TO_UNITY = "connect_to_unity";
@@ -134,217 +134,217 @@ public class UnityLinker extends GamlAgent {
 	public static final String WAITING_MESSAGE = "waiting_message";
 	
 		
-	@getter (UnityLinker.UNITY_CLIENT)
+	@getter (AbstractUnityLinker.UNITY_CLIENT)
 	public static Object getUnityClient(final IAgent agent) {
 		return (Object) agent.getAttribute(UNITY_CLIENT);
 	}
-	@setter(UnityLinker.UNITY_CLIENT)
+	@setter(AbstractUnityLinker.UNITY_CLIENT)
 	public static void setUnityClient(final IAgent agent, final Object ctu) {
 		agent.setAttribute(UNITY_CLIENT, ctu);
 	}
 		
-	@getter (UnityLinker.CONNECT_TO_UNITY)
+	@getter (AbstractUnityLinker.CONNECT_TO_UNITY)
 	public static Boolean getConnectToUnity(final IAgent agent) {
 		return (Boolean) agent.getAttribute(CONNECT_TO_UNITY);
 	}
-	@setter(UnityLinker.CONNECT_TO_UNITY)
+	@setter(AbstractUnityLinker.CONNECT_TO_UNITY)
 	public static void setConnectToUnity(final IAgent agent, final Boolean ctu) {
 		agent.setAttribute(CONNECT_TO_UNITY, ctu);
 	}
 		
-	@getter (UnityLinker.PORT)
+	@getter (AbstractUnityLinker.PORT)
 	public static Integer getPort(final IAgent agent) {
 		return (Integer) agent.getAttribute(PORT);
 	}
-	@setter(UnityLinker.PORT)
+	@setter(AbstractUnityLinker.PORT)
 	public static void setPort(final IAgent agent, final Integer val) {
 		agent.setAttribute(PORT, val);
 	}
 	
-	@getter (UnityLinker.END_MESSAGE_SYMBOL)
+	@getter (AbstractUnityLinker.END_MESSAGE_SYMBOL)
 	public static String getEndMessageSymbol(final IAgent agent) {
 		return (String) agent.getAttribute(END_MESSAGE_SYMBOL);
 	}
-	@setter(UnityLinker.END_MESSAGE_SYMBOL)
+	@setter(AbstractUnityLinker.END_MESSAGE_SYMBOL)
 	public static void setEndMessageSymbol(final IAgent agent, final String val) {
 		agent.setAttribute(END_MESSAGE_SYMBOL, val);
 	}
 	
-	@getter (UnityLinker.PRECISION)
+	@getter (AbstractUnityLinker.PRECISION)
 	public static Integer getPrecision(final IAgent agent) {
 		return (Integer) agent.getAttribute(PRECISION);
 	}
-	@setter(UnityLinker.PRECISION)
+	@setter(AbstractUnityLinker.PRECISION)
 	public static void setPrecision(final IAgent agent, final Integer val) {
 		agent.setAttribute(PRECISION, val);
 	}
 	
-	@getter (UnityLinker.DELAY_AFTER_MES)
+	@getter (AbstractUnityLinker.DELAY_AFTER_MES)
 	public static Double getDelayAfterMes(final IAgent agent) {
 		return (Double) agent.getAttribute(DELAY_AFTER_MES);
 	}
-	@setter(UnityLinker.DELAY_AFTER_MES)
+	@setter(AbstractUnityLinker.DELAY_AFTER_MES)
 	public static void setDelayAfterMes(final IAgent agent, final Double val) {
 		agent.setAttribute(DELAY_AFTER_MES, val);
 	}
 	
-	@getter (UnityLinker.WAITING_MESSAGE)
+	@getter (AbstractUnityLinker.WAITING_MESSAGE)
 	public static String getWaitingMessage(final IAgent agent) {
 		return (String) agent.getAttribute(WAITING_MESSAGE);
 	}
-	@setter(UnityLinker.WAITING_MESSAGE)
+	@setter(AbstractUnityLinker.WAITING_MESSAGE)
 	public static void setWaitingMessage(final IAgent agent, final String val) {
 		agent.setAttribute(WAITING_MESSAGE, val);
 	}
 	
-	@getter (UnityLinker.AGENTS_TO_SEND)
+	@getter (AbstractUnityLinker.AGENTS_TO_SEND)
 	public static  IList<IAgent> getAgentsToSend(final IAgent agent) {
 		return ( IList<IAgent>) agent.getAttribute(AGENTS_TO_SEND);
 	}
-	@setter(UnityLinker.AGENTS_TO_SEND)
+	@setter(AbstractUnityLinker.AGENTS_TO_SEND)
 	public static void setAgentsToSend(final IAgent agent, final IList<IAgent> val) {
 		agent.setAttribute(AGENTS_TO_SEND, val);
 	}
 		
-	@getter (UnityLinker.BACKGROUND_GEOMS)
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS)
 	public static  IList<IShape> getBackgroundGeoms(final IAgent agent) {
 		return ( IList<IShape>) agent.getAttribute(BACKGROUND_GEOMS);
 	}
-	@setter(UnityLinker.BACKGROUND_GEOMS)
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS)
 	public static void setBackgroundGeoms(final IAgent agent, final IList<IShape> val) {
 		agent.setAttribute(BACKGROUND_GEOMS, val);
 	}
 	
-	@getter (UnityLinker.BACKGROUND_GEOMS_HEIGHTS)
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS)
 	public static  IList<Double> getBackgroundGeomsHeights(final IAgent agent) {
 		return ( IList<Double>) agent.getAttribute(BACKGROUND_GEOMS_HEIGHTS);
 	}
-	@setter(UnityLinker.BACKGROUND_GEOMS_HEIGHTS)
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS)
 	public static void setBackgroundGeomsHeights(final IAgent agent, final IList<Double> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_HEIGHTS, val);
 	}
 		
-	@getter (UnityLinker.BACKGROUND_GEOMS_COLLIDERS)
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS)
 	public static  IList<Boolean> getBackgroundGeomsColliders(final IAgent agent) {
 		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_COLLIDERS);
 	}
-	@setter(UnityLinker.BACKGROUND_GEOMS_COLLIDERS)
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS)
 	public static void setBackgroundGeomsColliders(final IAgent agent, final IList<Boolean> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_COLLIDERS, val);
 	}
 		
-	@getter (UnityLinker.BACKGROUND_GEOMS_NAMES)
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
 	public static  IList<String> getBackgroundGeomsNames(final IAgent agent) {
 		return ( IList<String>) agent.getAttribute(BACKGROUND_GEOMS_NAMES);
 	}
-	@setter(UnityLinker.BACKGROUND_GEOMS_NAMES)
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
 	public static void setBackgroundGeomsNames(final IAgent agent, final IList<String> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_NAMES, val);
 	}
 	
 
-	@getter (UnityLinker.PLAYER_SPECIES)
+	@getter (AbstractUnityLinker.PLAYER_SPECIES)
 	public static String getPlayerSpecies(final IAgent agent) {
 		return (String) agent.getAttribute(PLAYER_SPECIES);
 	}
-	@setter(UnityLinker.PLAYER_SPECIES)
+	@setter(AbstractUnityLinker.PLAYER_SPECIES)
 	public static void setPlayerSpecies(final IAgent agent, final String val) {
 		agent.setAttribute(PLAYER_SPECIES, val);
 	}
 	
-	@getter (UnityLinker.DO_SEND_WORLD)
+	@getter (AbstractUnityLinker.DO_SEND_WORLD)
 	public static Boolean getDoSendWorld(final IAgent agent) {
 		return (Boolean) agent.getAttribute(DO_SEND_WORLD);
 	}
-	@setter(UnityLinker.DO_SEND_WORLD)
+	@setter(AbstractUnityLinker.DO_SEND_WORLD)
 	public static void setDoSendWorld(final IAgent agent, final Boolean val) {
 		agent.setAttribute(DO_SEND_WORLD, val);
 	}
 	
-	@getter (UnityLinker.CREATE_PLAYER)
+	@getter (AbstractUnityLinker.CREATE_PLAYER)
 	public static Boolean getCreatePlayer(final IAgent agent) {
 		return (Boolean) agent.getAttribute(CREATE_PLAYER);
 	}
-	@setter(UnityLinker.CREATE_PLAYER)
+	@setter(AbstractUnityLinker.CREATE_PLAYER)
 	public static void setCreatePlayer(final IAgent agent, final Boolean val) {
 		agent.setAttribute(CREATE_PLAYER, val);
 	}
 	
-	@getter (UnityLinker.RECEIVE_INFORMATION)
+	@getter (AbstractUnityLinker.RECEIVE_INFORMATION)
 	public static Boolean getReceiveInformation(final IAgent agent) {
 		return (Boolean) agent.getAttribute(RECEIVE_INFORMATION);
 	}
-	@setter(UnityLinker.RECEIVE_INFORMATION)
+	@setter(AbstractUnityLinker.RECEIVE_INFORMATION)
 	public static void setReceiveInformation(final IAgent agent, final Boolean val) {
 		agent.setAttribute(RECEIVE_INFORMATION, val);
 	}
 	
-	@getter (UnityLinker.INITIALIZED)
+	@getter (AbstractUnityLinker.INITIALIZED)
 	public static Boolean getInitialized(final IAgent agent) {
 		return (Boolean) agent.getAttribute(INITIALIZED);
 	}
-	@setter(UnityLinker.INITIALIZED)
+	@setter(AbstractUnityLinker.INITIALIZED)
 	public static void setInitialized(final IAgent agent, final Boolean val) {
 		agent.setAttribute(INITIALIZED, val);
 	}
 		
-	@getter (UnityLinker.MOVE_PLAYER_EVENT)
+	@getter (AbstractUnityLinker.MOVE_PLAYER_EVENT)
 	public static Boolean getMovePlayerEvent(final IAgent agent) {
 		return (Boolean) agent.getAttribute(MOVE_PLAYER_EVENT);
 	}
-	@setter(UnityLinker.MOVE_PLAYER_EVENT)
+	@setter(AbstractUnityLinker.MOVE_PLAYER_EVENT)
 	public static void setMovePlayerEvent(final IAgent agent, final Boolean val) {
 		agent.setAttribute(MOVE_PLAYER_EVENT, val);
 	}
 		
-	@getter (UnityLinker.MOVE_PLAYER_FROM_UNITY)
+	@getter (AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY)
 	public static Boolean getMovePlayerFromUnity(final IAgent agent) {
 		return (Boolean) agent.getAttribute(MOVE_PLAYER_FROM_UNITY);
 	}
-	@setter(UnityLinker.MOVE_PLAYER_FROM_UNITY)
+	@setter(AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY)
 	public static void setMovePlayerFromUnity(final IAgent agent, final Boolean val) {
 		agent.setAttribute(MOVE_PLAYER_FROM_UNITY, val);
 	}
 	
-	@getter (UnityLinker.USE_PHYSICS_FOR_PLAYERS)
+	@getter (AbstractUnityLinker.USE_PHYSICS_FOR_PLAYERS)
 	public static Boolean getUsePhysicsForPlayer(final IAgent agent) {
 		return (Boolean) agent.getAttribute(USE_PHYSICS_FOR_PLAYERS);
 	}
-	@setter(UnityLinker.USE_PHYSICS_FOR_PLAYERS)
+	@setter(AbstractUnityLinker.USE_PHYSICS_FOR_PLAYERS)
 	public static void setUsePhysicsForPlayer(final IAgent agent, final Boolean val) {
 		agent.setAttribute(USE_PHYSICS_FOR_PLAYERS, val);
 	}
 	
 	
-	@getter (UnityLinker.LOCATION_INIT)
+	@getter (AbstractUnityLinker.LOCATION_INIT)
 	public static GamaPoint getPlayerLocationInit(final IAgent agent) {
 		return (GamaPoint) agent.getAttribute(LOCATION_INIT);
 	}
-	@setter(UnityLinker.LOCATION_INIT)
+	@setter(AbstractUnityLinker.LOCATION_INIT)
 	public static void setPlayerLocationInit(final IAgent agent, final GamaPoint val) {
 		agent.setAttribute(LOCATION_INIT, val);
 	}
 	
-	@getter (UnityLinker.THE_PLAYER)
+	@getter (AbstractUnityLinker.THE_PLAYER)
 	public static IAgent getPlayer(final IAgent agent) {
 		return (IAgent) agent.getAttribute(THE_PLAYER);
 	}
-	@setter(UnityLinker.THE_PLAYER)
+	@setter(AbstractUnityLinker.THE_PLAYER)
 	public static void setPlayer(final IAgent agent, final IAgent val) {
 		agent.setAttribute(THE_PLAYER, val);
 	}
 		
 	
-	@getter (UnityLinker.NEW_PLAYER_POSITION)
+	@getter (AbstractUnityLinker.NEW_PLAYER_POSITION)
 	public static  IList<Integer> getNewPlayerPosition(final IAgent agent) {
 		return ( IList<Integer>) agent.getAttribute(NEW_PLAYER_POSITION);
 	}
-	@setter(UnityLinker.NEW_PLAYER_POSITION)
+	@setter(AbstractUnityLinker.NEW_PLAYER_POSITION)
 	public static void setNewPlayerPosition(final IAgent agent, final IList<Integer> val) {
 		agent.setAttribute(NEW_PLAYER_POSITION, val);
 	}
 	
-	public UnityLinker(IPopulation<? extends IAgent> s, int index) {
+	public AbstractUnityLinker(IPopulation<? extends IAgent> s, int index) {
 		super(s, index);
 		
 	}
@@ -459,10 +459,10 @@ public class UnityLinker extends GamlAgent {
 		ags.addAll(getAgentsToSend(ag).stream().filter(a -> !a.dead()).toList());
 		IAgent player = (IAgent) getPlayer(ag);
 		if (player != null) {
-			if (((Double) player.getAttribute(UnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
+			if (((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_distance", "ags", ags);
 			}
-			if (((Double) player.getAttribute(UnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0) {
+			if (((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0) {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_overlapping", "ags", ags);
 			} 
 		}
@@ -657,7 +657,7 @@ public class UnityLinker extends GamlAgent {
 		ags.addAll((IList<IAgent>) scope.getArg("ags"));
 		
 		IAgent thePlayer = getPlayer(getAgent());
-		Double dist = (Double) thePlayer.getAttribute(UnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
+		Double dist = (Double) thePlayer.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
 		return (IList<IAgent>) Spatial.Queries.overlapping(scope, ags, Transformations.enlarged_by(scope, thePlayer, dist));
 	}
 	 
@@ -700,7 +700,7 @@ public class UnityLinker extends GamlAgent {
 		IList<IAgent> toRemove = GamaListFactory.create() ;
 		for (IShape ag : ags) {
 			if (!toRemove.contains(ag)) { 
-				Double dist = (Double) thePlayer.getAttribute(UnityPlayer.PLAYER_AGENTS_MIN_DIST);
+				Double dist = (Double) thePlayer.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST);
 				toRemove.addAll((Collection<? extends IAgent>) Spatial.Queries.overlapping(scope, ags, Transformations.enlarged_by(scope, thePlayer, dist)));
 			}  
 		}

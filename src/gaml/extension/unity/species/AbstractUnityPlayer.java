@@ -19,26 +19,26 @@ import msi.gama.util.GamaColor;
 import msi.gaml.operators.Spatial;
 import msi.gaml.types.IType;
 
-@species(name = "unity_player")
+@species(name = "abstract_unity_player")
 @vars({ @variable(name = IKeyword.ROTATION, type = IType.FLOAT,
 	doc = { @doc ("rotation to apply for the display of the agent in GAMA")}),
 	@variable(name = IKeyword.COLOR, type = IType.COLOR,
 			doc = { @doc ("color of the agent for the display in GAMA")}),
-	@variable(name = UnityPlayer.TO_DISPLAY, type = IType.BOOL,
+	@variable(name = AbstractUnityPlayer.TO_DISPLAY, type = IType.BOOL,
 			doc = { @doc ("display or not the agent in GAMA")}),
-	@variable(name = UnityPlayer.CONE_DISTANCE, type = IType.FLOAT,
+	@variable(name = AbstractUnityPlayer.CONE_DISTANCE, type = IType.FLOAT,
 			doc = { @doc ("distance of the cone for the display of the agent in GAMA")}),
-	@variable(name = UnityPlayer.CONE_AMPLITUDE, type = IType.FLOAT,
+	@variable(name = AbstractUnityPlayer.CONE_AMPLITUDE, type = IType.FLOAT,
 			doc = { @doc ("amplitude of the cone for the display of the agent in GAMA")}),
-	@variable(name = UnityPlayer.PLAYER_SIZE, type = IType.FLOAT, init = "3.0", 
+	@variable(name = AbstractUnityPlayer.PLAYER_SIZE, type = IType.FLOAT, init = "3.0", 
 			doc = { @doc ("Size of the player for the display of the agent in GAMA")}), 
-	@variable(name = UnityPlayer.PLAYER_ROTATION, type = IType.FLOAT, init = "90.0", 
+	@variable(name = AbstractUnityPlayer.PLAYER_ROTATION, type = IType.FLOAT, init = "90.0", 
 	doc = { @doc ("Rotation (angle in degrees) to add to the player for the display of the agent in GAMA")}), 
-	@variable(name = UnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS, type = IType.FLOAT, init = "0.0", 
+	@variable(name = AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS, type = IType.FLOAT, init = "0.0", 
 	doc = { @doc ("Allow to reduce the quantity of information sent to Unity - only the agents at a certain distance are sent")}), 
-	@variable(name = UnityPlayer.PLAYER_AGENTS_MIN_DIST, type = IType.FLOAT, init = "0.0", 
+	@variable(name = AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST, type = IType.FLOAT, init = "0.0", 
 			doc = { @doc ("Allow to not send to Unity agents that are to close (i.e. overlapping) ")})})
-public class UnityPlayer extends GamlAgent{ 
+public class AbstractUnityPlayer extends GamlAgent{ 
 	
 	public static final String ACTION_CONE = "player_perception_cone";
 	
@@ -52,7 +52,7 @@ public class UnityPlayer extends GamlAgent{
 	
 	
 	
-	public UnityPlayer(IPopulation<? extends IAgent> s, int index) {
+	public AbstractUnityPlayer(IPopulation<? extends IAgent> s, int index) {
 		super(s, index);
 	} 
 	
