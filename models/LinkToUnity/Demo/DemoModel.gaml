@@ -18,12 +18,13 @@ global {
 	int nb_blocks <- 10 parameter: true min: 0 max: 10 step: 1.0;
 	float block_size <- 5.0 parameter: true min: 1.0 max: 10.0 step: 1.0;
 	
-	unityLinker2 the_linker;
+	unity_linker the_linker;
 	init {
 		create simple_agentA number: nb_agentsA;
 		create simple_agentB number: nb_agentsB;
 		create static_object with:(location: {50, 40});
-		create unityLinker2 {
+		create unity_linker with:(location_init:{50.0, 50.0}, port: 8000)		
+		{
 			the_linker <- self;
 		}
 		the_linker.agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
@@ -38,7 +39,7 @@ global {
 					free_place <- free_place - shape;
 				}
 			} 
-			ask unityLinker2 {
+			ask unity_linker {
 				do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
 				write sample(length(background_geoms));
 			}
@@ -75,7 +76,7 @@ species block {
 }
 
 
-species simple_agentA parent: agent_to_send  skills: [moving] {
+species simple_agentA  skills: [moving, sent_to_unity] {
 	int index <- 0;
 	rgb color <- #blue;
 	float amplitude <- 30.0;
@@ -89,13 +90,13 @@ species simple_agentA parent: agent_to_send  skills: [moving] {
 	}
 }
 
-species simple_agentB parent: simple_agentA skills: [moving] {
+species simple_agentB parent: simple_agentA skills: [moving, sent_to_unity] {
 	int index <- 1;
 	rgb color <- #green;
 	float amplitude <- 60.0;
 }
 
-species static_object parent:agent_to_send {
+species static_object skills:[sent_to_unity] {
 	rgb color <- #red;
 	int index <- 2;
 	
@@ -111,11 +112,12 @@ experiment simple_simulation type: gui parent: vr_xp autorun: true{
 	
 	output {
 		display map type: 3d{ 
+			
 			species simple_agentA;
 			species simple_agentB;
 			species static_object;
 			species block;
-			species default_player;
+			species unity_player;
 			event #mouse_down action: move_player_xp;
 		}
 	}
