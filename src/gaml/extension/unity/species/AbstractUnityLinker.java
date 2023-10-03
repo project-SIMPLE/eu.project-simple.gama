@@ -133,7 +133,15 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	public static final String WAITING_MESSAGE = "waiting_message";
 	
-		
+	
+	public static final String HEADING = "heading";
+	public static final String ADD_TO_MAP = "add_to_map";
+	
+	public static final String LOC_TO_SEND = "loc_to_send";
+	public static final String TO_MAP = "to_map";
+	public static final String SPECIES_INDEX = "index";
+
+	
 	@getter (AbstractUnityLinker.UNITY_CLIENT)
 	public static Object getUnityClient(final IAgent agent) {
 		return (Object) agent.getAttribute(UNITY_CLIENT);
@@ -242,7 +250,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		agent.setAttribute(BACKGROUND_GEOMS_NAMES, val);
 	}
 	
-
 	@getter (AbstractUnityLinker.PLAYER_SPECIES)
 	public static String getPlayerSpecies(final IAgent agent) {
 		return (String) agent.getAttribute(PLAYER_SPECIES);
@@ -369,6 +376,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		return act.executeOn(scope);
 	}
 	
+	
 
 	@Override
 	public boolean doStep(final IScope scope) {
@@ -380,6 +388,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					setMovePlayerEvent(ag, false);
 				}
 				if(!getInitialized(ag)) {
+					
 					if (getCreatePlayer(ag)) {
 						doActionNoArg(scope, "init_player");
 					}
@@ -424,6 +433,31 @@ public class AbstractUnityLinker extends GamlAgent {
 		setBackgroundGeomsColliders(getAgent(), backgroundGeometriesCollider);
 		setBackgroundGeomsNames(getAgent(), backgroundGeometriesName);
 	
+	}
+	
+	@action (
+			name = "init_species_to_send",
+			args = { @arg (
+							name = "species_list",
+							type = IType.LIST, 
+							doc = @doc ("List of the species name to sent to unity"))},
+					
+			doc = { @doc (
+					value = "Initialize the species to send to unity")})
+	
+	public void primInitSpecies(final IScope scope) throws GamaRuntimeException {
+		IList sps = scope.getListArg("species_list");
+		int i = 0;
+		IList<IAgent> agensToSend = getAgentsToSend(getAgent());
+		for(Object s : sps) {
+			ISpecies sp = Cast.asSpecies(scope, s);
+			
+			for (IAgent ag : sp.getAgents(scope).iterable(scope)) {
+				ag.setAttribute(SPECIES_INDEX, i);
+				agensToSend.add(ag);
+			}
+			i++;
+		}		
 	}
 	
 	@action (
@@ -686,19 +720,22 @@ public class AbstractUnityLinker extends GamlAgent {
 			args = { @arg (
 					name = "ags",
 					type = IType.LIST,
-					doc = @doc ("list of agents to filter"))},
+					doc = @doc ("list of agents to send to Unity"))},
 					
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of agents to send to Unity from a given list of agents according to a max distance to the player")})
+					value = "Action called by the send_world action that returns the message to send to Unity (as a list of map)")})
 	public IList<IMap> primMessageAgents(final IScope scope) throws GamaRuntimeException {
 		IList<IAgent> ags = GamaListFactory.create(Types.AGENT);
 		ags.addAll((IList<IAgent>) scope.getArg("ags"));
 		IList<IMap> output = GamaListFactory.create(Types.MAP);
 		for (IAgent ag : ags) {
-			WithArgs actTM = ag.getSpecies().getAction( "to_map");
+			WithArgs actTM = getAgent().getSpecies().getAction(TO_MAP);
 			Arguments argsTM = new Arguments();
 			argsTM.put("precision", ConstantExpressionDescription.create(getPrecision(getAgent())));
-			output.add((IMap) scope.execute(actTM, ag, argsTM).getValue());
+			argsTM.put("ag", ConstantExpressionDescription.create(ag));
+			actTM.setRuntimeArgs(scope, argsTM);
+			
+			output.add((IMap) actTM.executeOn(scope));
 		}
 		return output;
 	}
@@ -801,7 +838,6 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "action called by manage_message_from_unity in case of a new message (other than waiting message and player position)")})
 	public void primManageNewMessage(final IScope scope) throws GamaRuntimeException {
 
-		System.out.println("lalala2");
 	}
 	
 	@action (
@@ -928,7 +964,81 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 
 	
+	@action (
+			name = LOC_TO_SEND,
+			doc = @doc (
+					returns = "the location to send to Unity"))
+	public GamaPoint primLocToSend(final IScope scope) throws GamaRuntimeException {
+		return scope.getAgent().getLocation();
+
+	}
 	
+	@action (
+			name = ADD_TO_MAP,
+					args = { @arg (
+							name = "map",
+							type = IType.MAP,
+							doc = @doc ("map of data to send to Unity")),
+							@arg (
+									name = "ag",
+									type = IType.AGENT,
+									doc = @doc ("Agent to send to Unity"))},
+			doc = @doc (
+					returns = "other elements than the location to add to the data sent to Unity"))
+	public void primAddToMap(final IScope scope) throws GamaRuntimeException {
+		
+	}
+	
+	@action (
+			name = TO_MAP,
+					args = { @arg (
+							name = "precision",
+							type = IType.INT,
+							doc = @doc ("precision of the data to send (number of decimals)")),
+							@arg (
+									name = "ag",
+									type = IType.AGENT,
+									doc = @doc ("Agent to send to Unity"))
+						
+			},
+				
+			doc = @doc (
+					returns = "a map containing all the information to sent to unity concerning an agent"))
+	public IMap<String, IList<Integer>> primToMap(final IScope scope) throws GamaRuntimeException {
+		Integer precision = scope.getIntArg("precision");
+		IAgent ag = (IAgent) scope.getArg("ag");
+		IMap<String, IList<Integer>> map = GamaMapFactory.create();
+		
+		IList<Integer> vals = GamaListFactory.create();
+		vals.add(getIndexSpecies(ag));
+		vals.add(ag.getIndex());
+		vals.add((int)(ag.getLocation().x * precision));
+		vals.add((int)(ag.getLocation().y * precision));
+		vals.add((int)(getHeading(ag) * precision));
+		map.put("v", vals);
+		
+		Arguments args = new Arguments();
+		args.put("map", ConstantExpressionDescription.create(map));
+		args.put("ag", ConstantExpressionDescription.create(ag));
+		
+		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
+		
+		actATM.setRuntimeArgs(scope, args);
+		actATM.executeOn(scope);
+		
+		return map;
+
+	}
+	
+	public Integer getIndexSpecies(IAgent agent) {
+		return (Integer) agent.getAttribute(SPECIES_INDEX);
+	}
+	
+	public Double getHeading(IAgent agent) {
+		if (agent.hasAttribute(HEADING))
+			return (Double) agent.getAttribute(HEADING);
+		return 0.0;
+	}
 	
 
 }

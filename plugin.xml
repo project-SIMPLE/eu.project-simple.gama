@@ -4,5 +4,22 @@
    <extension
          point="gaml.extension">
    </extension>
+   <extension
+         id="UnityVR"
+         name="Unity VR"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="gaml.extension.unity.menuContribution1">
+         <menu
+               label="Unity VR">
+            <command
+                  commandId="gaml.extension.unity.command1"
+                  label="Model Verization"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
 
 </plugin>
