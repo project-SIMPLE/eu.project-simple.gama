@@ -69,7 +69,9 @@ import ummisco.gama.network.skills.INetworkSkill;
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
 			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
-	
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_TAGS, type = IType.LIST, of =  IType.STRING, 
+	doc = { @doc ("For each geometry sent to Unity, its tag and layer in unity ")}), 
+
 	@variable(name = AbstractUnityLinker.DO_SEND_WORLD, type = IType.BOOL, init="true", 
 			doc = { @doc ("Has the agents has to be sent to unity?")}),  
 	
@@ -114,6 +116,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS_HEIGHTS = "background_geoms_heights";
 	public static final String BACKGROUND_GEOMS_COLLIDERS = "background_geoms_colliders";
 	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
+
+	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
 	public static final String DO_SEND_WORLD = "do_send_world";
 	public static final String CREATE_PLAYER = "create_player";
 
@@ -248,6 +252,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
 	public static void setBackgroundGeomsNames(final IAgent agent, final IList<String> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_NAMES, val);
+	}
+	
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_TAGS)
+	public static  IList<String> getBackgroundGeomsTags(final IAgent agent) {
+		return ( IList<String>) agent.getAttribute(BACKGROUND_GEOMS_TAGS);
+	}
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_TAGS)
+	public static void setBackgroundGeomsTags(final IAgent agent, final IList<String> val) {
+		agent.setAttribute(BACKGROUND_GEOMS_TAGS, val);
 	}
 	
 	@getter (AbstractUnityLinker.PLAYER_SPECIES)
@@ -407,17 +420,19 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	
 	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider) {
+	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag) {
 		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
 		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
 		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
 		IList<Boolean> backgroundGeometriesCollider = getBackgroundGeomsColliders(getAgent());
-	
+		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
+		
 		
 		if(backgroundGeometries == null) {
 			backgroundGeometries = GamaListFactory.create(Types.GEOMETRY);
 			backgroundGeometriesHeight = GamaListFactory.create(Types.FLOAT);
 			backgroundGeometriesName = GamaListFactory.create(Types.STRING);
+			backgroundGeometriesTag = GamaListFactory.create(Types.STRING);
 			backgroundGeometriesCollider = GamaListFactory.create(Types.BOOL);
 		}
 		backgroundGeometries.addAll(geoms);
@@ -425,13 +440,17 @@ public class AbstractUnityLinker extends GamlAgent {
 		for (int i = 0; i < geoms.size(); i++) {
 			backgroundGeometriesHeight.add(height);
 			backgroundGeometriesCollider.add(collider);
+			if (tag != null) 
+				backgroundGeometriesTag.add(tag);
 		}
 		if (names != null) 
 			backgroundGeometriesName.addAll(names);
+		
 		setBackgroundGeoms(getAgent(), backgroundGeometries);
 		setBackgroundGeomsHeights(getAgent(), backgroundGeometriesHeight);
 		setBackgroundGeomsColliders(getAgent(), backgroundGeometriesCollider);
 		setBackgroundGeomsNames(getAgent(), backgroundGeometriesName);
+		setBackgroundGeomsTags(getAgent(), backgroundGeometriesTag);
 	
 	}
 	
@@ -915,6 +934,16 @@ public class AbstractUnityLinker extends GamlAgent {
 					name = "geoms",
 					type = IType.LIST, 
 					doc = @doc ("The list of geometry to send to Unity")),
+			@arg (
+				 name = "names",
+				 optional = true,
+				type = IType.LIST, 
+				doc = @doc ("The list of names linked to the geometries to send to Unity")),
+			@arg (
+					 name = "tag",
+					 optional = true,
+					type = IType.STRING, 
+					doc = @doc ("tag of the geometries in Unity")),
 			 @arg (
 				name = "height",
 				type = IType.FLOAT, 
@@ -924,45 +953,19 @@ public class AbstractUnityLinker extends GamlAgent {
 				type = IType.BOOL, 
 				doc = @doc ("Add a collider to the geometries in Unity?")) },
 			doc = { @doc (
-					value = "Add background geometries from a list of geometries, their heights, their collider usage, their outline rendered usage")})
+					value = "Add background geometries from a list of geometries,a optional list of name (one per geometry), their heights, their collider usage, and an optional tag")})
 	public void primAddBackgroundData(final IScope scope) throws GamaRuntimeException {
 		final IList geoms = (IList) scope.getArg("geoms", IType.LIST);
 		final Double height = (Double) scope.getFloatArg("height");
 		final Boolean collider = (Boolean) scope.getBoolArg("collider");
+		final String tag = scope.hasArg("tag") ? (String) scope.getStringArg("tag") : null;
+		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
 		
-		addBackgroundGeometries(geoms, null, height, collider);
+		
+		addBackgroundGeometries(geoms, names, height, collider, tag);
 	}
 
 	
-	@action (
-			name = "add_background_data_with_names",
-			args = { @arg (
-					name = "geoms",
-					type = IType.LIST, 
-					doc = @doc ("The list of geometry to send to Unity")),
-					@arg (
-					 name = "names",
-					 type = IType.LIST, 
-					 doc = @doc ("The list of names linked to the geometries to send to Unity")),
-			 @arg (
-				name = "height",
-				type = IType.FLOAT, 
-				doc = @doc ("height of the geometries in Unity")),
-			 @arg (
-				name = "collider",
-				type = IType.BOOL, 
-				doc = @doc ("Add a collider to the geometries in Unity?")) },
-			doc = { @doc (
-					value = "Add background geometries from a list of geometries, a list of name (one per geometry), their heights, their collider usage, their outline rendered usage")})
-	public void primAddBackgroundDataWithName(final IScope scope) throws GamaRuntimeException {
-		final IList geoms = (IList) scope.getArg("geoms", IType.LIST);
-		final Double height = (Double) scope.getFloatArg("height");
-		final Boolean collider = (Boolean) scope.getBoolArg("collider");
-		final IList names = (IList) scope.getArg("names", IType.LIST);
-		
-		addBackgroundGeometries(geoms, names, height, collider);
-	}
-
 	
 	@action (
 			name = LOC_TO_SEND,

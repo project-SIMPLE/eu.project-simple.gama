@@ -10,16 +10,30 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="gaml.extension.unity.menuContribution1">
+            locationURI="menu:org.eclipse.ui.main.menu">
          <menu
                label="Unity VR">
             <command
-                  commandId="gaml.extension.unity.command1"
-                  label="Model Verization"
+                  commandId="gaml.extension.unity.GenerateVRModel"
+                  label="Model to VR"
                   style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <reference
+                        definitionId="isGamlEditorOpened">
+                  </reference>
+               </visibleWhen>
             </command>
          </menu>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="gaml.extensions.unity.commands.GenerateVrModelHandler"
+            id="gaml.extension.unity.GenerateVRModel"
+            name="Generate VR Model">
+      </command>
    </extension>
 
 </plugin>
