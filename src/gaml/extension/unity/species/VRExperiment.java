@@ -2,7 +2,6 @@ package gaml.extension.unity.species;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import msi.gama.kernel.experiment.ExperimentAgent;
 import msi.gama.metamodel.agent.IAgent;

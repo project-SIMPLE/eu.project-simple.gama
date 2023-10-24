@@ -16,6 +16,7 @@ import msi.gama.precompiler.GamlAnnotations.vars;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaColor;
+import msi.gama.util.IList;
 import msi.gaml.operators.Spatial;
 import msi.gaml.types.IType;
 
@@ -26,12 +27,16 @@ import msi.gaml.types.IType;
 			doc = { @doc ("color of the agent for the display in GAMA")}),
 	@variable(name = AbstractUnityPlayer.TO_DISPLAY, type = IType.BOOL,
 			doc = { @doc ("display or not the agent in GAMA")}),
+	@variable(name = AbstractUnityPlayer.SELECTED, type = IType.BOOL,
+	doc = { @doc ("is the agent selected")}),
 	@variable(name = AbstractUnityPlayer.CONE_DISTANCE, type = IType.FLOAT,
 			doc = { @doc ("distance of the cone for the display of the agent in GAMA")}),
 	@variable(name = AbstractUnityPlayer.CONE_AMPLITUDE, type = IType.FLOAT,
 			doc = { @doc ("amplitude of the cone for the display of the agent in GAMA")}),
 	@variable(name = AbstractUnityPlayer.PLAYER_SIZE, type = IType.FLOAT, init = "3.0", 
 			doc = { @doc ("Size of the player for the display of the agent in GAMA")}), 
+	@variable(name = AbstractUnityPlayer.UNITY_CLIENT, type = IType.NONE,
+		doc = { @doc ("Client for Unity")}), 
 	@variable(name = AbstractUnityPlayer.PLAYER_ROTATION, type = IType.FLOAT, init = "90.0", 
 	doc = { @doc ("Rotation (angle in degrees) to add to the player for the display of the agent in GAMA")}), 
 	@variable(name = AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS, type = IType.FLOAT, init = "0.0", 
@@ -43,19 +48,37 @@ public class AbstractUnityPlayer extends GamlAgent{
 	public static final String ACTION_CONE = "player_perception_cone";
 	
 	public static final String TO_DISPLAY = "to_display";
+	public static final String SELECTED = "selected";
 	public static final String CONE_DISTANCE = "cone_distance"; 
 	public static final String CONE_AMPLITUDE = "cone_amplitude";
 	public static final String PLAYER_AGENTS_PERCEPTION_RADIUS = "player_agents_perception_radius";
 	public static final String PLAYER_AGENTS_MIN_DIST = "player_agents_min_dist";
 	public static final String PLAYER_SIZE = "player_size";
 	public static final String PLAYER_ROTATION = "player_rotation";
-	
+	public static final String UNITY_CLIENT = "unity_client";
 	
 	
 	public AbstractUnityPlayer(IPopulation<? extends IAgent> s, int index) {
 		super(s, index);
 	} 
 	
+	@getter (AbstractUnityPlayer.UNITY_CLIENT)
+	public static Object getUnityClient(final IAgent agent) {
+		return  agent.getAttribute(UNITY_CLIENT);
+	}
+	
+	@setter(AbstractUnityPlayer.UNITY_CLIENT)
+	public static void setUnityClient(final IAgent agent, final Object client) {
+		agent.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);
+	}
+	@getter (SELECTED)
+	public static Boolean getSelected(final IAgent agent) {
+		return (Boolean) agent.getAttribute(SELECTED);
+	}
+	@setter(SELECTED)
+	public static void setSelected(final IAgent agent, final Boolean val) {
+		agent.setAttribute(SELECTED, val);
+	}
 	@getter (TO_DISPLAY)
 	public static Boolean getToDisplay(final IAgent agent) {
 		return (Boolean) agent.getAttribute(TO_DISPLAY);

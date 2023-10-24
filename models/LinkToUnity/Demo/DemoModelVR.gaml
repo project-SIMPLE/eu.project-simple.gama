@@ -1,18 +1,32 @@
 /**
-* Name: UnityLink
-* Includes actions, attributes and species facilating the link with Unity. To be used with the GAMA-Unity-VR Package for Unity
-* Author: Patrick Taillandier
-* Tags: Unity, VR
+* Name: DemoModelVR
+* Based on the internal empty template. 
+* Author: patricktaillandier
+* Tags: 
 */
 
-model UnityLink
+
+model DemoModelVR
+
+import "DemoModel.gaml"
+
+
+ 
 
 species unity_linker parent: abstract_unity_linker {
-	point location_init <- {50.0, 50.0};
+	list<point> init_locations <- [{50.0, 50.0}];
 	int port <- 8000;
-	string player_species <- string(species(unity_player));
+	string player_species <- string(unity_player);
+	int min_num_players <- 0;
+	int max_num_players <- 1;
+	
 	init {
-		//do init_species_to_send([string(species(speciesA))]);
+		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
+		do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
+	}
+	
+	reflex update_agents{
+		agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
 	}
 }
 
@@ -30,9 +44,13 @@ species unity_player parent: abstract_unity_player{
 	float cone_amplitude <- 90.0;
 	float player_rotation <- 90.0;
 	bool to_display <- true;
+	
 	 
 	aspect default { 
 		if to_display {
+			if (selected) {
+				draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
+			}
 			if file_exists("../images/headset.png")  {
 				draw image("../images/headset.png")  size: {player_size, player_size} at: location + {0, 0, 5} rotate: rotation - 90;
 			
@@ -40,6 +58,7 @@ species unity_player parent: abstract_unity_player{
 				draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;
 			
 			}
+			
 			draw player_perception_cone() color: rgb(#red, 0.5);
 		
 		}			
@@ -48,21 +67,27 @@ species unity_player parent: abstract_unity_player{
 
 
 //Default xp with the possibility to move the player
-experiment vr_xp /*parent: user_xp*/ autorun: true type: unity  {
-	float minimum_cycle_duration <- 0.1;
-	string unity_linker_species <- string(species(unity_linker));
-	list<string> displays_to_hide <- ["user_display"];
-	output {
+experiment vr_xp parent: simple_simulation autorun: true type: unity  {
+	float minimum_cycle_duration <- 0.03;
+	string unity_linker_species <- string(unity_linker);
+	list<string> displays_to_hide <- ["map"];
+	float t_ref;
+	
+	output { 
 		
-		display displayVR /*parent: user_display */ {
+		display displayVR parent: map  {
 			species unity_player;
 			event #mouse_down  {
-				ask unity_linker {
-					move_player_event <- true;
+				float t <- machine_time;
+				if (t - t_ref) > 500 {
+					ask unity_linker {
+						move_player_event <- true;
+					}
+					t_ref <- t;
 				}
+				
 			}
 		}
 		
 	} 
 }
-

@@ -7,8 +7,6 @@
 
 model DemoModel
  
-import "../models/UnityLink.gaml"
-
 
 global {
 	int nb_agentsA <- 500 parameter: true min: 0 max: 5000 step: 1;
@@ -18,19 +16,13 @@ global {
 	int nb_blocks <- 10 parameter: true min: 0 max: 10 step: 1.0;
 	float block_size <- 5.0 parameter: true min: 1.0 max: 10.0 step: 1.0;
 	
-	unity_linker the_linker;
 	init {
 		create simple_agentA number: nb_agentsA;
 		create simple_agentB number: nb_agentsB;
 		create static_object with:(location: {50, 40});
-		create unity_linker with:(location_init:{50.0, 50.0}, port: 8000)		
-		{
-			the_linker <- self;
-		}
-		the_linker.agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
 		
 		if (nb_blocks > 0) {
-			geometry free_place <- copy(shape) - (block_size/2.0) - (the_linker.location_init buffer block_size);
+			geometry free_place <- copy(shape) - (block_size/2.0) - (world.location buffer block_size);
 			loop times: nb_blocks {
 				if free_place = nil {break;}
 				create block {
@@ -39,19 +31,15 @@ global {
 					free_place <- free_place - shape;
 				}
 			} 
-			ask unity_linker {
-				do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
-				write sample(length(background_geoms));
-			}
 			
 		}
 	}
+	
 	
 	reflex update_agent {
 		
 		do update_agents(simple_agentA, nb_agentsA);
 		do update_agents(simple_agentB, nb_agentsB);
-		the_linker.agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
 	}
 	
 	action update_agents( species<agent> sp, int number) {
@@ -76,7 +64,7 @@ species block {
 }
 
 
-species simple_agentA  skills: [moving, sent_to_unity] {
+species simple_agentA  skills: [moving ] {
 	int index <- 0;
 	rgb color <- #blue;
 	float amplitude <- 30.0;
@@ -90,13 +78,13 @@ species simple_agentA  skills: [moving, sent_to_unity] {
 	}
 }
 
-species simple_agentB parent: simple_agentA skills: [moving, sent_to_unity] {
+species simple_agentB parent: simple_agentA skills: [moving] {
 	int index <- 1;
 	rgb color <- #green;
 	float amplitude <- 60.0;
 }
 
-species static_object skills:[sent_to_unity] {
+species static_object  {
 	rgb color <- #red;
 	int index <- 2;
 	
@@ -106,7 +94,7 @@ species static_object skills:[sent_to_unity] {
 }
 
 
-experiment simple_simulation type: gui parent: vr_xp autorun: true{
+experiment simple_simulation type: gui autorun: true{
 	float minimum_cycle_duration <- cycle_duration;
 	
 	
@@ -117,8 +105,6 @@ experiment simple_simulation type: gui parent: vr_xp autorun: true{
 			species simple_agentB;
 			species static_object;
 			species block;
-			species unity_player;
-			event #mouse_down action: move_player_xp;
 		}
 	}
 }

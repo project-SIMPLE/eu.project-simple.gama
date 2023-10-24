@@ -15,24 +15,24 @@ global {
 	int crs_code <- 2154;	
 	
 	bool geometries_received <- false;
-		
-	unity_linker the_linker;
 	
 	init {
-		create unity_linker with:(location_init:{50.0, 50.0}, port: 8000)		
-		{
-			create_player <- false;
-			the_linker <- self;
-		}
 		write "Waiting to recieve geometries";
 	}
 }
 
+
 species unity_linker parent: abstract_unity_linker {
 	// connection port
+	list<point> init_locations <- [{50.0, 50.0}];
 	int port <- 8000;
+	string player_species <- string(unity_player);
+	int min_num_players <- 0;
+	int max_num_players <- 1;
+	bool do_send_world <- false;
 	
 	action manage_new_message(string mes) {
+		
 		if ("points" in mes) and not geometries_received{
 			map answer <- map(mes);
 			list<list<list>> objects <- answer["points"];
@@ -71,22 +71,16 @@ species unity_linker parent: abstract_unity_linker {
 						pts <- [];
 					
 					} else {
-						pts << {float(pt[0])/the_linker.precision ,float(pt[1]) /the_linker.precision};
+						pts << {float(pt[0])/self.precision ,float(pt[1]) /self.precision};
 					}
 				}
 			}
 			geometries_received <- true;
-			save object to: output_file format: shp crs: crs_code;
-			
+			save object to: output_file format:"shp" crs: crs_code;
+			 
 			write "Geometries recieved";			
-			if the_linker.unity_client = nil {
-				write "no client to send to";
-			} else {
-				ask the_linker{
-					do send_message mes:  'ok';	
-				}
-			}
-			the_linker.connect_to_unity <- false;
+			do send_message mes:  'ok';	
+			connect_to_unity <- false;
 			ask world {
 				do pause;
 			}
@@ -106,8 +100,14 @@ species object {
 
 }
 
-experiment importGeometriesFromUnity type: gui autorun: true  {
+
+//Defaut species for the player
+species unity_player parent: abstract_unity_player;
+
+
+experiment importGeometriesFromUnity type: unity autorun: true  {
 	float minimum_cycle_duration <- 0.1;
+	string unity_linker_species <- string(unity_linker);
 	output{
 		display carte type: 3d axes: true background: #black {
 			species object ;

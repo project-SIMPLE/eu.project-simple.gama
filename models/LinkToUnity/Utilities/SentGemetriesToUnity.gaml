@@ -6,8 +6,6 @@
 */
 model sendGeometriesToUnity
 
-import "../models/UnityLink.gaml"
-
 global {
 	
 	
@@ -21,28 +19,21 @@ global {
 	//Shape of the environment
 
 	geometry shape <- envelope(bounds_shape_file) ;
-	
-	bool create_player <- false;
-	bool do_send_world <- false;
-	
-	unity_linker the_linker;
-	
+				
 	init {
 		//Initialization of the building using the shapefile of buildings
-		create building from: building_shapefile;
-
+		create building from: building_shapefile {
+			if (shape.area < 0.1) {
+				do die;
+			}
+		}
+	
 		//Initialization of the road using the shapefile of roads
 		create road from: road_shapefile {
 			float dist <- (building closest_to self) distance_to self;
 			width <- min(5.0, max(2.0,  dist - 0.5));
 		}
-		create unity_linker with:(location_init:{50.0, 50.0}, port: 8000)		
-		{
-			the_linker <- self;
-			do add_background_data_with_names(building collect each.shape,  building collect each.name, 10.0, true);
-			do add_background_data_with_names(road collect (each.shape buffer each.width), road collect each.name, 0.1, false);
-		
-		}
+	
 	}
 	
 	action after_sending_background {
@@ -69,14 +60,38 @@ species road {
 }
 
 
-experiment sendGeometriesToUnity type: gui autorun: true  {
+
+
+species unity_linker parent: abstract_unity_linker {
+	list<point> init_locations <- [{50.0, 50.0}];
+	int port <- 8000;
+	string player_species <- string(unity_player);
+	int min_num_players <- 0;
+	int max_num_players <- 1;
+	bool do_send_world <- false;
+	
+	
+	init {
+		do add_background_data(building collect each.shape,  building collect each.name, "building", 10.0, true);
+		do add_background_data(road collect (each.shape buffer each.width), road collect each.name, "road", 0.1, false);
+		
+	}
+}
+
+//Defaut species for the player
+species unity_player parent: abstract_unity_player;
+
+
+//Default xp with the possibility to move the player
+experiment sendGeometriesToUnity  autorun: true type: unity  {
 	float minimum_cycle_duration <- 0.1;
-	output{
+	string unity_linker_species <- string(unity_linker);
+	
+	output { 
 		display carte type: 3d axes: false background: #black {
 			species road refresh: false;
 			species building refresh: false;
 		}
-
-	}
-
+		
+	} 
 }
