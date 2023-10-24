@@ -47,7 +47,7 @@ import ummisco.gama.network.skills.INetworkSkill;
 			doc = { @doc ("Activate the unity connection; if activated, the model will wait for an connection from Unity to start")}), 
 	@variable(name = AbstractUnityLinker.MIN_NUMBER_PLAYERS, type = IType.INT, init = "0",
 	doc = { @doc ("Number of Unity players required to start the simulation")}), 
-	@variable(name = AbstractUnityLinker.MAX_NUMBER_PLAYERS, type = IType.INT, init = "0",
+	@variable(name = AbstractUnityLinker.MAX_NUMBER_PLAYERS, type = IType.INT, init = "1",
 	doc = { @doc ("Maximal number of Unity players")}), 
 
 	@variable(name =AbstractUnityLinker.PORT, type = IType.INT, init="8000",
@@ -771,7 +771,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
 		if (sp == null) return;
-		if (getPlayers(ag).length(scope) >= getMaxPlayer(ag)) return;
+		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
 		for (IAgent player : getPlayers(ag)) {
 			if (player.getName().equals(name))
 				return;

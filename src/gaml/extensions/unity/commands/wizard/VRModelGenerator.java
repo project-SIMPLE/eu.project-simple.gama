@@ -10,7 +10,6 @@ public class VRModelGenerator {
 	private List<String> speciesToSend = new ArrayList<>();
 	private List<DataGeometries> geometries = new ArrayList<>();
 	private int port = 8000;
-	private boolean hasPlayer = true;
 	private GamaPoint locationInit = new GamaPoint(50,50,0) ;
 	private Double playerAgentsPerceptionRadius = 0.0;
 	private Double playerAgentsMinDist = 0.0;
@@ -24,6 +23,9 @@ public class VRModelGenerator {
 	private String modelPath;
 	
 	private String experimentName;
+	private int minNumberPlayer;
+	private int maxNumPlayer;
+	private boolean hasMaxNumberPlayer;
 	
 	public String BuildVRModel() {
 		String modelVR = "model " + modelName +"\n\n";
@@ -97,13 +99,16 @@ public class VRModelGenerator {
 		String modelUnityLinker = "species unity_linker parent: abstract_unity_linker {\n";
 		modelUnityLinker += "\tint port <- " + port + ";\n";
 		
-		if (hasPlayer) 
-			modelUnityLinker += "\tstring player_species <- string(unity_player);\n";
-		if (hasPlayer && locationInit != null) 
+		modelUnityLinker += "\tstring player_species <- string(unity_player);\n";
+		if (locationInit != null) 
 			modelUnityLinker += "\tpoint location_init <- " + locationInit + ";\n";
-		
-		System.out.println("speciesToSend: " + speciesToSend);
-		
+		if (hasMaxNumberPlayer) 
+			modelUnityLinker += "\tint max_num_players  <- " + maxNumPlayer + ";\n";
+		else
+			modelUnityLinker += "\tint max_num_players  <- -1;\n";
+		if (minNumberPlayer > 0) {
+			modelUnityLinker += "\tint min_num_player  <- " + minNumberPlayer + ";\n";
+		}
 		if (speciesToSend != null && !speciesToSend.isEmpty()) {
 			String lisStr = ""; boolean first = true;
 			for(String sp : speciesToSend) {
@@ -116,7 +121,7 @@ public class VRModelGenerator {
 				String nStr = "names: " + geoms.getSpeciesName() + " collect (each.name) ";
 				String hStr = "height: " + geoms.getHeight() + " ";
 				String cStr = "collider: " + geoms.getHasCollider() + " ";
-				String tStr = (geoms.getTag()  == null || geoms.getTag().equals(""))  ? "" :"tag: " + geoms.getTag() + " ";
+				String tStr = (geoms.getTag()  == null || geoms.getTag().equals(""))  ? "" :"tag: \"" + geoms.getTag() + "\" ";
 				
 				modelUnityLinker += "\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr + ";";
 				
@@ -193,20 +198,7 @@ public class VRModelGenerator {
 
 
 
-	public boolean isHasPlayer() {
-		return hasPlayer;
-	}
-
-
-
-
-	public void setHasPlayer(boolean hasPlayer) {
-		this.hasPlayer = hasPlayer;
-	}
-
-
-
-
+ 
 	public GamaPoint getLocationInit() {
 		return locationInit;
 	}
@@ -325,6 +317,30 @@ public class VRModelGenerator {
 
 	public void setExperimentName(String experimentName) {
 		this.experimentName = experimentName;
+	}
+
+	public int getMin_num_player() {
+		return minNumberPlayer;
+	}
+
+	public void setMin_num_player(int min_num_player) {
+		this.minNumberPlayer = min_num_player;
+	}
+
+	public int getMax_num_player() {
+		return maxNumPlayer;
+	}
+
+	public void setMax_num_player(int max_num_player) {
+		this.maxNumPlayer = max_num_player;
+	}
+
+	public boolean has_max_num_player() {
+		return hasMaxNumberPlayer;
+	}
+
+	public void setHas_max_num_player(boolean has_max_num_player) {
+		this.hasMaxNumberPlayer = has_max_num_player;
 	}
 
 
