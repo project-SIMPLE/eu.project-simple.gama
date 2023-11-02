@@ -86,6 +86,12 @@ public class VRModelGenerator {
 		
 		modelPlayer+= "\taspect default {\n";
 		modelPlayer+= "\t\tif to_display {\n";
+		modelPlayer+= "\t\t\tif selected {\n";
+		modelPlayer+= "\t\t\t\t draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);\n";
+		
+		modelPlayer+= "\t\t\t}\n";
+		
+		
 		modelPlayer+= "\t\t\tdraw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;\n";
 		modelPlayer+= "\t\t\tdraw player_perception_cone() color: rgb(color, 0.5);";
 		modelPlayer+= "\n\t\t}";
@@ -94,6 +100,7 @@ public class VRModelGenerator {
 						
 		return modelPlayer;
 	}
+	
 	
 	public String UnityLinkerSpecies() {
 		String modelUnityLinker = "species unity_linker parent: abstract_unity_linker {\n";
