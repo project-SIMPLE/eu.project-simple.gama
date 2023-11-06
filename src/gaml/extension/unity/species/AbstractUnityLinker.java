@@ -2,6 +2,7 @@ package gaml.extension.unity.species;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import msi.gama.util.GamaMap;
 import msi.gama.util.GamaMapFactory;
 import msi.gama.util.IList;
 import msi.gama.util.IMap;
+import msi.gama.util.file.json.JsonObject;
 import msi.gaml.descriptions.ConstantExpressionDescription;
 import msi.gaml.operators.Cast;
 import msi.gaml.operators.Containers;
@@ -37,9 +39,11 @@ import msi.gaml.operators.Spatial.Transformations;
 import msi.gaml.species.ISpecies;
 import msi.gaml.statements.Arguments;
 import msi.gaml.statements.IStatement.WithArgs;
+import msi.gaml.statements.SetStatement;
 import msi.gaml.types.IType;
 import msi.gaml.types.Types;
 import ummisco.gama.network.skills.INetworkSkill;
+import ummisco.gama.serializer.gaml.SerialisationOperators;
 
 @species(name = "abstract_unity_linker", skills={"network"})
 @vars({ 
@@ -53,7 +57,7 @@ import ummisco.gama.network.skills.INetworkSkill;
 	@variable(name = AbstractUnityLinker.MAX_NUMBER_PLAYERS, type = IType.INT, init = "1",
 	doc = { @doc ("Maximal number of Unity players")}), 
 
-	@variable(name =AbstractUnityLinker.PORT, type = IType.INT, init="8000",
+	@variable(name =AbstractUnityLinker.PORT, type = IType.INT, init="6870",
 			doc = { @doc ("Connection port")}), 
 	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, init = "'&&&'", 
 			doc = { @doc ("Symbol used to end a message sent to Unity")}), 
@@ -90,7 +94,7 @@ import ummisco.gama.network.skills.INetworkSkill;
 	@variable(name = AbstractUnityLinker.PLAYER_SPECIES, type = IType.STRING, 
 	doc = { @doc ("Species of the player agent")}),  
 	
-	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="true", 
+	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="false", 
 	doc = { @doc ("should GAMA receive information from Unity?")}),  
 
 	@variable(name = AbstractUnityLinker.MOVE_PLAYER_EVENT, type = IType.BOOL, init="false", 
@@ -145,7 +149,7 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	public static final String RECEIVE_INFORMATION = "receive_information";
 
-	public static final String WAITING_MESSAGE = "waiting_message";
+	public static final String WAITING_MESSAGE = "ready";
 	
 	
 	public static final String HEADING = "heading";
@@ -160,6 +164,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String CONTENT_MESSAGE = "contents";
 
 	public static final String OUTPUT = "output";
+	public static final String TYPE = "type";
 	public static final String SERVER = "server";
 
 	private IMap currentMessage;
@@ -559,11 +564,11 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	private void sendCurrentMessage(IScope scope) {
 		IAgent ag = getAgent();
-		String mes = Containers.asJsonString(scope, currentMessage);
+		String mes = SerialisationOperators.toJson(scope, currentMessage, false);
 		Arguments argsS = new Arguments();
 		Object client = getClient(ag);
 		argsS.put("to", ConstantExpressionDescription.create(client));
-		mes += getEndMessageSymbol(ag);
+//		mes += getEndMessageSymbol(ag);
 		argsS.put("contents", ConstantExpressionDescription.create(mes));
 		
 		WithArgs actS = getAgent().getSpecies().getAction("send");
@@ -574,12 +579,13 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	
-	private void addToCurrentMessage(IScope scope, IList<String> recipients, String type, String content ) {
+	private void addToCurrentMessage(IScope scope, IList<String> recipients, Object content ) {
 		if (currentMessage == null) {
 			currentMessage = GamaMapFactory.create();
 		}
 		if (currentMessage.isEmpty()) {
 			currentMessage.put(CONTENTS, GamaListFactory.create());
+			currentMessage.put(TYPE, OUTPUT);
 		}
 		IMap newMessage = GamaMapFactory.create();
 		newMessage.put(ID, recipients);
@@ -653,11 +659,14 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 			IList<IMap> messageAgs = (IList<IMap>) doAction1Arg(scope, "message_agents", "ags", ags);
 			toSend.put("agents", messageAgs);
-			toSend.put("position", getNewPlayerPosition(ag));
-			setNewPlayerPosition(ag, GamaListFactory.create());
-			addToCurrentMessage(scope, null, OUTPUT, CONTENTS);
+		//	toSend.put("position", getNewPlayerPosition(ag));
+			setNewPlayerPosition(ag, GamaListFactory.create()); 
+			IList<String> rec = GamaListFactory.create();
+			rec.add(player.getName());
+			
+			addToCurrentMessage(scope,rec, toSend);
 			//sendMessage(scope, toSend,  player); 
-			doAction1Arg(scope, "after_sending_world", "player", player);	
+			doAction1Arg(scope, "after_sending_world", "player", player);
 		}
 
 		
@@ -716,7 +725,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("heights", heights);
 		toSend.put("hasColliders", geometry_colliders);
 		toSend.put("names", names);
-		addToCurrentMessage(scope, names, ADD_TO_MAP, CONTENTS);
+//		addToCurrentMessage(scope, names, ADD_TO_MAP, CONTENTS);
 	//	sendMessage(scope, toSend, player);
 		
 		doAction1Arg(scope, "after_sending_geometries", "players", players);	
@@ -744,7 +753,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	public Boolean primInitServer(final IScope scope) throws GamaRuntimeException {
 		WithArgs actConnect = getAgent().getSpecies().getAction(INetworkSkill.CONNECT_TOPIC);
 		Arguments args = new Arguments();
-		args.put("protocol", ConstantExpressionDescription.create("tcp_server"));
+//		args.put("protocol", ConstantExpressionDescription.create("tcp_server"));
+		args.put("protocol", ConstantExpressionDescription.create("websocket_server"));
 		args.put("port", ConstantExpressionDescription.create(getPort(getAgent())));
 		args.put("raw", ConstantExpressionDescription.create(true));
 		args.put("with_name", ConstantExpressionDescription.create("server" ));
@@ -839,6 +849,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		/*player.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);*/
 		doAction1Arg(scope, "send_init_data", "player", player);
 		getPlayers(getAgent()).add(player);
+		System.out.println("Executed successfully");
 	}
 	
 	@action (
@@ -970,12 +981,24 @@ public class AbstractUnityLinker extends GamlAgent {
 			while(!getInitialized(ag)) {
 				 doActionNoArg(scope, INetworkSkill.FETCH_MESSAGE_FROM_NETWORK);
 				if ((boolean) doActionNoArg(scope, INetworkSkill.HAS_MORE_MESSAGE_IN_BOX)) {
+					
+					///////////////////////////////////////////////////////////////////////////////
 					GamaMessage mes = (GamaMessage) doActionNoArg(scope, INetworkSkill.FETCH_MESSAGE);
-					if ((((String) mes.getContents(scope)).contains("connection:"))) {
-						String name = ((String) mes.getContents(scope)).replace("connection:", "");
-						doAction2Arg(scope, "create_player", "name", name, "client", mes.getSender());
+					JsonObject contentMap = (JsonObject) Cast.asMap(scope, mes.getContents(scope), false).get("contents");
+					
+					if (contentMap.getString("type", "").equals("connection")) {
+						String playerId = contentMap.getString("id", "");
+						System.out.println("Player with id " + playerId + " connected");
+						doAction2Arg(scope, "create_player", "name", playerId, "client", mes.getSender());
 						setInitialized(ag, (getPlayers(ag).length(scope) >= getMinPlayer(ag)));
 					}
+							
+					////////////////////////////////////////////////////////////////////////////////
+//					if ((((String) mes.getContents(scope)).contains("\"connection\":"))) {
+//						String name = ((String) mes.getContents(scope)).replace("connection:", "");
+//						doAction2Arg(scope, "create_player", "name", name, "client", mes.getSender());
+//						setInitialized(ag, (getPlayers(ag).length(scope) >= getMinPlayer(ag)));
+//					}
 					
 				}
 
@@ -985,25 +1008,34 @@ public class AbstractUnityLinker extends GamlAgent {
 		if (getInitialized(ag)) {
 
 			 doActionNoArg(scope, INetworkSkill.FETCH_MESSAGE_FROM_NETWORK);
-			while((boolean) doActionNoArg(scope,INetworkSkill.HAS_MORE_MESSAGE_IN_BOX)) {
+			 while((boolean) doActionNoArg(scope,INetworkSkill.HAS_MORE_MESSAGE_IN_BOX)) {
 				
 				GamaMessage mes = (GamaMessage) doActionNoArg(scope, INetworkSkill.FETCH_MESSAGE);
-				if (getWaitingMessage(ag) != null && getWaitingMessage(ag).equals(mes.getContents(scope))) {
-					setReceiveInformation(ag, true);
+				JsonObject answer = (JsonObject) Cast.asMap(scope, mes.getContents(scope), false).get("contents");
+				
+//				if (getWaitingMessage(ag) != null && getWaitingMessage(ag).equals(answer.getString("contents", ""))) {
+//					setReceiveInformation(ag, true);
+//					System.out.println("Simulation started from middleware");
+//				} 
+				
+				if (answer.getString("contents", "").equals("ready") && !getReceiveInformation(ag)) {
 					
-				} 
-				else if (!getPlayers(ag).isEmpty() && getMovePlayerFromUnity(ag) && getReceiveInformation(ag) && (((String) mes.getContents(scope)).contains("position"))) {
-					IMap answer = Cast.asMap(scope, mes.getContents(scope), false);
-					IList<BigDecimal> position = (IList<BigDecimal>) answer.get("position");
-					if (position != null && position.size() == 2) {
-						int precision = getPrecision(ag);
-						for (IAgent thePlayer : getPlayers(ag)) {
-							Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
-							thePlayer.setAttribute("rotation", ((BigDecimal)(answer.get("rotation"))).floatValue()/precision + rot ); 
-							thePlayer.setLocation(new GamaPoint(position.get(0).floatValue()/precision, position.get(1).floatValue()/precision));
-							thePlayer.setAttribute("to_display", true);
-						}
-					}
+					setReceiveInformation(ag, true);
+					System.out.println("Simulation started from middleware");
+					
+				} else if (!getPlayers(ag).isEmpty() && getMovePlayerFromUnity(ag) && getReceiveInformation(ag) && (((String) mes.getContents(scope)).contains("position"))) {
+					
+//					IList<BigDecimal> position = (IList<BigDecimal>) answer.get("position");
+//					if (position != null && position.size() == 2) {
+//						int precision = getPrecision(ag); 
+//						for (IAgent thePlayer : getPlayers(ag)) {
+//							Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
+//							thePlayer.setAttribute("rotation", ((BigDecimal)(answer.get("rotation"))).floatValue()/precision + rot ); 
+//							thePlayer.setLocation(new GamaPoint(position.get(0).floatValue()/precision, position.get(1).floatValue()/precision));
+//							thePlayer.setAttribute("to_display", true);
+//						}
+//					}
+					System.out.println(answer.get("contents"));
 					
 				} else {
 					doAction1Arg(scope, "manage_new_message", "mes", mes.getContents(scope) );
@@ -1093,7 +1125,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		} 
 		toSend.put("position", posT);
 		//sendMessage(scope, toSend, player);
-		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), OUTPUT, Containers.asJsonString(scope, toSend));
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
 	
 	private IList buildPlayerListfor1Player(IScope scope, IAgent player) {

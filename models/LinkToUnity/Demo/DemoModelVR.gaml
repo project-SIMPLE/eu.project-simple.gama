@@ -14,11 +14,11 @@ import "DemoModel.gaml"
  
 
 species unity_linker parent: abstract_unity_linker {
-	list<point> init_locations <- [{50.0, 50.0}];
-	int port <- 8000;
+	list<point> init_locations <- [{50.0, 50.0}, {60.0, 60.0}];
+	int port <- 6870;
 	string player_species <- string(unity_player);
-	int min_num_players <- 0;
-	int max_num_players <- 1;
+	int min_num_players <- 2;
+	int max_num_players <- 4;
 	
 	init {
 		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
@@ -26,7 +26,8 @@ species unity_linker parent: abstract_unity_linker {
 	}
 	
 	reflex update_agents{
-		agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
+		
+		//agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
 	}
 }
 
