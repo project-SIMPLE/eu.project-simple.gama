@@ -1,6 +1,7 @@
 package gaml.extension.unity.species;
 
 import java.math.BigDecimal;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -822,7 +823,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	@action (
 			name = "create_player",
 					args = { @arg (
-							name = "name",
+							name = "id",
 							type = IType.STRING,
 							doc = @doc ("name of the player agent"))/*,
 							@arg (
@@ -836,14 +837,14 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primInitPlayer(final IScope scope) throws GamaRuntimeException {
 		IList<IAgent> players = getPlayers(getAgent());
 		IAgent ag = getAgent();
-		String name = scope.getStringArg("name");
+		String id = scope.getStringArg("id");
 		//Object client = scope.getArg("client");
 		
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
 		if (sp == null) return;
 		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
 		for (IAgent player : getPlayers(ag)) {
-			if (player.getName().equals(name))
+			if (player.getName().equals(id))
 				return;
 		}
 		Map<String, Object>  init = GamaMapFactory.create();
@@ -851,6 +852,8 @@ public class AbstractUnityLinker extends GamlAgent {
 			getPlayerLocationInit(ag).add(Punctal.any_location_in(scope, scope.getSimulation()));
 		}
 		init.put(IKeyword.LOCATION, getPlayerLocationInit(ag).get(players.length(scope)));
+		init.put(IKeyword.NAME, id);
+		
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
 		
 		/*player.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);*/

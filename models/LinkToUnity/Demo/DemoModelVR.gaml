@@ -75,9 +75,9 @@ experiment vr_xp parent: simple_simulation autorun: true type: unity  {
 	float t_ref;
 	
 	
-	action  create_player (string id) {
+	action  create_player (string id_input) {
 		ask  unity_linker{
-			do create_player name: id;
+			do create_player id: id_input;
 		}
 	}
 	 
