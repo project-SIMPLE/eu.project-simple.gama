@@ -21,6 +21,9 @@ species unity_linker parent: abstract_unity_linker {
 	int max_num_players <- 4;
 	
 	init {
+		ask gama {
+			pref_experiment_ask_closing <- false;
+		}
 		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
 		do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
 	}
@@ -68,7 +71,7 @@ species unity_player parent: abstract_unity_player{
 
 
 //Default xp with the possibility to move the player
-experiment vr_xp parent: simple_simulation autorun: true type: unity  {
+experiment vr_xp parent: simple_simulation autorun: false type: unity  {
 	float minimum_cycle_duration <- 0.03;
 	string unity_linker_species <- string(unity_linker);
 	list<string> displays_to_hide <- ["map"];
@@ -78,6 +81,12 @@ experiment vr_xp parent: simple_simulation autorun: true type: unity  {
 	action  create_player (string id_input) {
 		ask  unity_linker{
 			do create_player id: id_input;
+		}
+	}
+	
+	action remove_player(string id_input) {
+		ask first(unity_linker where (each.name = id_input)) {
+			do die;
 		}
 	}
 	 
