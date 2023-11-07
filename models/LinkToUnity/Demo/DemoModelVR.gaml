@@ -25,10 +25,10 @@ species unity_linker parent: abstract_unity_linker {
 		do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
 	}
 	
-	reflex update_agents{
-		
-		//agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
-	}
+//	reflex update_agents{
+//		
+//		//agents_to_send <- (list(simple_agentA) + list(simple_agentB) + list(static_object));
+//	}
 }
 
 //Defaut species for the player
@@ -74,6 +74,13 @@ experiment vr_xp parent: simple_simulation autorun: true type: unity  {
 	list<string> displays_to_hide <- ["map"];
 	float t_ref;
 	
+	
+	action  create_player (string id) {
+		ask  unity_linker{
+			do create_player name: id;
+		}
+	}
+	 
 	output { 
 		
 		display displayVR parent: map  {

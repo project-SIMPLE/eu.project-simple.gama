@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.extensions.messaging.GamaMessage;
+import msi.gama.kernel.root.PlatformAgent;
 import msi.gama.metamodel.agent.GamlAgent;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.metamodel.population.IPopulation;
@@ -21,6 +22,7 @@ import msi.gama.precompiler.GamlAnnotations.setter;
 import msi.gama.precompiler.GamlAnnotations.species;
 import msi.gama.precompiler.GamlAnnotations.variable;
 import msi.gama.precompiler.GamlAnnotations.vars;
+import msi.gama.runtime.GAMA;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaListFactory;
@@ -34,6 +36,7 @@ import msi.gaml.operators.Cast;
 import msi.gaml.operators.Containers;
 import msi.gaml.operators.Spatial;
 import msi.gaml.operators.Spatial.Creation;
+import msi.gaml.operators.Spatial.Punctal;
 import msi.gaml.operators.Spatial.Queries;
 import msi.gaml.operators.Spatial.Transformations;
 import msi.gaml.species.ISpecies;
@@ -447,15 +450,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	
 
-	@Override
+/*	@Override
 	public Object _init_(IScope scope) {
 		Object init = super._init_(scope);
 		//if (!serverConnected) {
-			doActionNoArg(scope, "init_server");
+		//	doActionNoArg(scope, "init_server");
 		//	serverConnected = true;
 		//}
 		return init ;
-	}
+	}*/
 	
 	private void interactionWithPlayer(final IScope scope, IAgent ag) {
 		GamaPoint pt = scope.getGui().getMouseLocationInModel();
@@ -478,12 +481,13 @@ public class AbstractUnityLinker extends GamlAgent {
 	public boolean doStep(final IScope scope) {
 		if (super.doStep(scope)) {
 			IAgent ag = getAgent();
+			setInitialized(ag, true);
 			if (getConnectToUnity(ag)) {
 				if (getInitialized(ag) && getMovePlayerEvent(ag) && !getPlayers(ag).isEmpty()) {
 					setMovePlayerEvent(ag, false);
 					interactionWithPlayer(scope, ag);
 				}
-				doActionNoArg(scope, "manage_message_from_unity");
+				//doActionNoArg(scope, "manage_message_from_unity");
 				if(getInitialized(ag)) {
 					if (getDoSendWorld(ag)) {
 						doActionNoArg(scope, "send_world");
@@ -563,17 +567,18 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	private void sendCurrentMessage(IScope scope) {
-		IAgent ag = getAgent();
+		// ag = getAgent();
 		String mes = SerialisationOperators.toJson(scope, currentMessage, false);
-		Arguments argsS = new Arguments();
-		Object client = getClient(ag);
-		argsS.put("to", ConstantExpressionDescription.create(client));
-//		mes += getEndMessageSymbol(ag);
-		argsS.put("contents", ConstantExpressionDescription.create(mes));
-		
-		WithArgs actS = getAgent().getSpecies().getAction("send");
-		actS.setRuntimeArgs(scope, argsS);
-		actS.executeOn(scope);
+		//Arguments argsS = new Arguments();
+		//Object client = getClient(ag);
+		//argsS.put("to", ConstantExpressionDescription.create(client));
+        //mes += getEndMessageSymbol(ag);
+		PlatformAgent pa = GAMA.getPlatformAgent();
+		pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
+		//argsS.put("contents", ConstantExpressionDescription.create(mes));
+		//WithArgs actS = getAgent().getSpecies().getAction("send");
+		//actS.setRuntimeArgs(scope, argsS);
+		//actS.executeOn(scope);
 		currentMessage.clear();
 		
 	}
@@ -615,10 +620,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	*/
 	@action (
 			name = "send_message",
-			args = { @arg (
-					name = "client",
-					type = IType.NONE, 
-					doc = @doc ("Client to which the message will be sent")),
+			args = {
 					 @arg (name = "mes",
 							type = IType.STRING, 
 							doc = @doc ("Message to send"))},
@@ -626,16 +628,18 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "send a message to the Unity Client")})
 	public void primSentMessage(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		Arguments argsS = new Arguments();
-		Object client = scope.getArg("client");
-		argsS.put("to", ConstantExpressionDescription.create(client));
+		//Arguments argsS = new Arguments();
+		//Object client = scope.getArg("client");
+		//argsS.put("to", ConstantExpressionDescription.create(client));
 		String mes = scope.getStringArg("mes");
 		mes += getEndMessageSymbol(ag);
-		argsS.put("contents", ConstantExpressionDescription.create(mes));
+		PlatformAgent pa = GAMA.getPlatformAgent();
+		pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
+		//argsS.put("contents", ConstantExpressionDescription.create(mes));
 		
-		WithArgs actS = getAgent().getSpecies().getAction("send");
-		actS.setRuntimeArgs(scope, argsS);
-		actS.executeOn(scope);
+		//WithArgs actS = getAgent().getSpecies().getAction("send");
+		//actS.setRuntimeArgs(scope, argsS);
+		//actS.executeOn(scope);
 	}
 	
 	@action (
@@ -833,7 +837,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<IAgent> players = getPlayers(getAgent());
 		IAgent ag = getAgent();
 		String name = scope.getStringArg("name");
-		Object client = scope.getArg("client");
+		//Object client = scope.getArg("client");
 		
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
 		if (sp == null) return;
@@ -843,6 +847,9 @@ public class AbstractUnityLinker extends GamlAgent {
 				return;
 		}
 		Map<String, Object>  init = GamaMapFactory.create();
+		if (getPlayerLocationInit(ag).size() <= players.length(scope)) {
+			getPlayerLocationInit(ag).add(Punctal.any_location_in(scope, scope.getSimulation()));
+		}
 		init.put(IKeyword.LOCATION, getPlayerLocationInit(ag).get(players.length(scope)));
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
 		
