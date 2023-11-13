@@ -120,7 +120,7 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	@variable(name = AbstractUnityLinker.THE_PLAYERS, type = IType.LIST, of = IType.AGENT, 
 	doc = { @doc ("Player agents")}), 
 })
-public class AbstractUnityLinker extends GamlAgent {
+public class AbstractUnityLinker extends GamlAgent { 
 	public static final String PLAYER_SPECIES = "player_species";
 	public static final String MIN_NUMBER_PLAYERS = "min_num_players";
 	public static final String MAX_NUMBER_PLAYERS = "max_num_players";
@@ -570,6 +570,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	private void sendCurrentMessage(IScope scope) {
 		// ag = getAgent();
 		String mes = SerialisationOperators.toJson(scope, currentMessage, false);
+		//System.out.println("MESSAGE: " + mes);
 		//Arguments argsS = new Arguments();
 		//Object client = getClient(ag);
 		//argsS.put("to", ConstantExpressionDescription.create(client));
@@ -661,7 +662,7 @@ public class AbstractUnityLinker extends GamlAgent {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_overlapping", "ags", ags);
 			} 
 			
-	
+	 
 			IList<IMap> messageAgs = (IList<IMap>) doAction1Arg(scope, "message_agents", "ags", ags);
 			toSend.put("agents", messageAgs);
 		//	toSend.put("position", getNewPlayerPosition(ag));
@@ -679,7 +680,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	@action (
 			name = "send_geometries",
-					args = { @arg (
+					args = {@arg (
 							name = "geoms",
 							type = IType.LIST,
 							doc = @doc ("List of geometries to send")),
@@ -703,7 +704,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "send the background geometries to the Unity client")})
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IList players = (IList) scope.getListArg("players");
+		IList<IAgent> players = (IList) scope.getListArg("players");
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		IList<Object> points = GamaListFactory.create();
 		int precision = getPrecision(ag);
@@ -730,7 +731,10 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("heights", heights);
 		toSend.put("hasColliders", geometry_colliders);
 		toSend.put("names", names);
-//		addToCurrentMessage(scope, names, ADD_TO_MAP, CONTENTS);
+		IList<String> playersStr = GamaListFactory.create();
+		for (IAgent pl : players) 
+			playersStr.add(pl.getName());
+		addToCurrentMessage(scope, playersStr,toSend);
 	//	sendMessage(scope, toSend, player);
 		
 		doAction1Arg(scope, "after_sending_geometries", "players", players);	
@@ -782,14 +786,18 @@ public class AbstractUnityLinker extends GamlAgent {
 		IAgent player = (IAgent) scope.getArg("player");
 		
 		doAction1Arg(scope, "send_parameters", "player", player );
-		
+		//System.out.println("send_parameters ");
 		if (!getBackgroundGeoms(getAgent()).isEmpty()) {
 			WithArgs actSG = scope.getAgent().getSpecies().getAction( "send_geometries");
+			//System.out.println("send_geometries ");
+			
 			Arguments argsSG = new Arguments();
 			argsSG.put("geoms", ConstantExpressionDescription.create(getBackgroundGeoms(getAgent())));
 			argsSG.put("heights", ConstantExpressionDescription.create(getBackgroundGeomsHeights(getAgent())));
 			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
-			argsSG.put("player", ConstantExpressionDescription.create(player));
+			IList<IAgent> pls = GamaListFactory.create();
+			pls.add(player);
+			argsSG.put("players", ConstantExpressionDescription.create(pls));
 			
 			argsSG.put("names", ConstantExpressionDescription.create(getBackgroundGeomsNames(getAgent())));
 			actSG.setRuntimeArgs(scope, argsSG);
@@ -804,7 +812,9 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	@action (
 			name = "after_sending_world",
-			
+			args = { @arg (name = "players",
+					type = IType.LIST,
+					doc = @doc ("Players to send the geometries to"))},
 			doc = { @doc (
 					value = "Action trigger just after sending the world to Unity ")})
 	public void primAfterSendingWorld(final IScope scope) throws GamaRuntimeException {
@@ -835,12 +845,14 @@ public class AbstractUnityLinker extends GamlAgent {
 			doc = { @doc (
 					value = "Create a new unity player agent")})
 	public void primInitPlayer(final IScope scope) throws GamaRuntimeException {
+	//System.out.println("ICI : primInitPlayer");
 		IList<IAgent> players = getPlayers(getAgent());
 		IAgent ag = getAgent();
 		String id = scope.getStringArg("id");
 		//Object client = scope.getArg("client");
 		
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
+	//	System.out.println("sp: " + sp);
 		if (sp == null) return;
 		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
 		for (IAgent player : getPlayers(ag)) {
@@ -859,7 +871,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		/*player.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);*/
 		doAction1Arg(scope, "send_init_data", "player", player);
 		getPlayers(getAgent()).add(player);
-		System.out.println("Executed successfully");
 	}
 	
 	@action (
@@ -998,7 +1009,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					
 					if (contentMap.getString("type", "").equals("connection")) {
 						String playerId = contentMap.getString("id", "");
-						System.out.println("Player with id " + playerId + " connected");
+						//System.out.println("Player with id " + playerId + " connected");
 						doAction2Arg(scope, "create_player", "name", playerId, "client", mes.getSender());
 						setInitialized(ag, (getPlayers(ag).length(scope) >= getMinPlayer(ag)));
 					}
@@ -1031,7 +1042,7 @@ public class AbstractUnityLinker extends GamlAgent {
 				if (answer.getString("contents", "").equals("ready") && !getReceiveInformation(ag)) {
 					
 					setReceiveInformation(ag, true);
-					System.out.println("Simulation started from middleware");
+					//System.out.println("Simulation started from middleware");
 					
 				} else if (!getPlayers(ag).isEmpty() && getMovePlayerFromUnity(ag) && getReceiveInformation(ag) && (((String) mes.getContents(scope)).contains("position"))) {
 					
@@ -1045,7 +1056,7 @@ public class AbstractUnityLinker extends GamlAgent {
 //							thePlayer.setAttribute("to_display", true);
 //						}
 //					}
-					System.out.println(answer.get("contents"));
+					//System.out.println(answer.get("contents"));
 					
 				} else {
 					doAction1Arg(scope, "manage_new_message", "mes", mes.getContents(scope) );

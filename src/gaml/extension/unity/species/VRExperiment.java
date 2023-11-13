@@ -6,6 +6,8 @@ import java.util.List;
 import msi.gama.kernel.experiment.ExperimentAgent;
 import msi.gama.metamodel.agent.IAgent;
 import msi.gama.metamodel.population.IPopulation;
+import msi.gama.precompiler.GamlAnnotations.action;
+import msi.gama.precompiler.GamlAnnotations.arg;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.experiment;
 import msi.gama.precompiler.GamlAnnotations.getter;
@@ -17,10 +19,13 @@ import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaMapFactory;
 import msi.gama.util.IList;
 import msi.gaml.compilation.ISymbol;
+import msi.gaml.descriptions.ConstantExpressionDescription;
 import msi.gaml.descriptions.IDescription;
 import msi.gaml.descriptions.StatementWithChildrenDescription;
 import msi.gaml.operators.Cast;
 import msi.gaml.species.ISpecies;
+import msi.gaml.statements.Arguments;
+import msi.gaml.statements.IStatement.WithArgs;
 import msi.gaml.types.IType;
 
 @experiment ("unity")
@@ -79,7 +84,26 @@ public class VRExperiment extends ExperimentAgent {
 	}
 
 	
-
+	@action (
+			name = "create_player",
+					args = { @arg (
+							name = "id",
+							type = IType.STRING,
+							doc = @doc ("name of the player agent"))},
+							
+				
+			doc = { @doc (
+					value = "Create a new unity player agent")})
+	public void primCreatePlayer(final IScope scope) throws GamaRuntimeException {
+		String id = scope.getStringArg("id");
+		Arguments args = new Arguments();
+		
+		args.put("id", ConstantExpressionDescription.create(id));
+		WithArgs act = getUnityLinker().getSpecies().getAction("create_player");
+		act.setRuntimeArgs(scope, args);
+		act.executeOn(scope);
+	}
+	
 	public IAgent getUnityLinker() {
 		return unityLinker;
 	}
