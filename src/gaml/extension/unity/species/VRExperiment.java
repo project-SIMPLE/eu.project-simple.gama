@@ -31,16 +31,28 @@ import msi.gaml.types.IType;
 @experiment ("unity")
 @vars({
 	@variable(name = VRExperiment.UNITY_LINKER_SPECIES, type = IType.STRING, doc = { @doc ("Species of the unity linker agent")}),
+	@variable(name = VRExperiment.UNITY_LINKER, type = IType.AGENT, doc = { @doc ("unity linker agent")}),
 	@variable(name = VRExperiment.DISPLAYS_TO_HIDE , type = IType.LIST, doc = { @doc ("Displays that will not be display in the experiment")})})
 @doc ("Experiments design for models with a connection with Unity")
 public class VRExperiment extends ExperimentAgent {
 
 	public static final String DISPLAYS_TO_HIDE = "displays_to_hide";
 	public static final String UNITY_LINKER_SPECIES = "unity_linker_species";
-	
+	public static final String UNITY_LINKER = "unity_linker";
+
 	private IAgent unityLinker = null;	public VRExperiment(IPopulation<? extends IAgent> s, int index) throws GamaRuntimeException {
 		super(s, index);
 	}
+	
+	@getter (VRExperiment.UNITY_LINKER)
+	public static String getUnityLinker(final IAgent agent) {
+		return (String) agent.getAttribute(UNITY_LINKER);
+	}
+	@setter(VRExperiment.UNITY_LINKER)
+	public static void setUnityLinker(final IAgent agent, final IAgent val) {
+		agent.setAttribute(UNITY_LINKER, val);
+	}
+	
 	
 	@getter (VRExperiment.UNITY_LINKER_SPECIES)
 	public static String getUnityLinkerSpecies(final IAgent agent) {
@@ -77,8 +89,8 @@ public class VRExperiment extends ExperimentAgent {
 		
 		
 		ISpecies sp = Cast.asSpecies(scope, getUnityLinkerSpecies(getAgent()));
-		sp.getPopulation(scope).createAgentAt(scope.getSimulation().getScope(), 0,  GamaMapFactory.create(), false, true);
-		
+		IAgent ul = sp.getPopulation(scope).createAgentAt(scope.getSimulation().getScope(), 0,  GamaMapFactory.create(), false, true);
+		setUnityLinker(ul);
 
 		return out;
 	}

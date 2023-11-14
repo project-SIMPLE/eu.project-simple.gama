@@ -117,8 +117,8 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 @variable(name = AbstractUnityLinker.INIT_LOCATIONS, type = IType.LIST, of=  IType.POINT, 
 		doc = { @doc ("Init locations of the player agents in the environment - this information will be sent to Unity to move the players accordingly")}), 
 
-	@variable(name = AbstractUnityLinker.THE_PLAYERS, type = IType.LIST, of = IType.AGENT, 
-	doc = { @doc ("Player agents")}), 
+	@variable(name = AbstractUnityLinker.THE_PLAYERS, type = IType.MAP, 
+	doc = { @doc ("Player agents indexes by their name")}), 
 })
 public class AbstractUnityLinker extends GamlAgent { 
 	public static final String PLAYER_SPECIES = "player_species";
@@ -395,11 +395,11 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	@getter (AbstractUnityLinker.THE_PLAYERS)
-	public static IList<IAgent> getPlayers(final IAgent agent) {
-		return ( IList<IAgent>) agent.getAttribute(THE_PLAYERS);
+	public static IMap<String, IAgent> getPlayers(final IAgent agent) {
+		return (IMap<String, IAgent>) agent.getAttribute(THE_PLAYERS);
 	}
 	@setter(AbstractUnityLinker.THE_PLAYERS)
-	public static void setPlayers(final IAgent agent, final IList val) {
+	public static void setPlayers(final IAgent agent, final IMap<String, IAgent> val) {
 		agent.setAttribute(THE_PLAYERS, val);
 	}
 		
@@ -451,15 +451,12 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	
 
-/*	@Override
+	@Override
 	public Object _init_(IScope scope) {
 		Object init = super._init_(scope);
-		//if (!serverConnected) {
-		//	doActionNoArg(scope, "init_server");
-		//	serverConnected = true;
-		//}
+		startSimulation(scope);
 		return init ;
-	}*/
+	}
 	
 	private void interactionWithPlayer(final IScope scope, IAgent ag) {
 		GamaPoint pt = scope.getGui().getMouseLocationInModel();
@@ -467,7 +464,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			IShape geom = Creation.circle(scope, getDistanceSelection(ag), pt);
 			IList<IAgent> ags =  (IList<IAgent>) Queries.overlapping(scope,getPlayers(ag), geom);
 			if (ags.isEmpty()) {
-				Optional<IAgent> selected = getPlayers(ag).stream().filter (a -> (Boolean) a.getAttribute("selected")).findFirst(); 
+				Optional<IAgent> selected = getPlayers(ag).getValues().stream().filter (a -> (Boolean) a.getAttribute("selected")).findFirst(); 
 				if (selected.isPresent()) {
 					doAction2Arg(scope, "move_player", "player", selected.get(), "loc", pt) ;
 				}
@@ -654,7 +651,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 		IList<IAgent> ags = GamaListFactory.create();
 		ags.addAll(getAgentsToSend(ag).stream().filter(a -> !a.dead()).toList());
-		for (IAgent player : getPlayers(ag)) {
+		for (IAgent player : getPlayers(ag).values()) {
 			if (((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_distance", "ags", ags);
 			}
@@ -770,7 +767,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		args.put("force_network_use", ConstantExpressionDescription.create(true));
 		actConnect.setRuntimeArgs(scope, args);
 		return (Boolean) actConnect.executeOn(scope);
-		
 	}	
 	
 	@action (
@@ -808,6 +804,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		if (getDoSendWorld(getAgent())) {
 			 doActionNoArg(scope, "send_world" );
 		}
+		startSimulation(scope);
 	}
 	
 	@action (
@@ -846,7 +843,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "Create a new unity player agent")})
 	public void primInitPlayer(final IScope scope) throws GamaRuntimeException {
 	//System.out.println("ICI : primInitPlayer");
-		IList<IAgent> players = getPlayers(getAgent());
+		IMap<String, IAgent> players = getPlayers(getAgent());
 		IAgent ag = getAgent();
 		String id = scope.getStringArg("id");
 		//Object client = scope.getArg("client");
@@ -855,9 +852,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	//	System.out.println("sp: " + sp);
 		if (sp == null) return;
 		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
-		for (IAgent player : getPlayers(ag)) {
-			if (player.getName().equals(id))
-				return;
+		if (getPlayers(ag).containsKey(id)) {
+			return;
 		}
 		Map<String, Object>  init = GamaMapFactory.create();
 		if (getPlayerLocationInit(ag).size() <= players.length(scope)) {
@@ -869,8 +865,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
 		
 		/*player.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);*/
-		doAction1Arg(scope, "send_init_data", "player", player);
-		getPlayers(getAgent()).add(player);
+		//doAction1Arg(scope, "send_init_data", "player", player);
+		getPlayers(getAgent()).put(id, player);
 	}
 	
 	@action (
@@ -1114,6 +1110,13 @@ public class AbstractUnityLinker extends GamlAgent {
 		setNewPlayerPosition(ag, pos);
 		
 	
+	}
+	
+	
+	private void startSimulation(IScope scope) {
+		if (getPlayers(getAgent()).size() >= getMinPlayer(getAgent())) {
+			scope.getSimulation().resume(scope);
+		} 
 	}
 	@action (
 			name = "send_parameters",
