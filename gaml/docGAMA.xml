@@ -153,7 +153,632 @@
     <operators/>
     <skills/>
     <architectures/>
-    <speciess/>
+    <speciess>
+        <species id="abstract_unity_player" name="abstract_unity_player">
+            <actions>
+                <action name="player_perception_cone" returnType="geometry">
+                    <args/>
+                    <documentation>
+                        <result>Wait for the connection of a unity client and send the paramters to the client</result>
+                        <returns/>
+                    </documentation>
+                </action>
+            </actions>
+            <attached_skills/>
+            <vars>
+                <var constant="false" depends_on="" name="rotation" type="float">
+                    <documentation>
+                        <result>rotation to apply for the display of the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="color" type="rgb">
+                    <documentation>
+                        <result>color of the agent for the display in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="to_display" type="boolean">
+                    <documentation>
+                        <result>display or not the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="selected" type="boolean">
+                    <documentation>
+                        <result>is the agent selected</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="cone_distance" type="float">
+                    <documentation>
+                        <result>distance of the cone for the display of the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="cone_amplitude" type="float">
+                    <documentation>
+                        <result>amplitude of the cone for the display of the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_size" type="float">
+                    <documentation>
+                        <result>Size of the player for the display of the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_rotation" type="float">
+                    <documentation>
+                        <result>Rotation (angle in degrees) to add to the player for the display of the agent in GAMA</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_agents_perception_radius" type="float">
+                    <documentation>
+                        <result>Allow to reduce the quantity of information sent to Unity - only the agents at a certain distance are sent</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_agents_min_dist" type="float">
+                    <documentation>
+                        <result>Allow to not send to Unity agents that are to close (i.e. overlapping) </result>
+                        <returns/>
+                    </documentation>
+                </var>
+            </vars>
+            <concepts/>
+        </species>
+        <species id="abstract_unity_linker" name="abstract_unity_linker">
+            <actions>
+                <action name="init_species_to_send" returnType="void">
+                    <args>
+                        <arg name="species_list" optional="true" type="list">
+                            <documentation>
+                                <result>List of the species name to sent to unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Initialize the species to send to unity</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_message" returnType="void">
+                    <args>
+                        <arg name="mes" optional="true" type="string">
+                            <documentation>
+                                <result>Message to send</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>send a message to the Unity Client</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_world" returnType="void">
+                    <args/>
+                    <documentation>
+                        <result>send the current state of the world to the Unity Client</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_geometries" returnType="void">
+                    <args>
+                        <arg name="geoms" optional="true" type="list">
+                            <documentation>
+                                <result>List of geometries to send</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="heights" optional="true" type="list">
+                            <documentation>
+                                <result>List of heights (float) associated to each geometry</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="players" optional="true" type="list">
+                            <documentation>
+                                <result>Players to send the geometries to</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="geometry_colliders" optional="true" type="list">
+                            <documentation>
+                                <result>For each geometry, does a collider has to be instanciated (list of bools) </result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="names" optional="true" type="list">
+                            <documentation>
+                                <result>List of name (string) associated to each geometry</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>send the background geometries to the Unity client</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="init_server" returnType="bool">
+                    <args/>
+                    <documentation>
+                        <result>initialize the Gama server</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_init_data" returnType="void">
+                    <args>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>Player to send the geometries to</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Wait for the connection of a unity client and send the paramters to the client</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="after_sending_world" returnType="void">
+                    <args>
+                        <arg name="players" optional="true" type="list">
+                            <documentation>
+                                <result>Players to send the geometries to</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action trigger just after sending the world to Unity </result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="after_sending_geometries" returnType="void">
+                    <args/>
+                    <documentation>
+                        <result>Action trigger just after sending the background geometries to Unity </result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="create_player" returnType="void">
+                    <args>
+                        <arg name="id" optional="true" type="string">
+                            <documentation>
+                                <result>name of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Create a new unity player agent</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="filter_distance" returnType="list&lt;agent&gt;">
+                    <args>
+                        <arg name="ags" optional="true" type="list">
+                            <documentation>
+                                <result>list of agents to filter</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the send_world action that returns the sub-list of agents to send to Unity from a given list of agents according to a max distance to the player</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="message_agents" returnType="list&lt;map&gt;">
+                    <args>
+                        <arg name="ags" optional="true" type="list">
+                            <documentation>
+                                <result>list of agents to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the send_world action that returns the message to send to Unity (as a list of map)</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="filter_overlapping" returnType="list&lt;agent&gt;">
+                    <args>
+                        <arg name="ags" optional="true" type="list">
+                            <documentation>
+                                <result>list of agents to filter</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the send_world action that returns the sub-list of agents to send to Unity from a given list of agents according to a min proximity to the other agents to send</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="new_player_location" returnType="point">
+                    <args>
+                        <arg name="loc" optional="true" type="point">
+                            <documentation>
+                                <result>Location of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the move_player action that returns the location to send to Unity from a given player location</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="move_player" returnType="void">
+                    <args>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>the player agent to move</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="loc" optional="true" type="point">
+                            <documentation>
+                                <result>Location of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>move the player agent</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="manage_message_from_unity" returnType="void">
+                    <args/>
+                    <documentation>
+                        <result>Manage messages coming from Unity</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="manage_new_message" returnType="void">
+                    <args>
+                        <arg name="mes" optional="true" type="string">
+                            <documentation>
+                                <result>message received</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>action called by manage_message_from_unity in case of a new message (other than waiting message and player position)</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="wait_for_message" returnType="void">
+                    <args>
+                        <arg name="mes" optional="true" type="string">
+                            <documentation>
+                                <result>List of geometries to send</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>set the message to wait</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_player_position" returnType="void">
+                    <args>
+                        <arg name="player" optional="true" type="agent">
+                            <documentation>
+                                <result>Player agent of which to send the position</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>send the new position of the player to Unity (used to teleport the player from GAMA) </result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="send_parameters" returnType="void">
+                    <args>
+                        <arg name="player" optional="true" type="any type">
+                            <documentation>
+                                <result>Player to which the message will be sent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Send the parameter to Unity to intialized the connection</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="add_background_data" returnType="void">
+                    <args>
+                        <arg name="geoms" optional="true" type="list">
+                            <documentation>
+                                <result>The list of geometry to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="names" optional="true" type="list">
+                            <documentation>
+                                <result>The list of names linked to the geometries to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="tag" optional="true" type="string">
+                            <documentation>
+                                <result>tag of the geometries in Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="is_3D" optional="true" type="boolean">
+                            <documentation>
+                                <result>tag of the rgdfdhffhtftfjfjt in Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="height" optional="true" type="float">
+                            <documentation>
+                                <result>height of the geometries in Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="collider" optional="true" type="boolean">
+                            <documentation>
+                                <result>Add a collider to the geometries in Unity?</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Add background geometries from a list of geometries,a optional list of name (one per geometry), their heights, their collider usage, and an optional tag</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="loc_to_send" returnType="point">
+                    <args/>
+                    <documentation>
+                        <result/>
+                        <returns>the location to send to Unity</returns>
+                    </documentation>
+                </action>
+                <action name="add_to_map" returnType="void">
+                    <args>
+                        <arg name="map" optional="true" type="map">
+                            <documentation>
+                                <result>map of data to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="ag" optional="true" type="agent">
+                            <documentation>
+                                <result>Agent to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result/>
+                        <returns>other elements than the location to add to the data sent to Unity</returns>
+                    </documentation>
+                </action>
+                <action name="to_map" returnType="map&lt;string,list&lt;int&gt;&gt;">
+                    <args>
+                        <arg name="precision" optional="true" type="int">
+                            <documentation>
+                                <result>precision of the data to send (number of decimals)</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="ag" optional="true" type="agent">
+                            <documentation>
+                                <result>Agent to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result/>
+                        <returns>a map containing all the information to sent to unity concerning an agent</returns>
+                    </documentation>
+                </action>
+            </actions>
+            <attached_skills>
+                <attached_skill name="network"/>
+            </attached_skills>
+            <vars>
+                <var constant="false" depends_on="" name="connect_to_unity" type="boolean">
+                    <documentation>
+                        <result>Activate the unity connection; if activated, the model will wait for an connection from Unity to start</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="client" type="any type">
+                    <documentation>
+                        <result>Client (middleware) to which the messages are sent</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="min_num_players" type="int">
+                    <documentation>
+                        <result>Number of Unity players required to start the simulation</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="max_num_players" type="int">
+                    <documentation>
+                        <result>Maximal number of Unity players</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="port" type="int">
+                    <documentation>
+                        <result>Connection port</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="end_message_symbol" type="string">
+                    <documentation>
+                        <result>Symbol used to end a message sent to Unity</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="precision" type="int">
+                    <documentation>
+                        <result>Number of decimal for the data (location, rotation)</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="delay_after_mes" type="float">
+                    <documentation>
+                        <result>Delay after moving the player (in ms)</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="ready" type="string">
+                    <documentation>
+                        <result>Which message GAMA should wait before receiving infomation </result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="agents_to_send" type="list">
+                    <documentation>
+                        <result>List of agents to sent to Unity. It could be updated each simulation step</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms" type="list">
+                    <documentation>
+                        <result>List of static geometries sent to Unity. Only sent once at the initialization of the connection</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms_heights" type="list">
+                    <documentation>
+                        <result>For each geometry sent to Unity, the height of this one.</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms_colliders" type="list">
+                    <documentation>
+                        <result>For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? </result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms_is3D" type="list">
+                    <documentation>
+                        <result>For each geometry sent to Unity, does this one is 3D ? </result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms_names" type="list">
+                    <documentation>
+                        <result>For each geometry sent to Unity, its name in unity </result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="background_geoms_tags" type="list">
+                    <documentation>
+                        <result>For each geometry sent to Unity, its tag and layer in unity </result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="do_send_world" type="boolean">
+                    <documentation>
+                        <result>Has the agents has to be sent to unity?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="initialized" type="boolean">
+                    <documentation>
+                        <result>Has the world being initialized yet?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_species" type="string">
+                    <documentation>
+                        <result>Species of the player agent</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="receive_information" type="boolean">
+                    <documentation>
+                        <result>should GAMA receive information from Unity?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="move_player_event" type="boolean">
+                    <documentation>
+                        <result>Does the player agent moved from GAMA?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="move_player_from_unity" type="boolean">
+                    <documentation>
+                        <result>Has the player to move in GAMA as it moves in Unity?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="use_physics_for_player" type="boolean">
+                    <documentation>
+                        <result>Does the player should has a physical exitence in Unity (i.e. cannot pass through specific geometries)?</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="new_player_position" type="list">
+                    <documentation>
+                        <result>The new poistion of the player to be sent to Unity - list of int [x,y]</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="distance_player_selection" type="float">
+                    <documentation>
+                        <result>Maximal distance to select a player agent</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="init_locations" type="list">
+                    <documentation>
+                        <result>Init locations of the player agents in the environment - this information will be sent to Unity to move the players accordingly</result>
+                        <returns/>
+                    </documentation>
+                </var>
+                <var constant="false" depends_on="" name="player_agents" type="map">
+                    <documentation>
+                        <result>Player agents indexes by their name</result>
+                        <returns/>
+                    </documentation>
+                </var>
+            </vars>
+            <concepts/>
+        </species>
+    </speciess>
     <insideStatementKinds/>
     <insideStatementSymbols/>
     <statementsKinds/>

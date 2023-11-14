@@ -83,6 +83,8 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS, type = IType.LIST, of =  IType.BOOL, 
 			doc = { @doc ("For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? ")}),  
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_3D, type = IType.LIST, of =  IType.BOOL, 
+	doc = { @doc ("For each geometry sent to Unity, does this one is 3D ? ")}),  
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
 			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
@@ -137,6 +139,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
 
 	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
+	public static final String BACKGROUND_GEOMS_3D = "background_geoms_is3D";
 	public static final String DO_SEND_WORLD = "do_send_world";
 
 	public static final String MOVE_PLAYER_EVENT = "move_player_event";
@@ -302,6 +305,17 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static void setBackgroundGeomsColliders(final IAgent agent, final IList<Boolean> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_COLLIDERS, val);
 	}
+	
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_3D)
+	public static  IList<Boolean> getBackgroundGeoms3D(final IAgent agent) {
+		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_3D);
+	}
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_3D)
+	public static void setBackgroundGeoms3D(final IAgent agent, final IList<Boolean> val) {
+		agent.setAttribute(BACKGROUND_GEOMS_3D, val);
+	}
+		
+
 		
 	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
 	public static  IList<String> getBackgroundGeomsNames(final IAgent agent) {
@@ -505,12 +519,13 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	
 	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag) {
+	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D) {
 		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
 		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
 		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
 		IList<Boolean> backgroundGeometriesCollider = getBackgroundGeomsColliders(getAgent());
 		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
+		IList<Boolean> backgroundGeometriesis3D = getBackgroundGeoms3D(getAgent());
 		
 		
 		if(backgroundGeometries == null) {
@@ -519,6 +534,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			backgroundGeometriesName = GamaListFactory.create(Types.STRING);
 			backgroundGeometriesTag = GamaListFactory.create(Types.STRING);
 			backgroundGeometriesCollider = GamaListFactory.create(Types.BOOL);
+			backgroundGeometriesis3D = GamaListFactory.create(Types.BOOL);
 		}
 		backgroundGeometries.addAll(geoms);
 		
@@ -527,6 +543,9 @@ public class AbstractUnityLinker extends GamlAgent {
 			backgroundGeometriesCollider.add(collider);
 			if (tag != null) 
 				backgroundGeometriesTag.add(tag);
+			if (is3D != null)
+				backgroundGeometriesis3D.add(is3D);
+			else backgroundGeometriesis3D.add(true);
 		}
 		if (names != null) 
 			backgroundGeometriesName.addAll(names);
@@ -536,6 +555,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		setBackgroundGeomsColliders(getAgent(), backgroundGeometriesCollider);
 		setBackgroundGeomsNames(getAgent(), backgroundGeometriesName);
 		setBackgroundGeomsTags(getAgent(), backgroundGeometriesTag);
+		setBackgroundGeoms3D(getAgent(), backgroundGeometriesis3D);
 	
 	}
 	
@@ -710,6 +730,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Double> heights = scope.getListArg("heights");
 		IList<Boolean> geometry_colliders = scope.getListArg("geometry_colliders");
 		IList<String> names = scope.getListArg("names");
+		IList<Boolean> are3D = scope.getListArg("is_3D");
 		
 		for (IShape g : geoms ) {
 			for (GamaPoint pt : g.getPoints()) {
@@ -728,6 +749,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("heights", heights);
 		toSend.put("hasColliders", geometry_colliders);
 		toSend.put("names", names);
+		toSend.put("is3D", are3D);
 		IList<String> playersStr = GamaListFactory.create();
 		for (IAgent pl : players) 
 			playersStr.add(pl.getName());
@@ -791,6 +813,8 @@ public class AbstractUnityLinker extends GamlAgent {
 			argsSG.put("geoms", ConstantExpressionDescription.create(getBackgroundGeoms(getAgent())));
 			argsSG.put("heights", ConstantExpressionDescription.create(getBackgroundGeomsHeights(getAgent())));
 			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
+			argsSG.put("is3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
+			
 			IList<IAgent> pls = GamaListFactory.create();
 			pls.add(player);
 			argsSG.put("players", ConstantExpressionDescription.create(pls));
@@ -1175,6 +1199,11 @@ public class AbstractUnityLinker extends GamlAgent {
 					 optional = true,
 					type = IType.STRING, 
 					doc = @doc ("tag of the geometries in Unity")),
+			@arg (
+					 name = "is_3D",
+					 optional = true,
+					type = IType.BOOL, 
+					doc = @doc ("tag of the rgdfdhffhtftfjfjt in Unity")),
 			 @arg (
 				name = "height",
 				type = IType.FLOAT, 
@@ -1189,11 +1218,12 @@ public class AbstractUnityLinker extends GamlAgent {
 		final IList geoms = (IList) scope.getArg("geoms", IType.LIST);
 		final Double height = (Double) scope.getFloatArg("height");
 		final Boolean collider = (Boolean) scope.getBoolArg("collider");
+		final Boolean is3D = (Boolean) scope.getBoolArg("is_3D");
 		final String tag = scope.hasArg("tag") ? (String) scope.getStringArg("tag") : null;
 		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
 		
 		
-		addBackgroundGeometries(geoms, names, height, collider, tag);
+		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D);
 	}
 
 	
