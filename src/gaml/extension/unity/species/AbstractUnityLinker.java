@@ -714,6 +714,10 @@ public class AbstractUnityLinker extends GamlAgent {
 										type = IType.LIST,
 										doc = @doc ("For each geometry, does a collider has to be instanciated (list of bools) ")),
 							 @arg (
+										name = "is_3D",
+										type = IType.LIST,
+										doc = @doc ("For each geometry, is a 3D geometries (list of bools) ")),
+							 @arg (
 										name = "names",
 										type = IType.LIST,
 										doc = @doc ("List of name (string) associated to each geometry"))},
@@ -724,7 +728,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<IAgent> players = (IList) scope.getListArg("players");
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		IList<Object> points = GamaListFactory.create();
-		int precision = getPrecision(ag);
+		int precision = getPrecision(ag); 
 		
 		IList<IShape> geoms = scope.getListArg("geoms");
 		IList<Double> heights = scope.getListArg("heights");
@@ -813,7 +817,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			argsSG.put("geoms", ConstantExpressionDescription.create(getBackgroundGeoms(getAgent())));
 			argsSG.put("heights", ConstantExpressionDescription.create(getBackgroundGeomsHeights(getAgent())));
 			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
-			argsSG.put("is3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
+			argsSG.put("is_3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
 			
 			IList<IAgent> pls = GamaListFactory.create();
 			pls.add(player);
