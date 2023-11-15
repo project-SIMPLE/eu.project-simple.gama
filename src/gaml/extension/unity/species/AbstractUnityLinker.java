@@ -660,9 +660,23 @@ public class AbstractUnityLinker extends GamlAgent {
 		//actS.setRuntimeArgs(scope, argsS);
 		//actS.executeOn(scope);
 	}
-	
+	@action (
+			name = "add_to_send_world",
+					args = {@arg (
+							name = "map_to_send",
+							type = IType.MAP,
+							doc = @doc ("data already sent to the client"))},
+			doc = { @doc (
+					value = "add values to the current state of the world to the Unity Client")})
+	public void primAddToSentWorld(final IScope scope) throws GamaRuntimeException {
+		
+	}
+		
+		
 	@action (
 			name = "send_world",
+					
+					
 			doc = { @doc (
 					value = "send the current state of the world to the Unity Client")})
 	public void primSentWorld(final IScope scope) throws GamaRuntimeException {
@@ -683,13 +697,14 @@ public class AbstractUnityLinker extends GamlAgent {
 			IList<IMap> messageAgs = (IList<IMap>) doAction1Arg(scope, "message_agents", "ags", ags);
 			toSend.put("agents", messageAgs);
 		//	toSend.put("position", getNewPlayerPosition(ag));
+//			doAction1Arg(scope, "add_to_send_world", "map_to_send", toSend );
 			setNewPlayerPosition(ag, GamaListFactory.create()); 
 			IList<String> rec = GamaListFactory.create();
 			rec.add(player.getName());
 			
 			addToCurrentMessage(scope,rec, toSend);
 			//sendMessage(scope, toSend,  player); 
-			doAction1Arg(scope, "after_sending_world", "player", player);
+			doAction1Arg(scope, "after_sending_world", "map_to_send", toSend);
 		}
 
 		
@@ -844,9 +859,10 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	@action (
 			name = "after_sending_world",
-			args = { @arg (name = "players",
-					type = IType.LIST,
-					doc = @doc ("Players to send the geometries to"))},
+			args = {@arg (
+					name = "map_to_send",
+					type = IType.MAP,
+					doc = @doc ("data already sent to the client"))},
 			doc = { @doc (
 					value = "Action trigger just after sending the world to Unity ")})
 	public void primAfterSendingWorld(final IScope scope) throws GamaRuntimeException {
