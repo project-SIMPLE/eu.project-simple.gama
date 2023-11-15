@@ -720,7 +720,11 @@ public class AbstractUnityLinker extends GamlAgent {
 							 @arg (
 										name = "names",
 										type = IType.LIST,
-										doc = @doc ("List of name (string) associated to each geometry"))},
+										doc = @doc ("List of name (string) associated to each geometry")),
+							 @arg (
+										name = "tags",
+										type = IType.LIST,
+										doc = @doc ("List of tags (string) associated to each geometry"))},
 			doc = { @doc (
 					value = "send the background geometries to the Unity client")})
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
@@ -734,6 +738,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Double> heights = scope.getListArg("heights");
 		IList<Boolean> geometry_colliders = scope.getListArg("geometry_colliders");
 		IList<String> names = scope.getListArg("names");
+		IList<String> tags = scope.getListArg("tags");
 		IList<Boolean> are3D = scope.getListArg("is_3D");
 		
 		for (IShape g : geoms ) {
@@ -753,6 +758,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("heights", heights);
 		toSend.put("hasColliders", geometry_colliders);
 		toSend.put("names", names);
+		toSend.put("tags", tags);
 		toSend.put("is3D", are3D);
 		IList<String> playersStr = GamaListFactory.create();
 		for (IAgent pl : players) 
@@ -818,6 +824,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			argsSG.put("heights", ConstantExpressionDescription.create(getBackgroundGeomsHeights(getAgent())));
 			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
 			argsSG.put("is_3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
+			argsSG.put("tags", ConstantExpressionDescription.create(getBackgroundGeomsTags(getAgent())));
 			
 			IList<IAgent> pls = GamaListFactory.create();
 			pls.add(player);
