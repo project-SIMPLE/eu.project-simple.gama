@@ -292,9 +292,21 @@
                                 <returns/>
                             </documentation>
                         </arg>
+                        <arg name="is_3D" optional="true" type="list">
+                            <documentation>
+                                <result>For each geometry, is a 3D geometries (list of bools) </result>
+                                <returns/>
+                            </documentation>
+                        </arg>
                         <arg name="names" optional="true" type="list">
                             <documentation>
                                 <result>List of name (string) associated to each geometry</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="tags" optional="true" type="list">
+                            <documentation>
+                                <result>List of tags (string) associated to each geometry</result>
                                 <returns/>
                             </documentation>
                         </arg>
@@ -451,6 +463,38 @@
                     </args>
                     <documentation>
                         <result>move the player agent</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="move_player_external" returnType="void">
+                    <args>
+                        <arg name="player" optional="true" type="string">
+                            <documentation>
+                                <result>the player agent to move</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="x" optional="true" type="int">
+                            <documentation>
+                                <result>x Location of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="y" optional="true" type="int">
+                            <documentation>
+                                <result>y Location of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="angle" optional="true" type="int">
+                            <documentation>
+                                <result>angle of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>move the player agent </result>
                         <returns/>
                     </documentation>
                 </action>

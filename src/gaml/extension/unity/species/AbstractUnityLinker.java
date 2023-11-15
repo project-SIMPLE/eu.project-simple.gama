@@ -1020,6 +1020,38 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	}
 	
+	
+	@action (
+			name = "move_player_external",
+					args = { 
+						@arg (name = "player",
+						type = IType.STRING,
+						doc = @doc ("the player agent to move")),
+						
+						@arg (
+								name = "x",
+								type = IType.INT,
+								doc = @doc ("x Location of the player agent")),	@arg (
+										name = "y",
+										type = IType.INT,
+										doc = @doc ("y Location of the player agent")),	@arg (
+												name = "angle",
+												type = IType.INT,
+												doc = @doc ("angle of the player agent"))},
+			doc = { @doc (
+					value = "move the player agent ")})
+	public void primMovePlayerFromUnity(final IScope scope) throws GamaRuntimeException {
+		Integer x = scope.getIntArg("x");
+		Integer y = scope.getIntArg("y");
+		Integer angle = scope.getIntArg("angle");
+		IAgent ag = getAgent();
+		int precision = getPrecision(ag); 
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("player")) ;
+		Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
+		thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
+		thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
+		thePlayer.setAttribute("to_display", true);
+	}
 
 	@action (
 			name = "manage_message_from_unity",
