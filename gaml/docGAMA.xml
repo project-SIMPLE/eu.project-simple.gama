@@ -259,6 +259,20 @@
                         <returns/>
                     </documentation>
                 </action>
+                <action name="add_to_send_world" returnType="void">
+                    <args>
+                        <arg name="map_to_send" optional="true" type="map">
+                            <documentation>
+                                <result>data already sent to the client</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>add values to the current state of the world to the Unity Client</result>
+                        <returns/>
+                    </documentation>
+                </action>
                 <action name="send_world" returnType="void">
                     <args/>
                     <documentation>
@@ -339,9 +353,9 @@
                 </action>
                 <action name="after_sending_world" returnType="void">
                     <args>
-                        <arg name="players" optional="true" type="list">
+                        <arg name="map_to_send" optional="true" type="map">
                             <documentation>
-                                <result>Players to send the geometries to</result>
+                                <result>data already sent to the client</result>
                                 <returns/>
                             </documentation>
                         </arg>
