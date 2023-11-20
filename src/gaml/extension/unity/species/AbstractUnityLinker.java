@@ -640,20 +640,39 @@ public class AbstractUnityLinker extends GamlAgent {
 	@action (
 			name = "send_message",
 			args = {
+					 @arg (name = "players",
+								type = IType.LIST,
+								doc = @doc ("Players to send the geometries to")),
 					 @arg (name = "mes",
-							type = IType.STRING, 
-							doc = @doc ("Message to send"))},
+							type = IType.MAP, 
+							doc = @doc ("Map to send"))},
 			doc = { @doc (
 					value = "send a message to the Unity Client")})
 	public void primSentMessage(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		//Arguments argsS = new Arguments();
-		//Object client = scope.getArg("client");
-		//argsS.put("to", ConstantExpressionDescription.create(client));
-		String mes = scope.getStringArg("mes");
-		mes += getEndMessageSymbol(ag);
+		IList<IAgent> players = (IList) scope.getListArg("players");
+		IMap mes = (IMap) scope.getArg("mes");
+		
+		
+		IMap message = GamaMapFactory.create();
+		message.put(CONTENTS, GamaListFactory.create());
+		message.put(TYPE, OUTPUT);
+		
+		IMap newMessage = GamaMapFactory.create();
+		
+		IList<String> recipients = GamaListFactory.create();
+		for(IAgent a : players) {
+			recipients.add(a.getName());
+		}
+		newMessage.put(ID, recipients);
+		newMessage.put(CONTENT_MESSAGE, mes);
+		((IList) message.get(CONTENTS)).add(newMessage);
+		
+		//mes += getEndMessageSymbol(ag);
 		PlatformAgent pa = GAMA.getPlatformAgent();
-		pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
+		String mesStr = SerialisationOperators.toJson(scope, message, false);
+		
+		pa.sendMessage(scope,ConstantExpressionDescription.create(mesStr));
 		//argsS.put("contents", ConstantExpressionDescription.create(mes));
 		
 		//WithArgs actS = getAgent().getSpecies().getAction("send");
