@@ -679,7 +679,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		//actS.setRuntimeArgs(scope, argsS);
 		//actS.executeOn(scope);
 	}
-	@action (
+	/*@action (
 			name = "add_to_send_world",
 					args = {@arg (
 							name = "map_to_send",
@@ -690,7 +690,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primAddToSentWorld(final IScope scope) throws GamaRuntimeException {
 		
 	}
-		
+		*/
 		
 	@action (
 			name = "send_world",
@@ -1220,6 +1220,21 @@ public class AbstractUnityLinker extends GamlAgent {
 			scope.getSimulation().resume(scope);
 		} 
 	}
+	
+	
+	@action (
+			name = "add_to_send_parameter",
+					args = {@arg (
+							name = "map_to_send",
+							type = IType.MAP,
+							doc = @doc ("data already sent to the client"))},
+			doc = { @doc (
+					value = "add values to the parameters sent to the Unity Client")})
+	public void primAddToSentParameter(final IScope scope) throws GamaRuntimeException {
+		
+	}
+	
+	
 	@action (
 			name = "send_parameters",
 					args = { @arg (
@@ -1251,6 +1266,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		} 
 		toSend.put("position", posT);
 		//sendMessage(scope, toSend, player);
+		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend );
+		
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
 	
