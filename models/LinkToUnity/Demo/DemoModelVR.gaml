@@ -15,17 +15,21 @@ import "DemoModel.gaml"
 
 species unity_linker parent: abstract_unity_linker {
 	list<point> init_locations <- [{50.0, 50.0}, {60.0, 60.0}];
-	int port <- 6870;
+	int port <- 8067;
 	string player_species <- string(unity_player);
-	int min_num_players <- 2;
+	int min_num_players <- 0;
 	int max_num_players <- 4;
 	
+	bool use_middleware <- false;
+	
+	bool use_physics_for_player <- false;
+	bool do_send_world <- false;
 	init {
 		ask gama {
 			pref_experiment_ask_closing <- false;
 		}
 		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
-		do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
+		do add_background_data geoms: block collect each.shape height: 5.0 collider: true is_3D: true;
 	}
 	
 //	reflex update_agents{
@@ -49,6 +53,8 @@ species unity_player parent: abstract_unity_player{
 	float player_rotation <- 90.0;
 	bool to_display <- true;
 	
+	
+	
 	 
 	aspect default { 
 		if to_display {
@@ -71,22 +77,42 @@ species unity_player parent: abstract_unity_player{
 
 
 //Default xp with the possibility to move the player
-experiment vr_xp parent: simple_simulation autorun: false type: unity  {
+experiment vr_xp parent: simple_simulation autorun: true type: unity  {
 	float minimum_cycle_duration <- 0.03;
 	string unity_linker_species <- string(unity_linker);
 	list<string> displays_to_hide <- ["map"];
 	float t_ref;
 	
 	
-	action  create_player (string id_input) {
-		ask  unity_linker{
-			do create_player id: id_input;
+	action create_player(string id) {
+		write "create_player: " + id;
+		ask unity_linker {
+			do create_player(id);
+			if not use_middleware {
+				do send_init_data(player_agents[id]); 
+			}
+		}
+	}
+	
+	action init_player(string id) {
+		write "init_player: " + id;
+		ask unity_linker {
+			write sample(player_agents);
+			do send_init_data(player_agents[id]); 
+		}
+	}
+	
+	action move_player_external(string id, int x, int y, int rotation) {
+		ask unity_linker {
+			do move_player_external(id, x, y, rotation);
 		}
 	}
 	
 	action remove_player(string id_input) {
-		ask first(unity_linker where (each.name = id_input)) {
-			do die;
+		if (not empty(unity_player)) {
+			ask first(unity_player where (each.name = id_input)) {
+				do die;
+			}
 		}
 	}
 	 

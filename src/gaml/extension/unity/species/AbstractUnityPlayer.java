@@ -16,7 +16,6 @@ import msi.gama.precompiler.GamlAnnotations.vars;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaColor;
-import msi.gama.util.IList;
 import msi.gaml.operators.Spatial;
 import msi.gaml.types.IType;
 
@@ -62,15 +61,6 @@ public class AbstractUnityPlayer extends GamlAgent{
 		super(s, index);
 	} 
 	
-	/*@getter (AbstractUnityPlayer.UNITY_CLIENT)
-	public static Object getUnityClient(final IAgent agent) {
-		return  agent.getAttribute(UNITY_CLIENT);
-	}
-	
-	@setter(AbstractUnityPlayer.UNITY_CLIENT)
-	public static void setUnityClient(final IAgent agent, final Object client) {
-		agent.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);
-	}*/
 	@getter (SELECTED)
 	public static Boolean getSelected(final IAgent agent) {
 		return (Boolean) agent.getAttribute(SELECTED);
@@ -177,56 +167,5 @@ public class AbstractUnityPlayer extends GamlAgent{
 		
 	}
 	
-
-	/** The default aspect. */
-/*	public static final IExecutable DEFAULT_ASPECT = sc -> {
-		if (!sc.isGraphics()) return null;
-		IGraphicsScope scope = (IGraphicsScope) sc;
-		final IAgent agent = scope.getAgent();
-		if (agent != null && !agent.dead()) {
-			final IGraphics g = scope.getGraphics();
-		
-			if (g == null) return null;
-			try {
-				if (agent == scope.getGui().getHighlightedAgent()) { g.beginHighlight(); }
-				final boolean hasColor = agent.getSpecies().hasVar(IKeyword.COLOR);
-				GamaColor color;
-				if (hasColor) {
-					final Object value = agent.getDirectVarValue(scope, IKeyword.COLOR);
-					color = Cast.asColor(scope, value);
-				} else {
-					color = GamaColor.getInt(GamaPreferences.Displays.CORE_COLOR.getValue().getRGB());
-				}
-				
-					/*if file_exists("../images/headset.png")  {
-						draw image("../images/headset.png")  size: {player_size_GAMA, player_size_GAMA} at: location + {0, 0, 5} rotate: rotation - 90;
-					
-					} else {
-						draw circle(player_size_GAMA/2.0) at: location + {0, 0, 5} color: color rotate: rotation - 90;
-					
-					}
-					draw cone(rotation - cone_amplitude/2,rotation + cone_amplitude/2) inter circle(cone_distance) translated_by ({cos(rotation), sin(rotation)} * (- player_size_GAMA/4.0)) translated_by {0,0,4.9} color: rgb(#mediumpurple, 0.75);
-				
-					
-				GamaPoint loc = new GamaPoint(agent.getLocation().x, agent.getLocation().y, agent.getLocation().z + 5.0);
-				
-				double rotation = getRotation(agent);
-				
-				IShape ag2 = GamaGeometryType.buildCircle(getPlayerSize(agent)/2.0, loc);
-				//ag2 = Spatial.Transformations.rotated_by(scope, ag2, rotation - 90);
-				ag2 = Spatial.Operators.union(scope, ag2, getCone(scope, agent));
-				final DrawingAttributes attributes = new ShapeDrawingAttributes(ag2, agent, color, color);
-				
-				return g.drawShape(ag2.getInnerGeometry(), attributes);
-			} catch (final GamaRuntimeException e) {
-				// cf. Issue 1052: exceptions are not thrown, just displayed
-				e.printStackTrace();
-			} finally {
-				g.endHighlight();
-			}
-		}
-		return null;
-	};*/
-		
 
 }
