@@ -596,7 +596,6 @@ public class AbstractUnityLinker extends GamlAgent {
 			for (IMap v : (IList<IMap>) currentMessage.get(CONTENTS)) {
 				Object c = v.get(CONTENT_MESSAGE);
 				String mes = SerialisationOperators.toJson(scope, c, false);
-				System.out.println("mes: " + mes);
 				pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
 			}
 		}
@@ -780,7 +779,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> playersStr = GamaListFactory.create();
 		for (IAgent pl : players) 
 			playersStr.add(pl.getName());
-		System.out.println("Send background geom: " + toSend);
 		addToCurrentMessage(scope, playersStr,toSend);
 	//	sendMessage(scope, toSend, player);
 		
@@ -921,7 +919,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		/*player.setAttribute(AbstractUnityPlayer.UNITY_CLIENT, client);*/
 		//doAction1Arg(scope, "send_init_data", "player", player);
 		getPlayers(getAgent()).put(id, player);
-		System.out.println("getPlayers(getAgent()): " + getPlayers(getAgent()) + " id : " + id + " player: " + player);
+		//System.out.println("getPlayers(getAgent()): " + getPlayers(getAgent()) + " id : " + id + " player: " + player);
 	}
 	
 	@action (
@@ -1233,7 +1231,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
-		System.out.println("PLAYER : " + player + "  players: " + getPlayers(ag));
+		//System.out.println("PLAYER : " + player + "  players: " + getPlayers(ag));
 		int precision = getPrecision(ag);
 		toSend.put(PRECISION, precision);
 		IList<Integer> worldT = GamaListFactory.create(Types.INT);
@@ -1253,7 +1251,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("position", posT);
 		//sendMessage(scope, toSend, player);
 		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend );
-		System.out.println("primSendParameters toSend: " + toSend);
+	//	System.out.println("primSendParameters toSend: " + toSend);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
 	

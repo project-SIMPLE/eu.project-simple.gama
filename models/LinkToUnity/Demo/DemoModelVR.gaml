@@ -23,7 +23,7 @@ species unity_linker parent: abstract_unity_linker {
 	bool use_middleware <- false;
 	
 	bool use_physics_for_player <- false;
-	bool do_send_world <- false;
+	bool do_send_world <- true;
 	init {
 		ask gama {
 			pref_experiment_ask_closing <- false;
