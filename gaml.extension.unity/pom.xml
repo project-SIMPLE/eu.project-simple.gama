@@ -1,60 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <relativePath>../eu.project-simple.parent/pom.xml</relativePath>
+    <groupId>eu.project-simple</groupId>
+    <artifactId>eu.project-simple.parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
 	<groupId>eu.project-simple</groupId>
 	<artifactId>gaml.extension.unity</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
-
-	<properties>
-		<tycho.version>3.0.3</tycho.version>
-		<jdk.version>17</jdk.version>
-		<gama.version>1.9.3-SNAPSHOT</gama.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wagon.version>3.5.3</wagon.version>
-	</properties>
-
-	<repositories>
-		<repository>
-			<id>p2Repo</id>
-			<name>p2Repo</name>
-			<url>https://updates.gama-platform.org/1.9.3</url>
-			<layout>p2</layout>
-			<snapshots>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-		<repository>
-			<id>gamaRepo</id>
-			<name>gamaRepo</name>
-			<url>https://updates.gama-platform.org/1.9.3</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-		<repository>
-			<id>eclipse-swt</id>
-			<url>https://download.eclipse.org/releases/2023-09</url>
-			<layout>p2</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -117,13 +75,13 @@
 	        <plugin>
 	          <groupId>org.eclipse.tycho</groupId>
 	          <artifactId>tycho-p2-repository-plugin</artifactId>
-	          <version>${tycho.version}</version>
+	          <version>${tycho-version}</version>
 	        </plugin>
 
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<configuration>
 					<debug>false</debug>
 					<source>${jdk.version}</source>
@@ -149,7 +107,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<source>${jdk.version}</source>
@@ -168,7 +126,7 @@
 					the configured execution environment. -->
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 				<configuration>
 					<dependency-resolution>
 						<optionalDependencies>ignore</optionalDependencies>
@@ -325,7 +283,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>
-				<version>${tycho.version}</version>
+				<version>${tycho-version}</version>
 			</plugin>
 
 			<plugin>
