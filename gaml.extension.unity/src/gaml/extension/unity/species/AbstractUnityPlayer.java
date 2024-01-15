@@ -34,8 +34,6 @@ import msi.gaml.types.IType;
 			doc = { @doc ("amplitude of the cone for the display of the agent in GAMA")}),
 	@variable(name = AbstractUnityPlayer.PLAYER_SIZE, type = IType.FLOAT, init = "3.0", 
 			doc = { @doc ("Size of the player for the display of the agent in GAMA")}), 
-	//@variable(name = AbstractUnityPlayer.UNITY_CLIENT, type = IType.NONE,
-//		doc = { @doc ("Client for Unity")}), 
 	@variable(name = AbstractUnityPlayer.PLAYER_ROTATION, type = IType.FLOAT, init = "90.0", 
 	doc = { @doc ("Rotation (angle in degrees) to add to the player for the display of the agent in GAMA")}), 
 	@variable(name = AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS, type = IType.FLOAT, init = "0.0", 
@@ -54,7 +52,6 @@ public class AbstractUnityPlayer extends GamlAgent{
 	public static final String PLAYER_AGENTS_MIN_DIST = "player_agents_min_dist";
 	public static final String PLAYER_SIZE = "player_size";
 	public static final String PLAYER_ROTATION = "player_rotation";
-	//public static final String UNITY_CLIENT = "unity_client";
 	
 	
 	public AbstractUnityPlayer(IPopulation<? extends IAgent> s, int index) {

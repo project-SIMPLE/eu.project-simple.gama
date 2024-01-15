@@ -247,29 +247,21 @@
                 </action>
                 <action name="send_message" returnType="void">
                     <args>
-                        <arg name="mes" optional="true" type="string">
+                        <arg name="players" optional="true" type="list">
                             <documentation>
-                                <result>Message to send</result>
+                                <result>Players to send the geometries to</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="mes" optional="true" type="map">
+                            <documentation>
+                                <result>Map to send</result>
                                 <returns/>
                             </documentation>
                         </arg>
                     </args>
                     <documentation>
                         <result>send a message to the Unity Client</result>
-                        <returns/>
-                    </documentation>
-                </action>
-                <action name="add_to_send_world" returnType="void">
-                    <args>
-                        <arg name="map_to_send" optional="true" type="map">
-                            <documentation>
-                                <result>data already sent to the client</result>
-                                <returns/>
-                            </documentation>
-                        </arg>
-                    </args>
-                    <documentation>
-                        <result>add values to the current state of the world to the Unity Client</result>
                         <returns/>
                     </documentation>
                 </action>
@@ -330,18 +322,11 @@
                         <returns/>
                     </documentation>
                 </action>
-                <action name="init_server" returnType="bool">
-                    <args/>
-                    <documentation>
-                        <result>initialize the Gama server</result>
-                        <returns/>
-                    </documentation>
-                </action>
                 <action name="send_init_data" returnType="void">
                     <args>
-                        <arg name="player" optional="true" type="agent">
+                        <arg name="id" optional="true" type="string">
                             <documentation>
-                                <result>Player to send the geometries to</result>
+                                <result>if of the player to send the geometries to</result>
                                 <returns/>
                             </documentation>
                         </arg>
@@ -369,6 +354,20 @@
                     <args/>
                     <documentation>
                         <result>Action trigger just after sending the background geometries to Unity </result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="create_init_player" returnType="void">
+                    <args>
+                        <arg name="id" optional="true" type="string">
+                            <documentation>
+                                <result>name of the player agent</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Create and init a new unity player agent</result>
                         <returns/>
                     </documentation>
                 </action>
@@ -482,9 +481,9 @@
                 </action>
                 <action name="move_player_external" returnType="void">
                     <args>
-                        <arg name="player" optional="true" type="string">
+                        <arg name="id" optional="true" type="string">
                             <documentation>
-                                <result>the player agent to move</result>
+                                <result>id of the player agent to move</result>
                                 <returns/>
                             </documentation>
                         </arg>
@@ -512,41 +511,6 @@
                         <returns/>
                     </documentation>
                 </action>
-                <action name="manage_message_from_unity" returnType="void">
-                    <args/>
-                    <documentation>
-                        <result>Manage messages coming from Unity</result>
-                        <returns/>
-                    </documentation>
-                </action>
-                <action name="manage_new_message" returnType="void">
-                    <args>
-                        <arg name="mes" optional="true" type="string">
-                            <documentation>
-                                <result>message received</result>
-                                <returns/>
-                            </documentation>
-                        </arg>
-                    </args>
-                    <documentation>
-                        <result>action called by manage_message_from_unity in case of a new message (other than waiting message and player position)</result>
-                        <returns/>
-                    </documentation>
-                </action>
-                <action name="wait_for_message" returnType="void">
-                    <args>
-                        <arg name="mes" optional="true" type="string">
-                            <documentation>
-                                <result>List of geometries to send</result>
-                                <returns/>
-                            </documentation>
-                        </arg>
-                    </args>
-                    <documentation>
-                        <result>set the message to wait</result>
-                        <returns/>
-                    </documentation>
-                </action>
                 <action name="send_player_position" returnType="void">
                     <args>
                         <arg name="player" optional="true" type="agent">
@@ -558,6 +522,20 @@
                     </args>
                     <documentation>
                         <result>send the new position of the player to Unity (used to teleport the player from GAMA) </result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="add_to_send_parameter" returnType="void">
+                    <args>
+                        <arg name="map_to_send" optional="true" type="map">
+                            <documentation>
+                                <result>data already sent to the client</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>add values to the parameters sent to the Unity Client</result>
                         <returns/>
                     </documentation>
                 </action>
@@ -677,12 +655,6 @@
                         <returns/>
                     </documentation>
                 </var>
-                <var constant="false" depends_on="" name="client" type="any type">
-                    <documentation>
-                        <result>Client (middleware) to which the messages are sent</result>
-                        <returns/>
-                    </documentation>
-                </var>
                 <var constant="false" depends_on="" name="min_num_players" type="int">
                     <documentation>
                         <result>Number of Unity players required to start the simulation</result>
@@ -695,33 +667,9 @@
                         <returns/>
                     </documentation>
                 </var>
-                <var constant="false" depends_on="" name="port" type="int">
-                    <documentation>
-                        <result>Connection port</result>
-                        <returns/>
-                    </documentation>
-                </var>
-                <var constant="false" depends_on="" name="end_message_symbol" type="string">
-                    <documentation>
-                        <result>Symbol used to end a message sent to Unity</result>
-                        <returns/>
-                    </documentation>
-                </var>
                 <var constant="false" depends_on="" name="precision" type="int">
                     <documentation>
                         <result>Number of decimal for the data (location, rotation)</result>
-                        <returns/>
-                    </documentation>
-                </var>
-                <var constant="false" depends_on="" name="delay_after_mes" type="float">
-                    <documentation>
-                        <result>Delay after moving the player (in ms)</result>
-                        <returns/>
-                    </documentation>
-                </var>
-                <var constant="false" depends_on="" name="ready" type="string">
-                    <documentation>
-                        <result>Which message GAMA should wait before receiving infomation </result>
                         <returns/>
                     </documentation>
                 </var>
@@ -803,9 +751,9 @@
                         <returns/>
                     </documentation>
                 </var>
-                <var constant="false" depends_on="" name="use_physics_for_player" type="boolean">
+                <var constant="false" depends_on="" name="use_middleware" type="boolean">
                     <documentation>
-                        <result>Does the player should has a physical exitence in Unity (i.e. cannot pass through specific geometries)?</result>
+                        <result>Use of the middleware to connect Unity and GAMA? Direct connection is only usable for 1 player game</result>
                         <returns/>
                     </documentation>
                 </var>

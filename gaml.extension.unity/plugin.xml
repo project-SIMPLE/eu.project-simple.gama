@@ -30,7 +30,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="gaml.extensions.unity.commands.GenerateVrModelHandler"
+            defaultHandler="gaml.extension.unity.commands.GenerateVrModelHandler"
             id="gaml.extension.unity.GenerateVRModel"
             name="Generate VR Model">
       </command>

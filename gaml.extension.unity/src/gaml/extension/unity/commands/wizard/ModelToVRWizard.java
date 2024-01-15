@@ -1,4 +1,4 @@
-package gaml.extensions.unity.commands.wizard;
+package gaml.extension.unity.commands.wizard;
 
 import java.io.File;
 import java.io.FileWriter;

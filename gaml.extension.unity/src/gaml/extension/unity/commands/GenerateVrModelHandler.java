@@ -1,4 +1,4 @@
-package gaml.extensions.unity.commands;
+package gaml.extension.unity.commands;
 
 import java.io.File;
 
@@ -9,7 +9,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import gaml.extensions.unity.commands.wizard.ModelToVRWizard;
+import gaml.extension.unity.commands.wizard.ModelToVRWizard;
 import msi.gama.kernel.model.IModel;
 import msi.gama.lang.gaml.ui.editor.GamlEditor;
 import msi.gama.lang.gaml.validation.GamlModelBuilder;

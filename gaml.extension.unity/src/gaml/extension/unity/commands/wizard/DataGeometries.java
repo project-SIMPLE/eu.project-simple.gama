@@ -1,4 +1,4 @@
-package gaml.extensions.unity.commands.wizard;
+package gaml.extension.unity.commands.wizard;
 public class DataGeometries {
 	private String speciesName;
 	private Double height = 1.0;
