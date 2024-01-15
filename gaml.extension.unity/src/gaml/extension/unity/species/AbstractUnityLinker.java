@@ -81,6 +81,9 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	@variable(name = AbstractUnityLinker.PLAYER_SPECIES, type = IType.STRING, 
 	doc = { @doc ("Species of the player agent")}),  
 	
+	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, 
+	doc = { @doc ("Symbol to be added at the end of the messages (only when the middleware is not used); it should be the same defined in Unity")}),  
+	
 	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="false", 
 	doc = { @doc ("should GAMA receive information from Unity?")}),  
 
@@ -118,6 +121,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
 	public static final String BACKGROUND_GEOMS_3D = "background_geoms_is3D";
 	public static final String DO_SEND_WORLD = "do_send_world";
+
+	public static final String END_MESSAGE_SYMBOL = "end_message_symbol";
 
 	public static final String MOVE_PLAYER_EVENT = "move_player_event";
 	public static final String USE_MIDDLEWARE = "use_middleware";
@@ -274,6 +279,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_TAGS)
 	public static void setBackgroundGeomsTags(final IAgent agent, final IList<String> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_TAGS, val);
+	}
+	
+	@getter (AbstractUnityLinker.END_MESSAGE_SYMBOL)
+	public static String getEndMessageSymbol(final IAgent agent) {
+		return (String) agent.getAttribute(END_MESSAGE_SYMBOL);
+	}
+	@setter(AbstractUnityLinker.END_MESSAGE_SYMBOL)
+	public static void setEndMessageSymbol(final IAgent agent, final String val) {
+		agent.setAttribute(END_MESSAGE_SYMBOL, val);
 	}
 	
 	@getter (AbstractUnityLinker.PLAYER_SPECIES)
