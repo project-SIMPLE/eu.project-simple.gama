@@ -718,6 +718,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = getPlayers(ag).get(scope.getStringArg("id")) ;
+		
 		doAction1Arg(scope, "send_parameters", "player", player );
 		if (!getBackgroundGeoms(getAgent()).isEmpty()) {
 			WithArgs actSG = scope.getAgent().getSpecies().getAction( "send_geometries");
@@ -814,7 +815,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		init.put(IKeyword.NAME, id);
 		
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
-		
 		getPlayers(getAgent()).put(id, player);
 	}
 	
@@ -1016,7 +1016,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			name = "send_parameters",
 					args = { @arg (
 							name = "player",
-							type = IType.NONE,
+							type = IType.AGENT,
 							doc = @doc ("Player to which the message will be sent"))},
 								
 			doc = { @doc (
@@ -1033,10 +1033,9 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		toSend.put("world", worldT);
 		IList<Integer> posT = GamaListFactory.create(Types.INT);
-		if (player != null) {
-			posT.add((int)(player.getLocation().x * precision));
-			posT.add((int)(player.getLocation().y * precision));
-		} 
+		posT.add((int)(player.getLocation().x * precision));
+		posT.add((int)(player.getLocation().y * precision));
+		 
 		toSend.put("position", posT);
 		
 		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend );

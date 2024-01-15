@@ -74,6 +74,12 @@ experiment vr_xp parent: simple_simulation autorun: false type: unity  {
 	
 	float t_ref;
 
+	action create_player(string id) {
+		ask unity_linker {
+			write "create player: " + id;
+			do create_player(id);
+		}
+	}
 	action remove_player(string id_input) {
 		if (not empty(unity_player)) {
 			ask first(unity_player where (each.name = id_input)) {
