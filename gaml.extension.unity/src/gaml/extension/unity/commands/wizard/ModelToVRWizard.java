@@ -45,7 +45,8 @@ public class ModelToVRWizard extends Wizard {
 		addPage(wizD);
 		addPage(new WizardPageAgentsToSend(model, generator));
 		 addPage(new WizardPageGeometries(model, generator));
-		 finalPage = new WizardPagePlayer( model, generator);
+		 finalPage = new WizardPagePlayer(model, generator);
+		 
 		 addPage(finalPage);
 	 }
 	

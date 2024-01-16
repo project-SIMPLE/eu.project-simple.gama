@@ -9,8 +9,7 @@ public class VRModelGenerator {
 
 	private List<String> speciesToSend = new ArrayList<>();
 	private List<DataGeometries> geometries = new ArrayList<>();
-	private int port = 8000;
-	private GamaPoint locationInit = new GamaPoint(50,50,0) ;
+	private GamaPoint locationInit = null;
 	private Double playerAgentsPerceptionRadius = 0.0;
 	private Double playerAgentsMinDist = 0.0;
 	private Double playerSize = 1.0;
@@ -40,7 +39,7 @@ public class VRModelGenerator {
 	}
 	
 	public String experimentStr() {
-		String modelExp = "experiment vr_xp parent:" + experimentName + " autorun: true type: unity {\n";
+		String modelExp = "experiment vr_xp " + (experimentName != null ? "parent:" + experimentName : "")+ " autorun: true type: unity {\n";
 		modelExp += "\tfloat minimum_cycle_duration <- " + minimumCycleDuration + ";\n";
 		modelExp += "\tstring unity_linker_species <- string(unity_linker);\n";
 		String disToHide = ""; boolean first = true;
@@ -52,20 +51,50 @@ public class VRModelGenerator {
 		}
 		
 		modelExp += "\tlist<string> displays_to_hide <- ["+  disToHide + "];\n";
-		modelExp += "\toutput {\n";
-		modelExp += "\t\t display "+ mainDisplay + "_VR parent:" + mainDisplay + "{\n";
-		modelExp += "\t\t\t species unity_player;\n";
-		modelExp += "\t\t\t event #mouse_down{\n";
-		modelExp += "\t\t\t\t ask unity_linker {\n";
-		modelExp += "\t\t\t\t move_player_event <- true;\n";
-		modelExp += "\t\t\t\t }\n";
+		modelExp += "\tfloat t_ref;\n\n";
 		
-		modelExp += "\t\t\t }\n";
-		modelExp += "\t\t }\n";
+		
+		modelExp += "\taction create_player(string id) {\n";
+		modelExp += "\t\task unity_linker {\n";
+		modelExp += "\t\t\tdo create_player(id);\n";
+		modelExp += "\t\t}\n";
+		modelExp += "\t}\n\n";
+		
+		
+		modelExp += "\taction remove_player(string id_input) {\n";
+		modelExp += "\t\tif (not empty(unity_player)) {\n";
+		
+		modelExp += "\t\t\task first(unity_player where (each.name = id_input)) {\n";
+		modelExp += "\t\t\t\tdo die;\n";
+		modelExp += "\t\t\t}\n";
+		modelExp += "\t\t}\n";
+		modelExp += "\t}\n\n";
+		
 
-		modelExp += "\t}\n";
-
-		modelExp += "}\n";
+		modelExp += "\toutput {\n";
+		if (mainDisplay != null) {
+			
+			modelExp += "\t\t display "+ mainDisplay + "_VR parent:" + mainDisplay + "{\n";
+			modelExp += "\t\t\t species unity_player;\n";
+			modelExp += "\t\t\t event #mouse_down{\n";
+			
+			modelExp += "\t\t\t\t float t <- machine_time;\n";
+			modelExp += "\t\t\t\t if (t - t_ref) > 500 {\n";
+			
+			
+			modelExp += "\t\t\t\t\t ask unity_linker {\n";
+			modelExp += "\t\t\t\t\t\t move_player_event <- true;\n";
+			modelExp += "\t\t\t\t\t }\n";
+			modelExp += "\t\t\t\t\t t_ref <- t;\n";
+			modelExp += "\t\t\t\t }\n";
+			
+			modelExp += "\t\t\t }\n";
+			modelExp += "\t\t }\n";
+	
+			modelExp += "\t}\n";
+	
+			modelExp += "}\n";
+		}
 		
 		return modelExp;
 		
@@ -104,11 +133,23 @@ public class VRModelGenerator {
 	
 	public String UnityLinkerSpecies() {
 		String modelUnityLinker = "species unity_linker parent: abstract_unity_linker {\n";
-		modelUnityLinker += "\tint port <- " + port + ";\n";
-		
 		modelUnityLinker += "\tstring player_species <- string(unity_player);\n";
-		if (locationInit != null) 
-			modelUnityLinker += "\tpoint location_init <- " + locationInit + ";\n";
+		
+		if (locationInit != null )  {
+			String locationInitStr = ""; 
+			if (maxNumPlayer <= 0) {
+				locationInitStr +=   ""+ locationInit ;
+			} else {
+				boolean first = true;
+				for (int i = 0; i < maxNumPlayer; i++) {
+					locationInitStr += (first ? "": ",") + locationInit ;
+					first = false;
+				}
+			}
+			modelUnityLinker += "\tpoint location_init <- [" + locationInitStr + "];\n";
+			
+		}
+		
 		if (hasMaxNumberPlayer) 
 			modelUnityLinker += "\tint max_num_players  <- " + maxNumPlayer + ";\n";
 		else
@@ -130,7 +171,7 @@ public class VRModelGenerator {
 				String cStr = "collider: " + geoms.getHasCollider() + " ";
 				String tStr = (geoms.getTag()  == null || geoms.getTag().equals(""))  ? "" :"tag: \"" + geoms.getTag() + "\" ";
 				
-				modelUnityLinker += "\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr + ";";
+				modelUnityLinker += "\n\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr + ";";
 				
 			}
 			modelUnityLinker +=  "\n\t}";
@@ -159,9 +200,6 @@ public class VRModelGenerator {
 		this.modelPath = modelPath;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
-	}
 
 	public List<String> getSpeciesToSend() {
 		return speciesToSend;
@@ -186,20 +224,6 @@ public class VRModelGenerator {
 
 	public void setGeometries(List<DataGeometries> geometries) {
 		this.geometries = geometries;
-	}
-
-
-
-
-	public Integer getPort() {
-		return port;
-	}
-
-
-
-
-	public void setPort(Integer port) {
-		this.port = port;
 	}
 
 

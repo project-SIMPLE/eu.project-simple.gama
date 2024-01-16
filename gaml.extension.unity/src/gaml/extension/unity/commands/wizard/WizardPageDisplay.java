@@ -22,116 +22,105 @@ public class WizardPageDisplay extends WizardPage {
 
 	IModel model;
 
-    private Composite container;
-    
-    VRModelGenerator generator;
-    
-    List<String> itemsD;
-    
+	private Composite container;
+
+	VRModelGenerator generator;
+
+	List<String> itemsD;
+
 	protected WizardPageDisplay(IModel model, VRModelGenerator gen) {
-		 super("Display");
-		 setTitle("Define the information about the display");
-		 setDescription("Please enter information about displays");
-		 this.model = model;
-		 this.generator = gen;
+		super("Display");
+		setTitle("Define the information about the display");
+		setDescription("Please enter information about displays");
+		this.model = model;
+		this.generator = gen;
 	}
-	
+
 	public void updateExperiment() {
-		  itemsD = new ArrayList<String>();
-		for (IOutput d: model.getExperiment(generator.getExperimentName()).getOriginalSimulationOutputs())
+		itemsD = new ArrayList<String>();
+		for (IOutput d : model.getExperiment(generator.getExperimentName()).getOriginalSimulationOutputs())
 			itemsD.add(d.getOriginalName());
-		
 
 	}
-	
-	Combo cd ;
-	 Group groupDisplayH ;
-	
+
+	Combo cd;
+	Group groupDisplayH;
+
 	@Override
 	public void createControl(Composite parent) {
 		container = new Composite(parent, SWT.NONE);
-		 container.setLayout(new FillLayout(SWT.VERTICAL));
-	System.out.println("generator.getExperimentName(): " + generator.getExperimentName());
-			 Group groupDisplay = new Group(container, SWT.NONE);
-			 groupDisplay.setLayout(new GridLayout(2, false));
-			 groupDisplay.setText("Information about the display");
-				
+		container.setLayout(new FillLayout(SWT.VERTICAL));
+		Group groupDisplay = new Group(container, SWT.NONE);
+		groupDisplay.setLayout(new GridLayout(2, false));
+		groupDisplay.setText("Information about the display");
 
-				 Label ld = new Label(groupDisplay, SWT.LEFT);
-				 ld.setText("Main Display:" );
-				
-					cd = new Combo(groupDisplay, SWT.READ_ONLY);
-				
-					/* for (IExperimentPlan ep : model.getExperiments()) {
-						 
-						 for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs())
-								 itemsD.add(d.getName());
-					 }*/
-					 
-					
-					 cd.setItems((String[]) itemsD.toArray(new String[itemsD.size()]));
-					 if (! itemsD.isEmpty()) {
-						 cd.setText(itemsD.get(0));
-						 generator.setMainDisplay(cd.getText());
-					 }
-					 groupDisplayH = new Group(container, SWT.NONE);
-					 groupDisplayH.setLayout(new GridLayout(2, false));
-					 groupDisplayH.setText("Displays to hide");
-					
-					 for (String sp : itemsD) {
-						Button bt = new Button(groupDisplayH, SWT.CHECK);
-						bt.addSelectionListener(new SelectionAdapter() {
+		Label ld = new Label(groupDisplay, SWT.LEFT);
+		ld.setText("Main Display:");
 
-							public void widgetSelected(SelectionEvent event) {
-								Button btn = (Button) event.getSource();
-						        if(btn.getSelection()) {
-						            generator.getDisplaysToHide().add(btn.getText());
-						        } else {
-						            generator.getDisplaysToHide().remove(btn.getText());
-						        }
-						            
-						    }
-						});
-						bt.setText(sp);
-						bt.pack();
-					 }
-					 cd.addSelectionListener(new SelectionAdapter() {
-					      public void widgetDefaultSelected(SelectionEvent e) {
-					    	  generator.setMainDisplay(cd.getText());
-					      }
-					    });
-					 
-					/* Group groupDisplayH = new Group(container, SWT.NONE);
-					 groupDisplayH.setLayout(new GridLayout(2, false));
-					 groupDisplayH.setText("Displays to hide");
-					
-					 for (IExperimentPlan ep : model.getExperiments()) {
-						 for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs()){
-							String sp = d.getName();
-							Button bt = new Button(groupDisplayH, SWT.CHECK);
-							bt.addSelectionListener(new SelectionAdapter() {
+		cd = new Combo(groupDisplay, SWT.READ_ONLY);
 
-						        @Override
-						        public void widgetSelected(SelectionEvent event) {
-						            Button btn = (Button) event.getSource();
-						            if(btn.getSelection()) {
-						            	generator.getDisplaysToHide().add(btn.getText());
-						            } else {
+		/*
+		 * for (IExperimentPlan ep : model.getExperiments()) {
+		 * 
+		 * for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs())
+		 * itemsD.add(d.getName()); }
+		 */
 
-						            	generator.getDisplaysToHide().remove(btn.getText());
-						            }
-						            
-						        }
-						    });
-							bt.setText(sp);
-							bt.pack();
+		if (itemsD != null && itemsD.size() > 0) {
+
+			cd.setItems((String[]) itemsD.toArray(new String[itemsD.size()]));
+			if (!itemsD.isEmpty()) {
+				cd.setText(itemsD.get(0));
+				generator.setMainDisplay(cd.getText());
+			}
+			groupDisplayH = new Group(container, SWT.NONE);
+			groupDisplayH.setLayout(new GridLayout(2, false));
+			groupDisplayH.setText("Displays to hide");
+
+			for (String sp : itemsD) {
+				Button bt = new Button(groupDisplayH, SWT.CHECK);
+				bt.addSelectionListener(new SelectionAdapter() {
+
+					public void widgetSelected(SelectionEvent event) {
+						Button btn = (Button) event.getSource();
+						if (btn.getSelection()) {
+							generator.getDisplaysToHide().add(btn.getText());
+						} else {
+							generator.getDisplaysToHide().remove(btn.getText());
 						}
-					 }*/
-		
-					 
-		 setControl(container);
-	       
-		
+
+					}
+				});
+				bt.setText(sp);
+				bt.pack();
+			}
+			cd.addSelectionListener(new SelectionAdapter() {
+				public void widgetDefaultSelected(SelectionEvent e) {
+					generator.setMainDisplay(cd.getText());
+				}
+			});
+		}
+		/*
+		 * Group groupDisplayH = new Group(container, SWT.NONE);
+		 * groupDisplayH.setLayout(new GridLayout(2, false));
+		 * groupDisplayH.setText("Displays to hide");
+		 * 
+		 * for (IExperimentPlan ep : model.getExperiments()) { for (IDisplayOutput d
+		 * :ep.getExperimentOutputs().getDisplayOutputs()){ String sp = d.getName();
+		 * Button bt = new Button(groupDisplayH, SWT.CHECK); bt.addSelectionListener(new
+		 * SelectionAdapter() {
+		 * 
+		 * @Override public void widgetSelected(SelectionEvent event) { Button btn =
+		 * (Button) event.getSource(); if(btn.getSelection()) {
+		 * generator.getDisplaysToHide().add(btn.getText()); } else {
+		 * 
+		 * generator.getDisplaysToHide().remove(btn.getText()); }
+		 * 
+		 * } }); bt.setText(sp); bt.pack(); } }
+		 */
+
+		setControl(container);
+
 	}
 
 }
