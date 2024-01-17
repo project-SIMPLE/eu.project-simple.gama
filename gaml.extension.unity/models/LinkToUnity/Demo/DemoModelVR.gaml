@@ -24,8 +24,29 @@ species unity_linker parent: abstract_unity_linker {
 	bool do_send_world <- true;
 	init {
 		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
-		do add_background_data geoms: block collect each.shape height: 5.0 collider: true;
+		list<string> names ;
+		loop i from: 0 to: length(block) {
+			names << ""+i;
+		}
+		do add_background_data geoms: block collect each.shape names: names height: 5.0 collider: true tag: "block" is_interactable: true;
 	}
+	
+	action update_hotspot(string id) {
+		block b <- block[int(id)];
+		
+		if (b != nil) {
+			ask b {
+				if (not b.is_hotspot) {
+					do become_hotspot;
+				} else {
+					do remove_hotspot;
+				}
+			}
+			
+		}
+	}
+	
+	
 }
 
 //Defaut species for the player

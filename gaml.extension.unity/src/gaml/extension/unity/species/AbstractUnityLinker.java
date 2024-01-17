@@ -66,6 +66,8 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 			doc = { @doc ("For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? ")}),  
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_3D, type = IType.LIST, of =  IType.BOOL, 
 	doc = { @doc ("For each geometry sent to Unity, does this one is 3D ? ")}),  
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES, type = IType.LIST, of =  IType.BOOL, 
+	doc = { @doc ("For each geometry sent to Unity, does this one is interactable ? ")}),  
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
 			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
@@ -116,6 +118,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS = "background_geoms";
 	public static final String BACKGROUND_GEOMS_HEIGHTS = "background_geoms_heights";
 	public static final String BACKGROUND_GEOMS_COLLIDERS = "background_geoms_colliders";
+	public static final String BACKGROUND_GEOMS_INTERACTABLES = "background_geoms_interactables";
 	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
 	
 	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
@@ -251,6 +254,16 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static void setBackgroundGeomsColliders(final IAgent agent, final IList<Boolean> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_COLLIDERS, val);
 	}
+	
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
+	public static  IList<Boolean> getBackgroundGeomsIsInteractables(final IAgent agent) {
+		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_INTERACTABLES);
+	}
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
+	public static void setBackgroundGeomsIsInteractables(final IAgent agent, final IList<Boolean> val) {
+		agent.setAttribute(BACKGROUND_GEOMS_INTERACTABLES, val);
+	}
+	
 	
 	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_3D)
 	public static  IList<Boolean> getBackgroundGeoms3D(final IAgent agent) {
@@ -468,13 +481,14 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	
 	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D) {
+	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable) {
 		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
 		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
 		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
 		IList<Boolean> backgroundGeometriesCollider = getBackgroundGeomsColliders(getAgent());
 		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
 		IList<Boolean> backgroundGeometriesis3D = getBackgroundGeoms3D(getAgent());
+		IList<Boolean> backgroundGeometriesisInteractable = getBackgroundGeomsIsInteractables(getAgent());
 		
 		if(backgroundGeometries == null) {
 			backgroundGeometries = GamaListFactory.create(Types.GEOMETRY);
@@ -483,6 +497,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			backgroundGeometriesTag = GamaListFactory.create(Types.STRING);
 			backgroundGeometriesCollider = GamaListFactory.create(Types.BOOL);
 			backgroundGeometriesis3D = GamaListFactory.create(Types.BOOL);
+			backgroundGeometriesisInteractable =  GamaListFactory.create(Types.BOOL);
 		}
 		backgroundGeometries.addAll(geoms);
 		
@@ -497,6 +512,9 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (is3D != null)
 				backgroundGeometriesis3D.add(is3D);
 			else backgroundGeometriesis3D.add(true);
+			if (isInteractable != null)
+				backgroundGeometriesisInteractable.add(isInteractable);
+			else backgroundGeometriesisInteractable.add(false);
 		}
 		if (names != null) 
 			backgroundGeometriesName.addAll(names);
@@ -506,6 +524,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		setBackgroundGeomsNames(getAgent(), backgroundGeometriesName);
 		setBackgroundGeomsTags(getAgent(), backgroundGeometriesTag);
 		setBackgroundGeoms3D(getAgent(), backgroundGeometriesis3D);
+		setBackgroundGeomsIsInteractables(getAgent(), backgroundGeometriesisInteractable);
 	
 	}
 	
@@ -670,6 +689,10 @@ public class AbstractUnityLinker extends GamlAgent {
 										type = IType.LIST,
 										doc = @doc ("For each geometry, is a 3D geometries (list of bools) ")),
 							 @arg (
+										name = "is_interactables",
+										type = IType.LIST,
+										doc = @doc ("For each geometry, is interactable (list of bools) ")),
+							 @arg (
 										name = "names",
 										type = IType.LIST,
 										doc = @doc ("List of name (string) associated to each geometry")),
@@ -692,6 +715,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> names = scope.getListArg("names");
 		IList<String> tags = scope.getListArg("tags");
 		IList<Boolean> are3D = scope.getListArg("is_3D");
+		IList<Boolean> isInteractables = scope.getListArg("is_interactables");
+		
 		
 		for (IShape g : geoms ) {
 			for (GamaPoint pt : g.getPoints()) {
@@ -712,6 +737,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("names", names);
 		toSend.put("tags", tags);
 		toSend.put("is3D", are3D);
+		toSend.put("isInteractables", isInteractables);
 		IList<String> playersStr = GamaListFactory.create();
 		for (IAgent pl : players) 
 			playersStr.add(pl.getName());
@@ -743,6 +769,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
 			argsSG.put("is_3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
 			argsSG.put("tags", ConstantExpressionDescription.create(getBackgroundGeomsTags(getAgent())));
+			argsSG.put("is_interactables", ConstantExpressionDescription.create(getBackgroundGeomsIsInteractables(getAgent())));
 			
 			IList<IAgent> pls = GamaListFactory.create();
 			pls.add(player);
@@ -1083,7 +1110,12 @@ public class AbstractUnityLinker extends GamlAgent {
 					 name = "is_3D",
 					 optional = true,
 					type = IType.BOOL, 
-					doc = @doc ("tag of the rgdfdhffhtftfjfjt in Unity")),
+					doc = @doc ("is the geometries in 3D in Unity")),
+			@arg (
+					 name = "is_interactable",
+					 optional = true,
+					type = IType.BOOL, 
+					doc = @doc ("is the geometries interactable in Unity")),
 			 @arg (
 				name = "height",
 				type = IType.FLOAT, 
@@ -1102,8 +1134,9 @@ public class AbstractUnityLinker extends GamlAgent {
 		final String tag = scope.hasArg("tag") ? (String) scope.getStringArg("tag") : null;
 		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
 		
+		final Boolean isInteractable = scope.hasArg("is_interactable") ? (Boolean) scope.getBoolArg("is_interactable") : null;
 		
-		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D);
+		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable);
 	}
 
 	

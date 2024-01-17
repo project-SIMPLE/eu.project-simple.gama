@@ -15,6 +15,7 @@ global {
 	float step <- 0.1 parameter: true min: 0.1 max: 2.0 step: 0.1;
 	int nb_blocks <- 10 parameter: true min: 0 max: 10 step: 1.0;
 	float block_size <- 5.0 parameter: true min: 1.0 max: 10.0 step: 1.0;
+	float distance_hostspot <- 10.0 parameter: true min: 1.0 max: 20.0 step: 1.0;
 	
 	init {
 		create simple_agentA number: nb_agentsA;
@@ -56,21 +57,72 @@ global {
 }
 
 
+
 species block {
 	rgb color <- #black;
+	rgb color_hotspot <- #red;
+	rgb color_hotspot_dist <- rgb(255,0,0.0,0.5);
+	bool is_hotspot <- false;
+	
+	action update_hotspots {
+		list<block> hotspots <- block where each.is_hotspot;
+		if (empty(hotspots)) {
+			ask simple_agentA + simple_agentB {
+				my_hot_spot <- nil;
+				bounds <- nil;
+			}
+		}
+		else {
+			ask simple_agentA + simple_agentB {
+				my_hot_spot <- one_of(hotspots);
+				bounds <- my_hot_spot + distance_hostspot;
+				target <- any_location_in(bounds);
+			}
+		}
+	}
+	action become_hotspot {
+		is_hotspot <- true;
+		do update_hotspots;
+	}
+	action remove_hotspot {
+		is_hotspot <- false;
+		do update_hotspots;
+	}
 	aspect default {
-		draw shape color: color ;
+		if (is_hotspot) {
+			draw shape + distance_hostspot color: color_hotspot_dist;
+		}
+		draw shape color:is_hotspot ?color_hotspot : color ;
+		
 	}
 }
+ 
 
 
 species simple_agentA  skills: [moving ] {
 	int index <- 0;
 	rgb color <- #blue;
 	float amplitude <- 30.0;
+	block my_hot_spot;
+	geometry bounds;
+	point target;
+	
 	
 	reflex move {
-		do wander amplitude: amplitude;
+		if (target != nil) {
+			do goto target: target;
+			if (location = target) {
+				target <- nil;
+			}
+		} else {
+			if (bounds != nil) and (self overlaps bounds) {
+				do wander amplitude: amplitude bounds: bounds; 
+			} else {
+				do wander amplitude: amplitude; 
+			}
+		
+		}	
+		
 	}
 	
 	aspect default {
@@ -99,7 +151,7 @@ experiment simple_simulation type: gui autorun: true{
 	
 	
 	output {
-		display map type: 3d{ 
+		display map { 
 			
 			species simple_agentA;
 			species simple_agentB;
