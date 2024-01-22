@@ -31,10 +31,11 @@ species unity_linker parent: abstract_unity_linker {
 	int max_num_players <- 1;
 	bool do_send_world <- false;
 	
-	action manage_new_message(string mes) {
+	action receive_geometries(string geoms) {
+		write geoms;
 		
-		if ("points" in mes) and not geometries_received{
-			map answer <- map(mes);
+		if ("points" in geoms) {
+			map answer <- from_json(geoms);
 			list<list<list>> objects <- answer["points"];
 			list<int> heights <- answer["heights"];
 			list<string> names <- answer["names"];
@@ -79,8 +80,6 @@ species unity_linker parent: abstract_unity_linker {
 			save object to: output_file format:"shp" crs: crs_code;
 			 
 			write "Geometries recieved";			
-			do send_message mes:  'ok';	
-			connect_to_unity <- false;
 			ask world {
 				do pause;
 			}

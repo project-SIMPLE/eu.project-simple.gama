@@ -72,8 +72,9 @@ species unity_linker parent: abstract_unity_linker {
 	
 	
 	init {
-		do add_background_data(building collect each.shape,  building collect each.name, "building", 10.0, true);
-		do add_background_data(road collect (each.shape buffer each.width), road collect each.name, "road", 0.1, false);
+		do add_background_data geoms: building collect each.shape names: building collect each.name height: 10.0 collider: true tag: "building" is_interactable: false;
+		do add_background_data geoms: road collect (each.shape buffer each.width) names: road collect each.name height: 0.1 is_3D: false collider: true tag: "road" is_interactable: true;
+	
 		
 	}
 }
