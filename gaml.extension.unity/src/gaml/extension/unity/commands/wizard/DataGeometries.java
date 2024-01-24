@@ -5,6 +5,8 @@ public class DataGeometries {
 	private Double buffer = 0.0;
 	private Boolean hasCollider = false;
 	private String tag = "";
+	private Boolean is3D = true;
+	private Boolean isSelectable = false;
 	
 	
 	public DataGeometries() {
@@ -39,6 +41,18 @@ public class DataGeometries {
 	}
 	public void setBuffer(Double buffer) {
 		this.buffer = buffer;
+	}
+	public Boolean getIs3D() {
+		return is3D;
+	}
+	public void setIs3D(Boolean is3d) {
+		is3D = is3d;
+	}
+	public Boolean getIsSelectable() {
+		return isSelectable;
+	}
+	public void setIsSelectable(Boolean isSelectable) {
+		this.isSelectable = isSelectable;
 	}
 	
 	

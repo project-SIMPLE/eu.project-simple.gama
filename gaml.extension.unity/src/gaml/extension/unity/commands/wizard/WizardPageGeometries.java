@@ -64,6 +64,8 @@ public class WizardPageGeometries extends WizardPage {
 			Group groupSp = new Group(group, SWT.NONE);
 
 			groupSp.setLayout(new GridLayout(2, false));
+			
+			
 			Button btC = new Button(groupSp, SWT.CHECK);
 			btC.addSelectionListener(new SelectionAdapter() {
 
@@ -75,10 +77,47 @@ public class WizardPageGeometries extends WizardPage {
 		        }
 		    });
 			btC.setText("Collider?");
+			
 			btC.pack();
 			 Label lem = new Label(groupSp, SWT.LEFT);
 			 lem.setText("" );
 			
+			 Button bt3D = new Button(groupSp, SWT.CHECK);
+			 bt3D.setSelection( dataGeoms.get(sp).getIs3D());
+				
+			 bt3D.addSelectionListener(new SelectionAdapter() {
+
+			        @Override
+			        public void widgetSelected(SelectionEvent event) {
+			            Button btn = (Button) event.getSource();
+			            dataGeoms.get(sp).setIs3D(btn.getSelection());
+			             
+			        }
+			    });
+			 bt3D.setText("is 3D?");
+				
+			 bt3D.pack();
+			 Label le3D = new Label(groupSp, SWT.LEFT);
+			 le3D.setText("" );
+				 
+				
+			Button btSelectable = new Button(groupSp, SWT.CHECK);
+			btSelectable.setSelection( dataGeoms.get(sp).getIsSelectable());
+			btSelectable.addSelectionListener(new SelectionAdapter() {
+
+				        @Override
+				        public void widgetSelected(SelectionEvent event) {
+				            Button btn = (Button) event.getSource();
+				            dataGeoms.get(sp).setIsSelectable(btn.getSelection());
+				             
+				        }
+				    });
+			btSelectable.setText("is selectable?");
+					
+			btSelectable.pack();
+			Label leSelectable = new Label(groupSp, SWT.LEFT);
+			leSelectable.setText("" );
+					 
 			 Label lp = new Label(groupSp, SWT.LEFT);
 				lp.setText("Buffer:" );
 				Text tp =  new Text(groupSp, SWT.BORDER);
@@ -108,6 +147,8 @@ public class WizardPageGeometries extends WizardPage {
 							 dataGeoms.get(sp).setHeight(v);
 					}
 			    });
+				
+				
 				
 				 Label lt = new Label(groupSp, SWT.LEFT);
 				  lt.setText("Tag:" );

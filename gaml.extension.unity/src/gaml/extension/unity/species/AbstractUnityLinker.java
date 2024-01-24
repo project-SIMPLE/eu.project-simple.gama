@@ -509,9 +509,13 @@ public class AbstractUnityLinker extends GamlAgent {
 				backgroundGeometriesCollider.add(true);
 			if (tag != null) 
 				backgroundGeometriesTag.add(tag);
+			else {
+				backgroundGeometriesTag.add("");
+			}
 			if (is3D != null)
 				backgroundGeometriesis3D.add(is3D);
 			else backgroundGeometriesis3D.add(true);
+			
 			if (isInteractable != null)
 				backgroundGeometriesisInteractable.add(isInteractable);
 			else backgroundGeometriesisInteractable.add(false);

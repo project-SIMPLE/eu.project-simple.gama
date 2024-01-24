@@ -28,7 +28,7 @@ species unity_linker parent: abstract_unity_linker {
 		loop i from: 0 to: length(block) {
 			names << ""+i;
 		}
-		do add_background_data geoms: block collect each.shape names: names height: 5.0 collider: true tag: "block" is_interactable: true;
+		do add_background_data geoms: block collect each.shape names: names height: 5.0 collider: true tag: "selectable" is_interactable: true;
 	}
 	
 	action update_hotspot(string id) {
