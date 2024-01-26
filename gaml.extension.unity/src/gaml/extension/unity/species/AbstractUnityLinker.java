@@ -23,6 +23,7 @@ import msi.gama.precompiler.GamlAnnotations.vars;
 import msi.gama.runtime.GAMA;
 import msi.gama.runtime.IScope; 
 import msi.gama.runtime.exceptions.GamaRuntimeException;
+import msi.gama.util.GamaColor;
 import msi.gama.util.GamaListFactory;
 import msi.gama.util.GamaMap;
 import msi.gama.util.GamaMapFactory;
@@ -64,6 +65,9 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS, type = IType.LIST, of =  IType.BOOL, 
 			doc = { @doc ("For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? ")}),  
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLORS, type = IType.LIST, of =  IType.COLOR, 
+	doc = { @doc ("For each geometry sent to Unity, its display color in Unity ")}),  
+
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_3D, type = IType.LIST, of =  IType.BOOL, 
 	doc = { @doc ("For each geometry sent to Unity, does this one is 3D ? ")}),  
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES, type = IType.LIST, of =  IType.BOOL, 
@@ -119,6 +123,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS_HEIGHTS = "background_geoms_heights";
 	public static final String BACKGROUND_GEOMS_COLLIDERS = "background_geoms_colliders";
 	public static final String BACKGROUND_GEOMS_INTERACTABLES = "background_geoms_interactables";
+	public static final String BACKGROUND_GEOMS_COLORS = "background_geoms_colors";
 	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
 	
 	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
@@ -253,6 +258,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS)
 	public static void setBackgroundGeomsColliders(final IAgent agent, final IList<Boolean> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_COLLIDERS, val);
+	}
+	
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_COLORS)
+	public static  IList<GamaColor> getBackgroundGeomsColors(final IAgent agent) {
+		return ( IList<GamaColor>) agent.getAttribute(BACKGROUND_GEOMS_COLORS);
+	}
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_COLORS)
+	public static void setBackgroundGeomsColors(final IAgent agent, final IList<GamaColor> val) {
+		agent.setAttribute(BACKGROUND_GEOMS_COLORS, val);
 	}
 	
 	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
@@ -481,7 +495,7 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	
 	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable) {
+	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable, GamaColor color) {
 		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
 		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
 		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
@@ -489,6 +503,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
 		IList<Boolean> backgroundGeometriesis3D = getBackgroundGeoms3D(getAgent());
 		IList<Boolean> backgroundGeometriesisInteractable = getBackgroundGeomsIsInteractables(getAgent());
+		IList<GamaColor> backgroundGeometriesColors = getBackgroundGeomsColors(getAgent());
 		
 		if(backgroundGeometries == null) {
 			backgroundGeometries = GamaListFactory.create(Types.GEOMETRY);
@@ -498,6 +513,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			backgroundGeometriesCollider = GamaListFactory.create(Types.BOOL);
 			backgroundGeometriesis3D = GamaListFactory.create(Types.BOOL);
 			backgroundGeometriesisInteractable =  GamaListFactory.create(Types.BOOL);
+			backgroundGeometriesColors = GamaListFactory.create(Types.COLOR);
 		}
 		backgroundGeometries.addAll(geoms);
 		
@@ -519,7 +535,14 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (isInteractable != null)
 				backgroundGeometriesisInteractable.add(isInteractable);
 			else backgroundGeometriesisInteractable.add(false);
+			if (color != null) {
+				backgroundGeometriesColors.add(color);
+			} else {
+				backgroundGeometriesColors.add(GamaColor.colors.get(GamaColor.gray));
+			}
+			
 		}
+		//System.out.println("backgroundGeometriesColors: " + backgroundGeometriesColors);
 		if (names != null) 
 			backgroundGeometriesName.addAll(names);
 		setBackgroundGeoms(getAgent(), backgroundGeometries);
@@ -529,6 +552,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		setBackgroundGeomsTags(getAgent(), backgroundGeometriesTag);
 		setBackgroundGeoms3D(getAgent(), backgroundGeometriesis3D);
 		setBackgroundGeomsIsInteractables(getAgent(), backgroundGeometriesisInteractable);
+		setBackgroundGeomsColors(getAgent(), backgroundGeometriesColors);
 	
 	}
 	
@@ -701,6 +725,10 @@ public class AbstractUnityLinker extends GamlAgent {
 										type = IType.LIST,
 										doc = @doc ("List of name (string) associated to each geometry")),
 							 @arg (
+										name = "colors",
+										type = IType.LIST,
+										doc = @doc ("List of name (color) associated to each geometry")),
+							 @arg (
 										name = "tags",
 										type = IType.LIST,
 										doc = @doc ("List of tags (string) associated to each geometry"))},
@@ -720,8 +748,24 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> tags = scope.getListArg("tags");
 		IList<Boolean> are3D = scope.getListArg("is_3D");
 		IList<Boolean> isInteractables = scope.getListArg("is_interactables");
+		IList<GamaColor> colors = scope.getListArg("colors");
+		IList<Object> colorsToSend = GamaListFactory.create();
 		
-		
+		if (colors != null) {
+			for (GamaColor c : colors) {
+				IMap<String, Object> ptM = GamaMapFactory.create();
+				
+				IList<Integer> colorInt = GamaListFactory.create();
+				colorInt.add(c.red());
+				colorInt.add(c.green());
+				colorInt.add(c.blue());
+				colorInt.add(c.alpha());
+				ptM.put("c", colorInt);
+				colorsToSend.add(ptM);
+				
+			}
+		}
+ 		
 		for (IShape g : geoms ) {
 			for (GamaPoint pt : g.getPoints()) {
 				IMap<String, Object> ptM = GamaMapFactory.create();
@@ -742,6 +786,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("tags", tags);
 		toSend.put("is3D", are3D);
 		toSend.put("isInteractables", isInteractables);
+		toSend.put("colors", colorsToSend);
+		
 		IList<String> playersStr = GamaListFactory.create();
 		for (IAgent pl : players) 
 			playersStr.add(pl.getName());
@@ -774,6 +820,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			argsSG.put("is_3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
 			argsSG.put("tags", ConstantExpressionDescription.create(getBackgroundGeomsTags(getAgent())));
 			argsSG.put("is_interactables", ConstantExpressionDescription.create(getBackgroundGeomsIsInteractables(getAgent())));
+			argsSG.put("colors", ConstantExpressionDescription.create(getBackgroundGeomsColors(getAgent())));
 			
 			IList<IAgent> pls = GamaListFactory.create();
 			pls.add(player);
@@ -1125,6 +1172,10 @@ public class AbstractUnityLinker extends GamlAgent {
 				type = IType.FLOAT, 
 				doc = @doc ("height of the geometries in Unity")),
 			 @arg (
+				name = "color",
+				type = IType.COLOR, 
+				doc = @doc ("color of the geometries in Unity")),
+			 @arg (
 				name = "collider",
 				type = IType.BOOL, 
 				doc = @doc ("Add a collider to the geometries in Unity?")) },
@@ -1139,8 +1190,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
 		
 		final Boolean isInteractable = scope.hasArg("is_interactable") ? (Boolean) scope.getBoolArg("is_interactable") : null;
-		
-		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable);
+		final GamaColor color =  scope.hasArg("color") ?(GamaColor) scope.getArg("color") : null;
+		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable, color);
 	}
 
 	

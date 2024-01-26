@@ -163,6 +163,19 @@ public class WizardPageGeometries extends WizardPage {
 						}
 				    });
 					
+					Label lpc = new Label(groupSp, SWT.LEFT);
+					lpc.setText("Color:" );
+					Text tpc =  new Text(groupSp, SWT.BORDER);
+					tpc.setText(dataGeoms.get(sp).getColor());
+					tpc.addModifyListener(new ModifyListener() {
+						
+						@Override
+					
+						public void modifyText(ModifyEvent e) {
+							dataGeoms.get(sp).setColor(tpc.getText());
+						}
+				    });
+					
 					bt.addSelectionListener(new SelectionAdapter() {
 
 				        @Override

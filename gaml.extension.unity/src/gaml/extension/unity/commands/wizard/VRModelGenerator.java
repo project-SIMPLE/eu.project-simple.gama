@@ -169,12 +169,13 @@ public class VRModelGenerator {
 				String nStr = "names: " + geoms.getSpeciesName() + " collect (each.name) ";
 				String hStr = "height: " + geoms.getHeight() + " ";
 				String cStr = "collider: " + geoms.getHasCollider() + " ";
+				String ccStr = "color: " + geoms.getColor() + " ";
 				String tDStr = "is_3D: " + geoms.getIs3D() + " ";
 				String inStr = "is_interactable: " + geoms.getIs3D() + " ";
 				
 				String tStr = (geoms.getTag()  == null || geoms.getTag().equals(""))  ? "" :"tag: \"" + geoms.getTag() + "\" ";
 				
-				modelUnityLinker += "\n\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr  + tDStr + inStr+ ";";
+				modelUnityLinker += "\n\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr  + tDStr + inStr+ ccStr+ ";";
 				
 			}
 			modelUnityLinker +=  "\n\t}";
