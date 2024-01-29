@@ -2,6 +2,14 @@
 The gaml.extension.unitu GAMA plugin  provides a number of tools and GAML extensions (built-in species and new experiment type) to transform a GAMA model into a Unity 3D universe.
 It works with the [simple UNITY template](https://github.com/project-SIMPLE/simple.template.unity) and the [simple server middleware](https://github.com/project-SIMPLE/GamaServerMiddleware). 
 
+The plugin integrates 3 new element types for GAMA:
+* An abstract species, abstract_unity_linker, which links a GAMA simulation to a Unity game. 
+* An abstract species, abstract_unity_player, which represents a Unity player in a GAMA simulation.
+* A new type of experiment, unity, which creates a unity_linker at initialization.
+
+In addition, the plugin integrates a tool accessible from the UnityVR menu that allows you to generate a new model from a GAMA model, extending it and linking it to Unity. 
+
+Finally, the plugin includes several templates illustrating how to use the plugin (Demo) or how to send or receive geometries from GAMA to Unity or from Unity to GAMA. 
 
 # Installation
 
