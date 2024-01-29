@@ -16,6 +16,7 @@
 
   <modules>
     <module>../gaml.extension.unity</module>
+    <module>../gaml.feature.unity</module>
     <module>../eu.project-simple.site</module>
   </modules>
 
