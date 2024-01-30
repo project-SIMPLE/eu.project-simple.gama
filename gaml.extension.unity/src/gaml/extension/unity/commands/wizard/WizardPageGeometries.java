@@ -6,11 +6,12 @@ import java.util.Map;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -24,7 +25,7 @@ public class WizardPageGeometries extends WizardPage {
 
 	IModel model;
 
-    private Composite container;
+    //private Composite container;
     
     VRModelGenerator generator;
     
@@ -36,18 +37,34 @@ public class WizardPageGeometries extends WizardPage {
 		 setDescription("Please enter information about the background geometries");
 		 this.model = model;
 		 this.generator = gen;
+		 
 	}
 	
 
-	@Override
+	@Override 
 	public void createControl(Composite parent) {
-		container = new Composite(parent, SWT.NONE);
-		 container.setLayout(new FillLayout(SWT.VERTICAL));
-		 Group group = new Group(container, SWT.NONE);
+		//container = new Composite(parent, SWT.NONE);
+		 //container.setLayout(new FillLayout(SWT.VERTICAL));
+		 ScrolledComposite scroll = new ScrolledComposite( parent, SWT.V_SCROLL );
+		 scroll.setLayoutData(new GridData(GridData.FILL_VERTICAL)); 
 
+	        scroll.setAlwaysShowScrollBars(false);   
+	        scroll.setExpandVertical(true); 
+	        scroll.setExpandHorizontal(true); 
+
+	        scroll.setMinHeight(600);  
+	        scroll.setLayout(new GridLayout(1, false)); 
+
+
+		 Composite group = new Composite(scroll, SWT.NONE);
+		 scroll.setContent(group); 
 		 group.setLayout(new GridLayout(2, false));
-		 group.setText("Species of agents to send to Unity as static geometries");
-			
+		 //group.setText("Species of agents to send to Unity as static geometries");
+		 Label lma = new Label(group, SWT.LEFT);
+		 lma.setText("Species of agents to send to Unity as static geometries" );
+		 Label lmae = new Label(group, SWT.LEFT);
+		 lmae.setText("" );
+		
 		 Map<String,DataGeometries> dataGeoms = new HashMap<>();
 		for (String sp : model.getAllSpecies().keySet()) {
 			
@@ -199,7 +216,7 @@ public class WizardPageGeometries extends WizardPage {
 				    });
 		}
 		 
-		 setControl(container);
+		 setControl(scroll);
 		
 	}
 

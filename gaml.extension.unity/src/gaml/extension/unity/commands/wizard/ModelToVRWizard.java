@@ -48,6 +48,7 @@ public class ModelToVRWizard extends Wizard {
 		 finalPage = new WizardPagePlayer(model, generator);
 		 
 		 addPage(finalPage);
+		 getShell().setSize(600, 600);
 	 }
 	
 	 @Override
