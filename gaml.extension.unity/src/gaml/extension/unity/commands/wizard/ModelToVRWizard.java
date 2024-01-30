@@ -65,7 +65,7 @@ public class ModelToVRWizard extends Wizard {
 		
 		try {
 			FileWriter fw = new FileWriter(file);
-
+			
 			fw.write(modelVRStr);
 			fw.close();
 			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());

@@ -28,9 +28,7 @@ public class GenerateVrModelHandler extends AbstractHandler {
 			return null;
 		}
 		final File file = new File(model.getProjectPath() + "/models/"+ model.getName() + "-VR.gaml");
-		if (file.exists()) {
-			file.delete();
-		}
+		
 		String path = editor.getDocument().getResourceURI().path();
 		createVRModel(path, model, file);
 		return null;
