@@ -69,14 +69,14 @@ public class ModelToVRWizard extends Wizard {
 			
 			fw.write(modelVRStr);
 			fw.close();
-			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+			/*  IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
 			    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			    try {
 			        IDE.openEditorOnFileStore( page, fileStore );
 			    } catch ( PartInitException e ) {
 			        e.printStackTrace();
 			        System.out.println("An Error occured while loading the file.");
-			    }
+			    }*/
 			
 		} catch (IOException e) {
 			e.printStackTrace();
