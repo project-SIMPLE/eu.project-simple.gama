@@ -48,6 +48,7 @@ public class ModelToVRWizard extends Wizard {
 		 finalPage = new WizardPagePlayer(model, generator);
 		 
 		 addPage(finalPage);
+		 getShell().setSize(600, 600);
 	 }
 	
 	 @Override
@@ -65,17 +66,17 @@ public class ModelToVRWizard extends Wizard {
 		
 		try {
 			FileWriter fw = new FileWriter(file);
-
+			
 			fw.write(modelVRStr);
 			fw.close();
-			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+			/*  IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
 			    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			    try {
 			        IDE.openEditorOnFileStore( page, fileStore );
 			    } catch ( PartInitException e ) {
 			        e.printStackTrace();
 			        System.out.println("An Error occured while loading the file.");
-			    }
+			    }*/
 			
 		} catch (IOException e) {
 			e.printStackTrace();
