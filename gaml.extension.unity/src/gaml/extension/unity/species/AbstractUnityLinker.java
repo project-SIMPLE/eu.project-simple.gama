@@ -756,6 +756,9 @@ public class AbstractUnityLinker extends GamlAgent {
 				IMap<String, Object> ptM = GamaMapFactory.create();
 				
 				IList<Integer> colorInt = GamaListFactory.create();
+				if (c == null ) {
+					c = GamaColor.get(GamaColor.gray);
+				}
 				colorInt.add(c.red());
 				colorInt.add(c.green());
 				colorInt.add(c.blue());
