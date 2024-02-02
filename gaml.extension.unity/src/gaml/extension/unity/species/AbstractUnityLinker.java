@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
+
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.kernel.root.PlatformAgent;
 import msi.gama.metamodel.agent.GamlAgent;
@@ -46,7 +48,9 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 @vars({ 
 	@variable(name = AbstractUnityLinker.CONNECT_TO_UNITY, type = IType.BOOL, init = "true",
 			doc = { @doc ("Activate the unity connection; if activated, the model will wait for an connection from Unity to start")}), 
-	
+	@variable(name = AbstractUnityLinker.READY_TO_MOVE_PLAYER, type = IType.LIST, init = "[]",
+	doc = { @doc ("list of players that are readdy to have their position updated from Unity")}), 
+
 	@variable(name = AbstractUnityLinker.MIN_NUMBER_PLAYERS, type = IType.INT, init = "0",
 	doc = { @doc ("Number of Unity players required to start the simulation")}), 
 	@variable(name = AbstractUnityLinker.MAX_NUMBER_PLAYERS, type = IType.INT, init = "1",
@@ -102,8 +106,8 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	@variable(name = AbstractUnityLinker.USE_MIDDLEWARE, type = IType.BOOL, init="true", 
 	doc = { @doc ("Use of the middleware to connect Unity and GAMA? Direct connection is only usable for 1 player game")}),  
 
-	@variable(name = AbstractUnityLinker.NEW_PLAYER_POSITION, type = IType.LIST, of = IType.INT, 
-			doc = { @doc ("The new poistion of the player to be sent to Unity - list of int [x,y]")}), 
+	@variable(name = AbstractUnityLinker.NEW_PLAYER_POSITION, type = IType.MAP,  
+			doc = { @doc ("The new poistion of the player to be sent to Unity - map with key: agent name, value: list of int [x,y]")}), 
 	@variable(name = AbstractUnityLinker.DISTANCE_PLAYER_SELECTION, type = IType.FLOAT, init = "2.0", 
 	doc = { @doc ("Maximal distance to select a player agent")}), 
 	@variable(name = AbstractUnityLinker.INIT_LOCATIONS, type = IType.LIST, of=  IType.POINT, 
@@ -146,6 +150,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String RECEIVE_INFORMATION = "receive_information";
 
 	public static final String WAITING_MESSAGE = "ready";
+	
+	public static final String READY_TO_MOVE_PLAYER = "ready_to_move_player";
 	
 	
 	public static final String HEADING = "heading";
@@ -380,6 +386,15 @@ public class AbstractUnityLinker extends GamlAgent {
 		agent.setAttribute(INIT_LOCATIONS, val);
 	}
 	
+	@getter (AbstractUnityLinker.READY_TO_MOVE_PLAYER)
+	public static IList<IAgent> getReadyToMovePlayers(final IAgent agent) {
+		return (IList<IAgent>) agent.getAttribute(READY_TO_MOVE_PLAYER);
+	}
+	@setter(AbstractUnityLinker.READY_TO_MOVE_PLAYER)
+	public static void setReadyToMovePlayers(final IAgent agent, final IList val) {
+		agent.setAttribute(READY_TO_MOVE_PLAYER, val);
+	}
+	
 	@getter (AbstractUnityLinker.THE_PLAYERS)
 	public static IMap<String, IAgent> getPlayers(final IAgent agent) {
 		return (IMap<String, IAgent>) agent.getAttribute(THE_PLAYERS);
@@ -391,11 +406,11 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	
 	@getter (AbstractUnityLinker.NEW_PLAYER_POSITION)
-	public static  IList<Integer> getNewPlayerPosition(final IAgent agent) {
-		return ( IList<Integer>) agent.getAttribute(NEW_PLAYER_POSITION);
+	public static  IMap<String, IList<Integer>> getNewPlayerPosition(final IAgent agent) {
+		return ( IMap<String,IList<Integer>>) agent.getAttribute(NEW_PLAYER_POSITION);
 	}
 	@setter(AbstractUnityLinker.NEW_PLAYER_POSITION)
-	public static void setNewPlayerPosition(final IAgent agent, final IList<Integer> val) {
+	public static void setNewPlayerPosition(final IAgent agent, final IMap<String, IList<Integer>> val) {
 		agent.setAttribute(NEW_PLAYER_POSITION, val);
 	}
 	
@@ -596,8 +611,14 @@ public class AbstractUnityLinker extends GamlAgent {
 			}
 		}
 		if (!mes.isBlank()) {
-			pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
-			
+			try {
+				pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
+			} catch (WebsocketNotConnectedException e ) {
+				if (!getUseMiddleware(getAgent())) {
+					getPlayers(pa).get(0).dispose();
+					getPlayers(pa).clear();
+				}
+			}
 		}	
 		currentMessage.clear();
 		
@@ -681,8 +702,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	 
 			IList<IMap> messageAgs = (IList<IMap>) doAction1Arg(scope, "message_agents", "ags", ags);
 			toSend.put("agents", messageAgs);
-			toSend.put("position", getNewPlayerPosition(ag));
-			setNewPlayerPosition(ag, GamaListFactory.create()); 
+			toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
 			IList<String> rec = GamaListFactory.create();
 			rec.add(player.getName());
 			
@@ -837,6 +857,9 @@ public class AbstractUnityLinker extends GamlAgent {
 		if (getDoSendWorld(getAgent())) {
 			 doActionNoArg(scope, "send_world" );
 		}
+		getNewPlayerPosition(ag).put(player.getName(), GamaListFactory.create()); 
+		getReadyToMovePlayers(ag).add(player);
+		
 		startSimulation(scope);
 	}
 	
@@ -1023,6 +1046,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
 		GamaPoint loc = (GamaPoint) scope.getArg("loc");
+		getReadyToMovePlayers(ag).remove(player);
 		loc = (GamaPoint)doAction2Arg(scope, "new_player_location", "player", player, "loc", loc);
 		player.setLocation(loc);
 		doAction1Arg(scope, "send_player_position", "player", player);
@@ -1053,17 +1077,44 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 		IAgent ag = getAgent();
 		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
-		if (thePlayer == null) return;
+		if (thePlayer == null ) return;
 		Integer x = scope.getIntArg("x");
 		Integer y = scope.getIntArg("y");
 		Integer angle = scope.getIntArg("angle");
 		//System.out.println("move_player_external: " + x + ',' +y + "," + angle + " " + scope.getStringArg("x"));
 		int precision = getPrecision(ag); 
 		Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
-		thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
-		thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
-		thePlayer.setAttribute("to_display", true);
+		if (getReadyToMovePlayers(ag).contains(thePlayer)) {
+			thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
+			thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
+			thePlayer.setAttribute("to_display", true);
+		} 
+		
 	}
+	
+
+	@action (
+			name = "player_position_updated",
+					args = { @arg (
+							name = "id",
+							type = IType.STRING,
+							doc = @doc ("Player agent of which the position has been updated"))},
+			doc = { @doc (
+					value = "reactivate the reception of player position")})
+	public void primPlayerPositionUpdated(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = getAgent();
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
+		if (thePlayer == null ) return;
+
+		getNewPlayerPosition(ag).put(thePlayer.getName(), GamaListFactory.create()); 
+		if (!getReadyToMovePlayers(ag).contains(thePlayer.getName()))
+			getReadyToMovePlayers(ag).add(thePlayer);
+		
+		
+	}
+	
+	
+	
 	
 	@action (
 			name = "send_player_position",
@@ -1083,7 +1134,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Integer> pos = GamaListFactory.create();
 		pos.add((int)(player.getLocation().x * precision));
 		pos.add((int) (player.getLocation().y * precision));
-		setNewPlayerPosition(ag, pos);
+		getNewPlayerPosition(ag).put(player.getName(), pos); 
 	}
 	
 	
