@@ -1092,6 +1092,22 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	}
 	
+	@action (
+			name = "ping_GAMA",
+					args = { @arg (
+							name = "id",
+							type = IType.STRING,
+							doc = @doc ("Player agent that try to ping GAMA"))},
+			doc = { @doc (
+					value = "Ping GAMA to test the connection")})
+	public void primPingGAMA(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = getAgent();
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
+		if (thePlayer == null ) return;
+		PlatformAgent pa = GAMA.getPlatformAgent();
+		pa.sendMessage(scope,ConstantExpressionDescription.create("pong"));		
+	}
+	
 
 	@action (
 			name = "player_position_updated",

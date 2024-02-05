@@ -31,6 +31,10 @@ species unity_linker parent: abstract_unity_linker {
 		do add_background_data geoms: block collect each.shape names: names height: 5.0 collider: true tag: "selectable" is_interactable: true;
 	}
 	
+	action add_to_send_parameter(map map_to_send) {
+		map_to_send["hotspots"] <- (block where (each.is_hotspot)) collect string(int(each));
+	}
+	
 	action update_hotspot(string id) {
 		block b <- block[int(id)];
 		
