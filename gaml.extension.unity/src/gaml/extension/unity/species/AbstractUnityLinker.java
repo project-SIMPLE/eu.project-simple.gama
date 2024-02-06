@@ -463,7 +463,12 @@ public class AbstractUnityLinker extends GamlAgent {
 		GamaPoint pt = scope.getGui().getMouseLocationInModel();
 		if (pt != null) {
 			IList<IAgent> ags = GamaListFactory.create();
-			for (IAgent a:getPlayers(ag).values() ) {
+			for (String playerName : getPlayers(ag).keySet()) {
+				IAgent a = getPlayers(ag).get(playerName);
+				if (a == null) {
+					getPlayers(ag).remove(playerName);
+					continue;
+				}
 				if (a.euclidianDistanceTo(pt) <=   getDistanceSelection(ag))
 					ags.add(a);
 			}
@@ -690,12 +695,20 @@ public class AbstractUnityLinker extends GamlAgent {
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		
 		IList<IAgent> ags = GamaListFactory.create();
-		ags.addAll(getAgentsToSend(ag).stream().filter(a -> !a.dead()).toList());
-		for (IAgent player : getPlayers(ag).values()) {
-			if (((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
+		ags.addAll(getAgentsToSend(ag).stream().filter(a -> (a != null && !a.dead())).toList());
+		
+		for (String playerName : getPlayers(ag).keySet()) {
+			IAgent player = getPlayers(ag).get(playerName);
+			if (player == null) {
+				getPlayers(ag).remove(playerName);
+				continue;
+			}
+			if (player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null &&
+				((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_distance", "ags", ags);
 			}
-			if (((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0) {
+			if 	(player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) != null &&
+				((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0) {
 				ags = (IList<IAgent>) doAction1Arg(scope, "filter_overlapping", "ags", ags);
 			} 
 			
@@ -920,7 +933,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
 		if (sp == null) return;
 		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
-		if (getPlayers(ag).containsKey(id)) {
+		if (getPlayers(ag).containsKey(id) && getPlayers(ag).get(id) != null){
 			return;
 		}
 		//setUseMiddleware(getAgent(), true);
@@ -1085,8 +1098,10 @@ public class AbstractUnityLinker extends GamlAgent {
 		int precision = getPrecision(ag); 
 		Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
 		if (getReadyToMovePlayers(ag).contains(thePlayer)) {
-			thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
-			thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
+			if (rot != null)
+				thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
+			if (x !=null && y != null) 
+				thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
 			thePlayer.setAttribute("to_display", true);
 		} 
 		
