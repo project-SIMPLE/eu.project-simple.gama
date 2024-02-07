@@ -11,6 +11,8 @@ In addition, the plugin integrates a tool accessible from the UnityVR menu that 
 
 Finally, the plugin includes several templates illustrating how to use the plugin (Demo) or how to send or receive geometries from GAMA to Unity or from Unity to GAMA. 
 
+A description of the use of the project with a tutorial can be found [here](https://github.com/project-SIMPLE/documentation/wiki).
+
 # Installation
 
 ## From GAMA
@@ -23,4 +25,6 @@ then "Work with", copy the address [https://project-simple.github.io/gaml.extens
 
 ## Developer mode 
 If you have a developer version of GAMA (branch 1.9.3), you can clone the project directly to add the plugin to GAMA. 
+
+
  
