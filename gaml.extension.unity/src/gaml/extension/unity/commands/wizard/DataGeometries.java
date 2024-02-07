@@ -1,6 +1,5 @@
 package gaml.extension.unity.commands.wizard;
 
-import msi.gama.util.GamaColor;
 
 public class DataGeometries {
 	private String speciesName;
@@ -10,6 +9,7 @@ public class DataGeometries {
 	private String tag = "";
 	private Boolean is3D = true;
 	private Boolean isSelectable = false;
+	private Boolean isGrabable = false;
 	private String color = "#gray";
 	
 	
@@ -54,6 +54,12 @@ public class DataGeometries {
 	}
 	public Boolean getIsSelectable() {
 		return isSelectable;
+	}
+	public Boolean getIsGrabable() {
+		return isGrabable;
+	}
+	public void setIsGrabable(Boolean isGrabable) {
+		this.isGrabable = isGrabable;
 	}
 	public void setIsSelectable(Boolean isSelectable) {
 		this.isSelectable = isSelectable;

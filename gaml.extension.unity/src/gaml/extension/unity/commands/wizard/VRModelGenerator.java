@@ -14,7 +14,7 @@ public class VRModelGenerator {
 	private Double playerAgentsMinDist = 0.0;
 	private Double playerSize = 1.0;
 	private String playerColor = "#red";
-	private Double minimumCycleDuration = 0.05;
+	private Double minimumCycleDuration = 0.1;
 	private List<String> displaysToHide = new ArrayList<>();
 	private String mainDisplay;
 	
@@ -39,7 +39,7 @@ public class VRModelGenerator {
 	}
 	
 	public String experimentStr() {
-		String modelExp = "experiment vr_xp " + (experimentName != null ? "parent:" + experimentName : "")+ " autorun: true type: unity {\n";
+		String modelExp = "experiment vr_xp " + (experimentName != null ? "parent:" + experimentName : "")+ " autorun: false type: unity {\n";
 		modelExp += "\tfloat minimum_cycle_duration <- " + minimumCycleDuration + ";\n";
 		modelExp += "\tstring unity_linker_species <- string(unity_linker);\n";
 		String disToHide = ""; boolean first = true;
@@ -171,11 +171,12 @@ public class VRModelGenerator {
 				String cStr = "collider: " + geoms.getHasCollider() + " ";
 				String ccStr = "color: " + geoms.getColor() + " ";
 				String tDStr = "is_3D: " + geoms.getIs3D() + " ";
-				String inStr = "is_interactable: " + geoms.getIs3D() + " ";
+				String inStr = "is_interactable: " + geoms.getIsSelectable() + " ";
+				String inGrab = "is_grabable: " + geoms.getIsGrabable() + " ";
 				
 				String tStr = (geoms.getTag()  == null || geoms.getTag().equals(""))  ? "" :"tag: \"" + geoms.getTag() + "\" ";
 				
-				modelUnityLinker += "\n\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr  + tDStr + inStr+ ccStr+ ";";
+				modelUnityLinker += "\n\t\tdo add_background_data " + gStr +nStr +  hStr + cStr + tStr  + tDStr + inStr+ ccStr+ inGrab + ";";
 				
 			}
 			modelUnityLinker +=  "\n\t}";

@@ -76,6 +76,8 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	doc = { @doc ("For each geometry sent to Unity, does this one is 3D ? ")}),  
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES, type = IType.LIST, of =  IType.BOOL, 
 	doc = { @doc ("For each geometry sent to Unity, does this one is interactable ? ")}),  
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_GRAB, type = IType.LIST, of =  IType.BOOL, 
+	doc = { @doc ("For each geometry sent to Unity, if this one is interactable, is this one is grabable (Ray interaction otherwise)? ")}),  
 
 	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
 			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
@@ -127,6 +129,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String BACKGROUND_GEOMS_HEIGHTS = "background_geoms_heights";
 	public static final String BACKGROUND_GEOMS_COLLIDERS = "background_geoms_colliders";
 	public static final String BACKGROUND_GEOMS_INTERACTABLES = "background_geoms_interactables";
+	public static final String BACKGROUND_GEOMS_GRAB = "background_geoms_grab";
 	public static final String BACKGROUND_GEOMS_COLORS = "background_geoms_colors";
 	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
 	
@@ -282,6 +285,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
 	public static void setBackgroundGeomsIsInteractables(final IAgent agent, final IList<Boolean> val) {
 		agent.setAttribute(BACKGROUND_GEOMS_INTERACTABLES, val);
+	}
+	
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_GRAB)
+	public static  IList<Boolean> getBackgroundGeomsIsGrabable(final IAgent agent) {
+		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_GRAB);
+	}
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_GRAB)
+	public static void setBackgroundGeomsIsGrabable(final IAgent agent, final IList<Boolean> val) {
+		agent.setAttribute(BACKGROUND_GEOMS_GRAB, val);
 	}
 	
 	
@@ -515,7 +527,7 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	
 	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable, GamaColor color) {
+	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable, Boolean isGrabable, GamaColor color) {
 		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
 		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
 		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
@@ -523,6 +535,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
 		IList<Boolean> backgroundGeometriesis3D = getBackgroundGeoms3D(getAgent());
 		IList<Boolean> backgroundGeometriesisInteractable = getBackgroundGeomsIsInteractables(getAgent());
+		IList<Boolean> backgroundGeometriesisGrab = getBackgroundGeomsIsGrabable(getAgent());
 		IList<GamaColor> backgroundGeometriesColors = getBackgroundGeomsColors(getAgent());
 		
 		if(backgroundGeometries == null) {
@@ -534,6 +547,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			backgroundGeometriesis3D = GamaListFactory.create(Types.BOOL);
 			backgroundGeometriesisInteractable =  GamaListFactory.create(Types.BOOL);
 			backgroundGeometriesColors = GamaListFactory.create(Types.COLOR);
+			backgroundGeometriesisGrab = GamaListFactory.create(Types.BOOL);
 		}
 		backgroundGeometries.addAll(geoms);
 		
@@ -555,6 +569,9 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (isInteractable != null)
 				backgroundGeometriesisInteractable.add(isInteractable);
 			else backgroundGeometriesisInteractable.add(false);
+			if (isGrabable != null)
+				backgroundGeometriesisGrab.add(isGrabable);
+			else backgroundGeometriesisGrab.add(false);
 			if (color != null) {
 				backgroundGeometriesColors.add(color);
 			} else {
@@ -573,7 +590,8 @@ public class AbstractUnityLinker extends GamlAgent {
 		setBackgroundGeoms3D(getAgent(), backgroundGeometriesis3D);
 		setBackgroundGeomsIsInteractables(getAgent(), backgroundGeometriesisInteractable);
 		setBackgroundGeomsColors(getAgent(), backgroundGeometriesColors);
-	
+		setBackgroundGeomsIsGrabable(getAgent(), backgroundGeometriesisGrab);
+		
 	}
 	
 	@action (
@@ -754,6 +772,10 @@ public class AbstractUnityLinker extends GamlAgent {
 										type = IType.LIST,
 										doc = @doc ("For each geometry, is interactable (list of bools) ")),
 							 @arg (
+										name = "is_grabables",
+										type = IType.LIST,
+										doc = @doc ("For each geometry, if interactable, is it grabable (list of bools) ")),
+							 @arg (
 										name = "names",
 										type = IType.LIST,
 										doc = @doc ("List of name (string) associated to each geometry")),
@@ -781,6 +803,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<String> tags = scope.getListArg("tags");
 		IList<Boolean> are3D = scope.getListArg("is_3D");
 		IList<Boolean> isInteractables = scope.getListArg("is_interactables");
+		IList<Boolean> isGrabables = scope.getListArg("is_grabables");
 		IList<GamaColor> colors = scope.getListArg("colors");
 		IList<Object> colorsToSend = GamaListFactory.create();
 		
@@ -822,6 +845,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("tags", tags);
 		toSend.put("is3D", are3D);
 		toSend.put("isInteractables", isInteractables);
+		toSend.put("isGrabables", isGrabables);
 		toSend.put("colors", colorsToSend);
 		
 		IList<String> playersStr = GamaListFactory.create();
@@ -1252,6 +1276,11 @@ public class AbstractUnityLinker extends GamlAgent {
 					 optional = true,
 					type = IType.BOOL, 
 					doc = @doc ("is the geometries interactable in Unity")),
+			@arg (
+					 name = "is_grabable",
+					 optional = true,
+					type = IType.BOOL, 
+					doc = @doc ("if the geometries interactable, is the geometries grabable in Unity (ray interaction otherwise)")),
 			 @arg (
 				name = "height",
 				type = IType.FLOAT, 
@@ -1275,8 +1304,9 @@ public class AbstractUnityLinker extends GamlAgent {
 		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
 		
 		final Boolean isInteractable = scope.hasArg("is_interactable") ? (Boolean) scope.getBoolArg("is_interactable") : null;
+		final Boolean isGrabable = scope.hasArg("is_grabable") ? (Boolean) scope.getBoolArg("is_grabable") : null;
 		final GamaColor color =  scope.hasArg("color") ?(GamaColor) scope.getArg("color") : null;
-		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable, color);
+		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable, isGrabable, color);
 	}
 
 	

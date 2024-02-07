@@ -134,7 +134,24 @@ public class WizardPageGeometries extends WizardPage {
 			btSelectable.pack();
 			Label leSelectable = new Label(groupSp, SWT.LEFT);
 			leSelectable.setText("" );
-					 
+			
+			Button btGrabable = new Button(groupSp, SWT.CHECK);
+			btGrabable.setSelection( dataGeoms.get(sp).getIsGrabable());
+			btGrabable.addSelectionListener(new SelectionAdapter() {
+
+				        @Override
+				        public void widgetSelected(SelectionEvent event) {
+				            Button btn = (Button) event.getSource();
+				            dataGeoms.get(sp).setIsGrabable(btn.getSelection());
+				             
+				        }
+				    });
+			btGrabable.setText("is grabable?");
+					
+			btGrabable.pack();
+			Label leGrab = new Label(groupSp, SWT.LEFT);
+			leGrab.setText("" );
+			
 			 Label lp = new Label(groupSp, SWT.LEFT);
 				lp.setText("Buffer:" );
 				Text tp =  new Text(groupSp, SWT.BORDER);
