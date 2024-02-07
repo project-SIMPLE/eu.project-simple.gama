@@ -155,7 +155,7 @@ public class VRModelGenerator {
 		else
 			modelUnityLinker += "\tint max_num_players  <- -1;\n";
 		if (minNumberPlayer > 0) {
-			modelUnityLinker += "\tint min_num_player  <- " + minNumberPlayer + ";\n";
+			modelUnityLinker += "\tint min_num_players  <- " + minNumberPlayer + ";\n";
 		}
 		if (speciesToSend != null && !speciesToSend.isEmpty()) {
 			String lisStr = ""; boolean first = true;
