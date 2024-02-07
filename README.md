@@ -11,7 +11,7 @@ In addition, the plugin integrates a tool accessible from the UnityVR menu that 
 
 Finally, the plugin includes several templates illustrating how to use the plugin (Demo) or how to send or receive geometries from GAMA to Unity or from Unity to GAMA. 
 
-A description of the use of the project with a tutorial can be found [here](https://github.com/project-SIMPLE/documentation/wiki).
+A description of the use of the plugin with a tutorial can be found [here](https://github.com/project-SIMPLE/documentation/wiki).
 
 # Installation
 
