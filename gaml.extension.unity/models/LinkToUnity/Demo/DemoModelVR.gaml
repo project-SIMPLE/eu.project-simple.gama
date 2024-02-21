@@ -30,22 +30,22 @@ species unity_linker parent: abstract_unity_linker {
 		loop i from: 0 to: length(block) {
 			names << ""+i;
 		}
-		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",0.3,-1.0,-1.0,90.0, precision);
+		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",0.3,0.0,-1.0,90.0, precision);
 		unity_property up_car <- geometry_properties("car",car_aspect, "car", true,true, false );
 		unity_properties << up_car;
 		
-		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",0.3,-1.0,-1.0,90.0, precision);
+		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",0.3,0.0,-1.0,90.0, precision);
 		unity_property up_moto <- geometry_properties("moto",moto_aspect, "moto", true,true, false );
 		unity_properties << up_moto;
 		
-		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0.0,1.0,0.0, precision);
-		unity_property up_tree<- geometry_properties("tree",tree_aspect, "tree", true,true, false );
+		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,2,1.0,0.0, precision);
+		unity_property up_tree<- geometry_properties("tree",tree_aspect, "tree", true,true, true );
 		unity_properties << up_tree;
 		
 		
-		unity_aspect geom_aspect <- geometry_aspect(10.0, #red, precision);
+		unity_aspect geom_aspect <- geometry_aspect(10.0, #gray, precision);
 		write sample(geom_aspect);
-		unity_property up_geom <- geometry_properties("block",geom_aspect, "block", true,true, false );
+		unity_property up_geom <- geometry_properties("block",geom_aspect, "selectable", true,true, false );
 		unity_properties << up_geom;
 		background_geometries <- block as_map (each::up_geom) + static_object as_map (each::up_tree);
 		geometries_to_send <- simple_agentA as_map (each::up_car) + simple_agentB as_map (each::up_moto) ;
@@ -59,7 +59,7 @@ species unity_linker parent: abstract_unity_linker {
 	}
 	
 	action update_hotspot(string id) {
-		block b <- block[int(id)];
+		block b <- block first_with (each.name = id);
 		
 		if (b != nil) {
 			ask b {

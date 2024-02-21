@@ -121,9 +121,9 @@ public class UnityProperties implements IValue {
 		map.putAll(aspect.toMap());
 		map.put("tag", tag);
 		map.put("collider", collider);
-		map.put("interactable",interactable);
-		map.put("grabable", grabable);
-		map.put("collider", collider);
+		map.put("isInteractable",interactable);
+		map.put("isGrabable", grabable);
+		map.put("hasCollider", collider);
 		
 		return map;
 	}
