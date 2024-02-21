@@ -30,15 +30,15 @@ species unity_linker parent: abstract_unity_linker {
 		loop i from: 0 to: length(block) {
 			names << ""+i;
 		}
-		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",0.3,0.0,-1.0,90.0, precision);
+		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
 		unity_property up_car <- geometry_properties("car",car_aspect, "car", true,true, false );
 		unity_properties << up_car;
 		
-		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",0.3,0.0,-1.0,90.0, precision);
+		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
 		unity_property up_moto <- geometry_properties("moto",moto_aspect, "moto", true,true, false );
 		unity_properties << up_moto;
 		
-		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,2,1.0,0.0, precision);
+		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0,1.0,0.0, precision);
 		unity_property up_tree<- geometry_properties("tree",tree_aspect, "tree", true,true, true );
 		unity_properties << up_tree;
 		
@@ -58,6 +58,15 @@ species unity_linker parent: abstract_unity_linker {
 		map_to_send["hotspots"] <- (block where (each.is_hotspot)) collect string(int(each));
 	}
 	
+	action remove_vehicle(string id) {
+		agent ag <- (simple_agentA + simple_agentB) first_with (each.name = id) ;
+		if (ag != nil) {
+			ask ag {
+				remove key: self from: myself.geometries_to_send;
+				do die;
+			}
+		}
+	}
 	action update_hotspot(string id) {
 		block b <- block first_with (each.name = id);
 		

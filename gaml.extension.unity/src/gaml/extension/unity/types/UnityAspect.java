@@ -37,7 +37,7 @@ import msi.gaml.types.IType;
 		name = "prefab",
 		type = IType.STRING,
 		doc = @doc ("The prefab used to display the agent/geometry")),
-	 @variable (
+	@variable (
 				name = "size",
 				type = IType.FLOAT,
 				doc = @doc ("The size (scale) of the prefab used to display the geometry")),

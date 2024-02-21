@@ -9,8 +9,8 @@ model DemoModel
  
 
 global {
-	int nb_agentsA <- 500 parameter: true min: 0 max: 5000 step: 1;
-	int nb_agentsB <- 500 parameter: true min: 0 max: 5000 step: 1;
+	int nb_agentsA <- 100 parameter: true min: 0 max: 5000 step: 1;
+	int nb_agentsB <- 100 parameter: true min: 0 max: 5000 step: 1;
 	float cycle_duration <- 0.03 parameter: true min: 0.0 max: 0.1 step: 0.01;
 	float step <- 0.1 parameter: true min: 0.1 max: 2.0 step: 0.1;
 	int nb_blocks <- 10 parameter: true min: 0 max: 10 step: 1.0;
@@ -37,11 +37,11 @@ global {
 	}
 	
 	
-	reflex update_agent {
+	/*reflex update_agent {
 		
 		do update_agents(simple_agentA, nb_agentsA);
 		do update_agents(simple_agentB, nb_agentsB);
-	}
+	}*/
 	
 	action update_agents( species<agent> sp, int number) {
 		if length(sp) > number {
