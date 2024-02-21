@@ -109,19 +109,17 @@ species simple_agentA  skills: [moving ] {
 	
 	
 	reflex move {
-		if (target != nil) {
-			do goto target: target;
-			if (location = target) {
-				target <- nil;
-			}
-		} else {
-			if (bounds != nil) and (self overlaps bounds) {
-				do wander amplitude: amplitude bounds: bounds; 
+		if (target = nil ){
+			if (bounds != nil) {
+				target <- any_location_in(bounds);
 			} else {
-				do wander amplitude: amplitude; 
+				target <- any_location_in(world);
 			}
-		
 		}	
+		do goto target: target;
+		if (location = target) {
+			target <- nil;
+		}  
 		
 	}
 	

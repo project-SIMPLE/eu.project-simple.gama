@@ -18,18 +18,41 @@ species unity_linker parent: abstract_unity_linker {
 	string player_species <- string(unity_player);
 	int min_num_players <- 1;
 	int max_num_players <- 4;
-		
 	
-
+	
+	
+	
+ 
 	bool do_send_world <- true;
 	init {
-		do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
+		//do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
 		list<string> names ;
 		loop i from: 0 to: length(block) {
 			names << ""+i;
 		}
-		do add_background_data geoms: block collect each.shape names: names height: 5.0 collider: true tag: "selectable" is_interactable: true;
+		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",0.3,-1.0,-1.0,90.0, precision);
+		unity_property up_car <- geometry_properties("car",car_aspect, "car", true,true, false );
+		unity_properties << up_car;
+		
+		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",0.3,-1.0,-1.0,90.0, precision);
+		unity_property up_moto <- geometry_properties("moto",moto_aspect, "moto", true,true, false );
+		unity_properties << up_moto;
+		
+		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0.0,1.0,0.0, precision);
+		unity_property up_tree<- geometry_properties("tree",tree_aspect, "tree", true,true, false );
+		unity_properties << up_tree;
+		
+		
+		unity_aspect geom_aspect <- geometry_aspect(10.0, #red, precision);
+		write sample(geom_aspect);
+		unity_property up_geom <- geometry_properties("block",geom_aspect, "block", true,true, false );
+		unity_properties << up_geom;
+		background_geometries <- block as_map (each::up_geom) + static_object as_map (each::up_tree);
+		geometries_to_send <- simple_agentA as_map (each::up_car) + simple_agentB as_map (each::up_moto) ;
+		
 	}
+	
+	
 	
 	action add_to_send_parameter(map map_to_send) {
 		map_to_send["hotspots"] <- (block where (each.is_hotspot)) collect string(int(each));

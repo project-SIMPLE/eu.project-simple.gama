@@ -1,12 +1,17 @@
 package gaml.extension.unity.species;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
+import gaml.extension.unity.types.UnityProperties;
+import gaml.extension.unity.types.UnityPropertiesType;
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.kernel.root.PlatformAgent;
 import msi.gama.metamodel.agent.GamlAgent;
@@ -23,9 +28,8 @@ import msi.gama.precompiler.GamlAnnotations.species;
 import msi.gama.precompiler.GamlAnnotations.variable;
 import msi.gama.precompiler.GamlAnnotations.vars;
 import msi.gama.runtime.GAMA;
-import msi.gama.runtime.IScope; 
+import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
-import msi.gama.util.GamaColor;
 import msi.gama.util.GamaListFactory;
 import msi.gama.util.GamaMap;
 import msi.gama.util.GamaMapFactory;
@@ -58,32 +62,15 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	@variable(name = AbstractUnityLinker.PRECISION, type = IType.INT, init = "10000", 
 			doc = { @doc ("Number of decimal for the data (location, rotation)")}),  
 
-	@variable(name = AbstractUnityLinker.AGENTS_TO_SEND, type = IType.LIST, of =  IType.AGENT, 
-			doc = { @doc ("List of agents to sent to Unity. It could be updated each simulation step")}),  
+	@variable(name = AbstractUnityLinker.UNITY_PROPERTIES, type = IType.LIST, of =  UnityPropertiesType.UNITYPROPERTIESTYPE_ID, 
+	doc = { @doc ("List of background geometries to sent to Unity.")}),  
+
+	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMETRIES, type = IType.MAP, 
+	doc = { @doc ("Map of background geometries to sent to Unity with the unity properties to use.")}),  
+
+	@variable(name = AbstractUnityLinker.GEOMETRIES_TO_SEND, type = IType.MAP,  
+			doc = { @doc ("List of geometries to sent to Unity with the unity properties to use. It could be updated each simulation step")}),  
 	
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS, type = IType.LIST, of =  IType.GEOMETRY, 
-			doc = { @doc ("List of static geometries sent to Unity. Only sent once at the initialization of the connection")}), 
-
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS, type = IType.LIST, of =  IType.INT, 
-			doc = { @doc ("For each geometry sent to Unity, the height of this one.")}),  
-
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS, type = IType.LIST, of =  IType.BOOL, 
-			doc = { @doc ("For each geometry sent to Unity, does this one has a collider (i.e. a physical existence) ? ")}),  
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_COLORS, type = IType.LIST, of =  IType.COLOR, 
-	doc = { @doc ("For each geometry sent to Unity, its display color in Unity ")}),  
-
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_3D, type = IType.LIST, of =  IType.BOOL, 
-	doc = { @doc ("For each geometry sent to Unity, does this one is 3D ? ")}),  
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES, type = IType.LIST, of =  IType.BOOL, 
-	doc = { @doc ("For each geometry sent to Unity, does this one is interactable ? ")}),  
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_GRAB, type = IType.LIST, of =  IType.BOOL, 
-	doc = { @doc ("For each geometry sent to Unity, if this one is interactable, is this one is grabable (Ray interaction otherwise)? ")}),  
-
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_NAMES, type = IType.LIST, of =  IType.STRING, 
-			doc = { @doc ("For each geometry sent to Unity, its name in unity ")}), 
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMS_TAGS, type = IType.LIST, of =  IType.STRING, 
-	doc = { @doc ("For each geometry sent to Unity, its tag and layer in unity ")}), 
-
 	@variable(name = AbstractUnityLinker.DO_SEND_WORLD, type = IType.BOOL, init="true", 
 			doc = { @doc ("Has the agents has to be sent to unity?")}),  
 	
@@ -124,19 +111,12 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String MAX_NUMBER_PLAYERS = "max_num_players";
 	public static final String CONNECT_TO_UNITY = "connect_to_unity";
 	public static final String PRECISION = "precision";
-	public static final String AGENTS_TO_SEND = "agents_to_send";
-	public static final String BACKGROUND_GEOMS = "background_geoms";
-	public static final String BACKGROUND_GEOMS_HEIGHTS = "background_geoms_heights";
-	public static final String BACKGROUND_GEOMS_COLLIDERS = "background_geoms_colliders";
-	public static final String BACKGROUND_GEOMS_INTERACTABLES = "background_geoms_interactables";
-	public static final String BACKGROUND_GEOMS_GRAB = "background_geoms_grab";
-	public static final String BACKGROUND_GEOMS_COLORS = "background_geoms_colors";
-	public static final String BACKGROUND_GEOMS_NAMES = "background_geoms_names";
-	
-	public static final String BACKGROUND_GEOMS_TAGS = "background_geoms_tags";
-	public static final String BACKGROUND_GEOMS_3D = "background_geoms_is3D";
+	public static final String GEOMETRIES_TO_SEND = "geometries_to_send";
+	public static final String BACKGROUND_GEOMETRIES = "background_geometries";
+	public static final String UNITY_PROPERTIES = "unity_properties";
 	public static final String DO_SEND_WORLD = "do_send_world";
 
+	public static final String GROUND_DEPTH = "ground_depth";
 	public static final String END_MESSAGE_SYMBOL = "end_message_symbol";
 
 	public static final String MOVE_PLAYER_EVENT = "move_player_event";
@@ -232,98 +212,32 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static void setPrecision(final IAgent agent, final Integer val) {
 		agent.setAttribute(PRECISION, val);
 	}
-		
-	@getter (AbstractUnityLinker.AGENTS_TO_SEND)
-	public static  IList<IAgent> getAgentsToSend(final IAgent agent) {
-		return ( IList<IAgent>) agent.getAttribute(AGENTS_TO_SEND);
+	
+	@getter (AbstractUnityLinker.UNITY_PROPERTIES)
+	public static  IList<UnityProperties> getUnityProperties(final IShape agent) {
+		return ( IList<UnityProperties>) agent.getAttribute(UNITY_PROPERTIES);
 	}
-	@setter(AbstractUnityLinker.AGENTS_TO_SEND)
-	public static void setAgentsToSend(final IAgent agent, final IList<IAgent> val) {
-		agent.setAttribute(AGENTS_TO_SEND, val);
-	}
-		
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS)
-	public static  IList<IShape> getBackgroundGeoms(final IAgent agent) {
-		return ( IList<IShape>) agent.getAttribute(BACKGROUND_GEOMS);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS)
-	public static void setBackgroundGeoms(final IAgent agent, final IList<IShape> val) {
-		agent.setAttribute(BACKGROUND_GEOMS, val);
+	@setter(AbstractUnityLinker.UNITY_PROPERTIES)
+	public static void setUnityProperties(final IAgent agent, final IList<UnityProperties> val) {
+		agent.setAttribute(UNITY_PROPERTIES, val);
 	}
 	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS)
-	public static  IList<Double> getBackgroundGeomsHeights(final IAgent agent) {
-		return ( IList<Double>) agent.getAttribute(BACKGROUND_GEOMS_HEIGHTS);
+	@getter (AbstractUnityLinker.BACKGROUND_GEOMETRIES)
+	public static  IMap<IShape,UnityProperties> getBackgroundGeometries(final IShape agent) {
+		return ( IMap<IShape,UnityProperties>) agent.getAttribute(BACKGROUND_GEOMETRIES);
 	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_HEIGHTS)
-	public static void setBackgroundGeomsHeights(final IAgent agent, final IList<Double> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_HEIGHTS, val);
+	@setter(AbstractUnityLinker.BACKGROUND_GEOMETRIES)
+	public static void setBackgroundGeometries(final IAgent agent, final IMap<IShape,UnityProperties> val) {
+		agent.setAttribute(BACKGROUND_GEOMETRIES, val);
 	}
 		
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS)
-	public static  IList<Boolean> getBackgroundGeomsColliders(final IAgent agent) {
-		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_COLLIDERS);
+	@getter (AbstractUnityLinker.GEOMETRIES_TO_SEND)
+	public static  IMap<IShape, UnityProperties> getGeometriesToSend(final IAgent agent) {
+		return ( IMap<IShape,UnityProperties>) agent.getAttribute(GEOMETRIES_TO_SEND);
 	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_COLLIDERS)
-	public static void setBackgroundGeomsColliders(final IAgent agent, final IList<Boolean> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_COLLIDERS, val);
-	}
-	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_COLORS)
-	public static  IList<GamaColor> getBackgroundGeomsColors(final IAgent agent) {
-		return ( IList<GamaColor>) agent.getAttribute(BACKGROUND_GEOMS_COLORS);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_COLORS)
-	public static void setBackgroundGeomsColors(final IAgent agent, final IList<GamaColor> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_COLORS, val);
-	}
-	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
-	public static  IList<Boolean> getBackgroundGeomsIsInteractables(final IAgent agent) {
-		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_INTERACTABLES);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_INTERACTABLES)
-	public static void setBackgroundGeomsIsInteractables(final IAgent agent, final IList<Boolean> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_INTERACTABLES, val);
-	}
-	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_GRAB)
-	public static  IList<Boolean> getBackgroundGeomsIsGrabable(final IAgent agent) {
-		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_GRAB);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_GRAB)
-	public static void setBackgroundGeomsIsGrabable(final IAgent agent, final IList<Boolean> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_GRAB, val);
-	}
-	
-	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_3D)
-	public static  IList<Boolean> getBackgroundGeoms3D(final IAgent agent) {
-		return ( IList<Boolean>) agent.getAttribute(BACKGROUND_GEOMS_3D);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_3D)
-	public static void setBackgroundGeoms3D(final IAgent agent, final IList<Boolean> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_3D, val);
-	}
-		
-
-		
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
-	public static  IList<String> getBackgroundGeomsNames(final IAgent agent) {
-		return ( IList<String>) agent.getAttribute(BACKGROUND_GEOMS_NAMES);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_NAMES)
-	public static void setBackgroundGeomsNames(final IAgent agent, final IList<String> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_NAMES, val);
-	}
-	
-	@getter (AbstractUnityLinker.BACKGROUND_GEOMS_TAGS)
-	public static  IList<String> getBackgroundGeomsTags(final IAgent agent) {
-		return ( IList<String>) agent.getAttribute(BACKGROUND_GEOMS_TAGS);
-	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMS_TAGS)
-	public static void setBackgroundGeomsTags(final IAgent agent, final IList<String> val) {
-		agent.setAttribute(BACKGROUND_GEOMS_TAGS, val);
+	@setter(AbstractUnityLinker.GEOMETRIES_TO_SEND)
+	public static void setGeometriesToSend(final IAgent agent, final IMap<IShape,UnityProperties> val) {
+		agent.setAttribute(GEOMETRIES_TO_SEND, val);
 	}
 	
 	@getter (AbstractUnityLinker.END_MESSAGE_SYMBOL)
@@ -460,6 +374,15 @@ public class AbstractUnityLinker extends GamlAgent {
 		return act.executeOn(scope);
 	}
 	
+	private Object doAction3Arg(IScope scope, String actionName, String argName1, Object ArgVal1, String argName2, Object ArgVal2 , String argName3, Object ArgVal3) {
+		Arguments args = new Arguments();
+		args.put(argName1, ConstantExpressionDescription.create(ArgVal1));
+		args.put(argName2, ConstantExpressionDescription.create(ArgVal2));
+		args.put(argName3, ConstantExpressionDescription.create(ArgVal3));
+		WithArgs act = getAgent().getSpecies().getAction(actionName);
+		act.setRuntimeArgs(scope, args);
+		return act.executeOn(scope);
+	}
 	
 	
 	
@@ -525,100 +448,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		return false;
 	}
 
-	
-	
-	private void addBackgroundGeometries(IList geoms, IList names, Double height, Boolean collider, String tag, Boolean is3D, Boolean isInteractable, Boolean isGrabable, GamaColor color) {
-		IList<IShape> backgroundGeometries = getBackgroundGeoms(getAgent());
-		IList<Double> backgroundGeometriesHeight = getBackgroundGeomsHeights(getAgent());
-		IList<String> backgroundGeometriesName = getBackgroundGeomsNames(getAgent());
-		IList<Boolean> backgroundGeometriesCollider = getBackgroundGeomsColliders(getAgent());
-		IList<String> backgroundGeometriesTag = getBackgroundGeomsTags(getAgent());
-		IList<Boolean> backgroundGeometriesis3D = getBackgroundGeoms3D(getAgent());
-		IList<Boolean> backgroundGeometriesisInteractable = getBackgroundGeomsIsInteractables(getAgent());
-		IList<Boolean> backgroundGeometriesisGrab = getBackgroundGeomsIsGrabable(getAgent());
-		IList<GamaColor> backgroundGeometriesColors = getBackgroundGeomsColors(getAgent());
-		
-		if(backgroundGeometries == null) {
-			backgroundGeometries = GamaListFactory.create(Types.GEOMETRY);
-			backgroundGeometriesHeight = GamaListFactory.create(Types.FLOAT);
-			backgroundGeometriesName = GamaListFactory.create(Types.STRING);
-			backgroundGeometriesTag = GamaListFactory.create(Types.STRING);
-			backgroundGeometriesCollider = GamaListFactory.create(Types.BOOL);
-			backgroundGeometriesis3D = GamaListFactory.create(Types.BOOL);
-			backgroundGeometriesisInteractable =  GamaListFactory.create(Types.BOOL);
-			backgroundGeometriesColors = GamaListFactory.create(Types.COLOR);
-			backgroundGeometriesisGrab = GamaListFactory.create(Types.BOOL);
-		}
-		backgroundGeometries.addAll(geoms);
-		
-		for (int i = 0; i < geoms.size(); i++) {
-			backgroundGeometriesHeight.add(height);
-			if (collider != null)
-				backgroundGeometriesCollider.add(collider);
-			else 
-				backgroundGeometriesCollider.add(true);
-			if (tag != null) 
-				backgroundGeometriesTag.add(tag);
-			else {
-				backgroundGeometriesTag.add("");
-			}
-			if (is3D != null)
-				backgroundGeometriesis3D.add(is3D);
-			else backgroundGeometriesis3D.add(true);
-			
-			if (isInteractable != null)
-				backgroundGeometriesisInteractable.add(isInteractable);
-			else backgroundGeometriesisInteractable.add(false);
-			if (isGrabable != null)
-				backgroundGeometriesisGrab.add(isGrabable);
-			else backgroundGeometriesisGrab.add(false);
-			if (color != null) {
-				backgroundGeometriesColors.add(color);
-			} else {
-				backgroundGeometriesColors.add(GamaColor.colors.get(GamaColor.gray));
-			}
-			
-		}
-		//System.out.println("backgroundGeometriesColors: " + backgroundGeometriesColors);
-		if (names != null) 
-			backgroundGeometriesName.addAll(names);
-		setBackgroundGeoms(getAgent(), backgroundGeometries);
-		setBackgroundGeomsHeights(getAgent(), backgroundGeometriesHeight);
-		setBackgroundGeomsColliders(getAgent(), backgroundGeometriesCollider);
-		setBackgroundGeomsNames(getAgent(), backgroundGeometriesName);
-		setBackgroundGeomsTags(getAgent(), backgroundGeometriesTag);
-		setBackgroundGeoms3D(getAgent(), backgroundGeometriesis3D);
-		setBackgroundGeomsIsInteractables(getAgent(), backgroundGeometriesisInteractable);
-		setBackgroundGeomsColors(getAgent(), backgroundGeometriesColors);
-		setBackgroundGeomsIsGrabable(getAgent(), backgroundGeometriesisGrab);
-		
-	}
-	
-	@action (
-			name = "init_species_to_send",
-			args = { @arg (
-							name = "species_list",
-							type = IType.LIST, 
-							doc = @doc ("List of the species name to sent to unity"))},
-					
-			doc = { @doc (
-					value = "Initialize the species to send to unity")})
-	
-	public void primInitSpecies(final IScope scope) throws GamaRuntimeException {
-		IList sps = scope.getListArg("species_list");
-		int i = 0;
-		IList<IAgent> agensToSend = getAgentsToSend(getAgent());
-		for(Object s : sps) {
-			ISpecies sp = Cast.asSpecies(scope, s);
-			
-			for (IAgent ag : sp.getAgents(scope).iterable(scope)) {
-				ag.setAttribute(SPECIES_INDEX, i);
-				agensToSend.add(ag);
-			}
-			i++;
-		}		
-	}
-	
+ 	
 	private void sendCurrentMessage(IScope scope) {
 		PlatformAgent pa = GAMA.getPlatformAgent();
 		String mes = "";
@@ -633,7 +463,7 @@ public class AbstractUnityLinker extends GamlAgent {
 				mes += SerialisationOperators.toJson(scope, c, false) + "|||" ;	
 			}
 		}
-		if (!mes.isBlank()) {
+		if (!mes.isBlank() && !mes.equals("{}")) {
 			try {
 				pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
 			} catch (WebsocketNotConnectedException e ) {
@@ -704,157 +534,183 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	@action (
 			name = "send_world",
-					
-					
 			doc = { @doc (
-					value = "send the current state of the world to the Unity Client")})
+					value = "send the current state of the world to the Unity clients")})
 	public void primSentWorld(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IMap<String, Object> toSend = GamaMapFactory.create();
+		Set<String> players = getPlayers(ag).keySet();
 		
-		IList<IAgent> ags = GamaListFactory.create();
-		ags.addAll(getAgentsToSend(ag).stream().filter(a -> (a != null && !a.dead())).toList());
-		
-		for (String playerName : getPlayers(ag).keySet()) {
+		for (String playerName : players)  {
 			IAgent player = getPlayers(ag).get(playerName);
 			if (player == null) {
 				getPlayers(ag).remove(playerName);
 				continue;
 			}
-			if (player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null &&
-				((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0) {
-				ags = (IList<IAgent>) doAction1Arg(scope, "filter_distance", "ags", ags);
+			if (getDoSendWorld(getAgent())) {
+				
+			
+				IMap<IShape, UnityProperties> geoms =  getGeometriesToSend(ag);
+			
+				if (geoms != null) {
+					boolean filterDist = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null &&
+							((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0 ;
+					
+					boolean filterProx = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) != null &&
+							((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0;
+					
+					if (filterDist || filterProx) {
+						IList<IShape> geomsPl = GamaListFactory.create();
+						geomsPl.addAll(geoms.keySet());
+						if (filterDist) geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_distance", "geometries", geomsPl);
+						if (filterProx) geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_overlapping", "geometries", geomsPl);
+						geoms = GamaMapFactory.create();
+						IMap<IShape, UnityProperties> geoms2 =  getGeometriesToSend(ag);
+						
+						for (IShape s : geomsPl) {
+							geoms.put(s, geoms2.get(s));
+						}
+					}
+					
+					doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,geoms, "update_position", !getNewPlayerPosition(ag).get(player.getName()).isEmpty());
+					
+					
+					
+				}
 			}
-			if 	(player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) != null &&
-				((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0) {
-				ags = (IList<IAgent>) doAction1Arg(scope, "filter_overlapping", "ags", ags);
-			} 
 			
-	 
-			IList<IMap> messageAgs = (IList<IMap>) doAction1Arg(scope, "message_agents", "ags", ags);
-			toSend.put("agents", messageAgs);
-			toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
-			IList<String> rec = GamaListFactory.create();
-			rec.add(player.getName());
 			
-			addToCurrentMessage(scope,rec, toSend);
-			//sendMessage(scope, toSend,  player); 
+			//toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
+			addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+			
+			
 			doAction1Arg(scope, "after_sending_world", "map_to_send", toSend);
-		}
-
-		
+		}		
 	}
 		
 	@action (
 			name = "send_geometries",
-					args = {@arg (
-							name = "geoms",
-							type = IType.LIST,
-							doc = @doc ("List of geometries to send")),
-							 @arg (
-							name = "heights",
-							type = IType.LIST,
-							doc = @doc ("List of heights (float) associated to each geometry")),
-							 @arg (name = "players",
-								type = IType.LIST,
-								doc = @doc ("Players to send the geometries to")),
-								
-							 @arg (
-										name = "geometry_colliders",
-										type = IType.LIST,
-										doc = @doc ("For each geometry, does a collider has to be instanciated (list of bools) ")),
-							 @arg (
-										name = "is_3D",
-										type = IType.LIST,
-										doc = @doc ("For each geometry, is a 3D geometries (list of bools) ")),
-							 @arg (
-										name = "is_interactables",
-										type = IType.LIST,
-										doc = @doc ("For each geometry, is interactable (list of bools) ")),
-							 @arg (
-										name = "is_grabables",
-										type = IType.LIST,
-										doc = @doc ("For each geometry, if interactable, is it grabable (list of bools) ")),
-							 @arg (
-										name = "names",
-										type = IType.LIST,
-										doc = @doc ("List of name (string) associated to each geometry")),
-							 @arg (
-										name = "colors",
-										type = IType.LIST,
-										doc = @doc ("List of name (color) associated to each geometry")),
-							 @arg (
-										name = "tags",
-										type = IType.LIST,
-										doc = @doc ("List of tags (string) associated to each geometry"))},
-			doc = { @doc (
+					args = { @arg (
+							name = "player",
+							type = IType.AGENT,
+							doc = @doc ("Player to which the message will be sent")),
+							@arg (
+									name = "update_position",
+									type = IType.BOOL,
+									doc = @doc ("Has the player to be sent to Unity?")),
+							@arg (
+								name = "geoms",
+										type = IType.MAP,
+										doc = @doc ("Map of geometry to send (geometry::unity_property)"))},
+					doc = { @doc (
 					value = "send the background geometries to the Unity client")})
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IList<IAgent> players = (IList) scope.getListArg("players");
+		IAgent player = (IAgent) scope.getArg("player");
+		Boolean updatePos = scope.getBoolArg("update_position");
+		IMap<IShape,UnityProperties> geoms =  (IMap<IShape, UnityProperties>) scope.getArg("geoms");
 		IMap<String, Object> toSend = GamaMapFactory.create();
-		IList<Object> points = GamaListFactory.create();
-		int precision = getPrecision(ag); 
+		IList<Integer> posT = GamaListFactory.create(Types.INT);
+		int precision = getPrecision(ag);
 		
-		IList<IShape> geoms = scope.getListArg("geoms");
-		IList<Double> heights = scope.getListArg("heights");
-		IList<Boolean> geometry_colliders = scope.getListArg("geometry_colliders");
-		IList<String> names = scope.getListArg("names");
-		IList<String> tags = scope.getListArg("tags");
-		IList<Boolean> are3D = scope.getListArg("is_3D");
-		IList<Boolean> isInteractables = scope.getListArg("is_interactables");
-		IList<Boolean> isGrabables = scope.getListArg("is_grabables");
-		IList<GamaColor> colors = scope.getListArg("colors");
-		IList<Object> colorsToSend = GamaListFactory.create();
+		if (updatePos) {
+			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
+			toSend.put("position", pos);
+			getNewPlayerPosition(ag).get(player.getName()).clear();
+		}
+		List<String> names = new ArrayList<>();
+		List<String> propertyID = new ArrayList<>();
 		
-		if (colors != null) {
-			for (GamaColor c : colors) {
-				IMap<String, Object> ptM = GamaMapFactory.create();
-				
-				IList<Integer> colorInt = GamaListFactory.create();
-				if (c == null ) {
-					c = GamaColor.get(GamaColor.gray);
-				}
-				colorInt.add(c.red());
-				colorInt.add(c.green());
-				colorInt.add(c.blue());
-				colorInt.add(c.alpha());
-				ptM.put("c", colorInt);
-				colorsToSend.add(ptM);
-				
+		
+	    List pointsLoc = new ArrayList<>();
+	    List pointsGeom = new ArrayList<>();
+	    for(IShape g : geoms.keySet()) {
+	    	UnityProperties up = geoms.get(g);
+			names.add( g instanceof IAgent ? ((IAgent)g).getName()  : (String) g.getAttribute("name"));
+			propertyID.add(up.getId());
+	    	boolean hp = up.getAspect().isPrefabAspect();
+	    	if (hp) {
+				pointsLoc.add((IMap) doAction1Arg(scope, "message_geometry_loc", "geom", g));
+			} else {
+				pointsGeom.add((IMap) doAction1Arg(scope, "message_geometry_shape", "geom", g));
 			}
 		}
- 		
-		for (IShape g : geoms ) {
-			for (GamaPoint pt : g.getPoints()) {
-				IMap<String, Object> ptM = GamaMapFactory.create();
-				IList<Integer> ptL = GamaListFactory.create(Types.INT);
-				ptL.add((int)(pt.x*precision));
-				ptL.add((int)(pt.y*precision));
-				ptM.put("c", ptL);
-				points.add(ptM);
-			}
-			IMap<String, Object> ptM = GamaMapFactory.create();
-			ptM.put("c", GamaListFactory.create());
-			points.add(ptM);
+	  	toSend.put("names", names);
+	  	toSend.put("propertyID", propertyID);
+	  	toSend.put("pointsLoc", pointsLoc);
+	  	toSend.put("pointsGeom", pointsGeom);
+		
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+		
+		doAction1Arg(scope, "after_sending_geometries", "player", player);	
+		
+	}
+
+	@action (
+			name = "message_geometry_shape",
+			args = { @arg (
+					name = "geom",
+					type = IType.GEOMETRY,
+					doc = @doc ("Geometry to send to Unity"))},
+					
+			doc = { @doc (
+					value = "Action called by the send_world action that returns the message to send to Unity")})
+	public IMap primMessageGeomsShape(final IScope scope) throws GamaRuntimeException {
+		IList<Integer> vals = GamaListFactory.create();
+		IShape geom = (IShape) scope.getArg("geom");
+		int precision = getPrecision(getAgent());
+		
+		
+		for (GamaPoint pt : geom.getPoints()) {
+			vals.add((int)(pt.x * precision));
+			vals.add((int)(pt.y * precision));
+			//vals.add((int)(pt.z * precision));
+
 		}
-		toSend.put("points", points);
-		toSend.put("heights", heights);
-		toSend.put("hasColliders", geometry_colliders);
-		toSend.put("names", names);
-		toSend.put("tags", tags);
-		toSend.put("is3D", are3D);
-		toSend.put("isInteractables", isInteractables);
-		toSend.put("isGrabables", isGrabables);
-		toSend.put("colors", colorsToSend);
+		IMap<String, Object> map  = GamaMapFactory.create();
+		map.put("c", vals);
+		Arguments args = new Arguments();
+		args.put("map", ConstantExpressionDescription.create(map));
+		args.put("geom", ConstantExpressionDescription.create(geom));
+		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
+			
+		actATM.setRuntimeArgs(scope, args);
+		actATM.executeOn(scope);
 		
-		IList<String> playersStr = GamaListFactory.create();
-		for (IAgent pl : players) 
-			playersStr.add(pl.getName());
-		addToCurrentMessage(scope, playersStr,toSend);
+		return map;
+	}
+	
+	@action (
+			name = "message_geometry_loc",
+			args = { @arg (
+					name = "geom",
+					type = IType.GEOMETRY,
+					doc = @doc ("Geometry to send to Unity"))},
+					
+			doc = { @doc (
+					value = "Action called by the send_world action that returns the message to send to Unity")})
+	public IMap primMessageGeoms(final IScope scope) throws GamaRuntimeException {
+		IList<Integer> vals = GamaListFactory.create();
+		IShape geom = (IShape) scope.getArg("geom");
+		int precision = getPrecision(getAgent());
+		vals.add((int)(geom.getLocation().x * precision));
+		vals.add((int)(geom.getLocation().y * precision));
+		vals.add((int)(geom.getLocation().z * precision));
+		Double hd = (Double) geom.getAttribute("heading");
+		if (hd == null) hd = 0.0;
+		vals.add((int)(hd * precision));
+		IMap<String, Object> map  = GamaMapFactory.create();
+		map.put("c", vals);
+			
+		Arguments args = new Arguments();
+		args.put("map", ConstantExpressionDescription.create(map));
+		args.put("geom", ConstantExpressionDescription.create(geom));
+		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
+			
+		actATM.setRuntimeArgs(scope, args);
+		actATM.executeOn(scope);
 		
-		doAction1Arg(scope, "after_sending_geometries", "players", players);	
-		
+		return map;
 	}
 	
 	@action (
@@ -868,34 +724,16 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = getPlayers(ag).get(scope.getStringArg("id")) ;
-		
+	
 		doAction1Arg(scope, "send_parameters", "player", player );
-		if (!getBackgroundGeoms(getAgent()).isEmpty()) {
-			WithArgs actSG = scope.getAgent().getSpecies().getAction( "send_geometries");
-			
-			Arguments argsSG = new Arguments();
-			argsSG.put("geoms", ConstantExpressionDescription.create(getBackgroundGeoms(getAgent())));
-			argsSG.put("heights", ConstantExpressionDescription.create(getBackgroundGeomsHeights(getAgent())));
-			argsSG.put("geometry_colliders", ConstantExpressionDescription.create(getBackgroundGeomsColliders(getAgent())));
-			argsSG.put("is_3D", ConstantExpressionDescription.create(getBackgroundGeoms3D(getAgent())));
-			argsSG.put("tags", ConstantExpressionDescription.create(getBackgroundGeomsTags(getAgent())));
-			argsSG.put("is_interactables", ConstantExpressionDescription.create(getBackgroundGeomsIsInteractables(getAgent())));
-			argsSG.put("colors", ConstantExpressionDescription.create(getBackgroundGeomsColors(getAgent())));
-			
-			IList<IAgent> pls = GamaListFactory.create();
-			pls.add(player);
-			argsSG.put("players", ConstantExpressionDescription.create(pls));
-			
-			argsSG.put("names", ConstantExpressionDescription.create(getBackgroundGeomsNames(getAgent())));
-			actSG.setRuntimeArgs(scope, argsSG);
-			actSG.executeOn(scope);
-			
-		}
-		if (getDoSendWorld(getAgent())) {
-			 doActionNoArg(scope, "send_world" );
-		}
-		getNewPlayerPosition(ag).put(player.getName(), GamaListFactory.create()); 
-		getReadyToMovePlayers(ag).add(player);
+
+		doAction1Arg(scope, "send_unity_propetries", "player", player );
+		doAction1Arg(scope, "send_player_position", "player", player );
+		
+		doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,getBackgroundGeometries(ag), "update_position", true);
+		
+		doActionNoArg(scope, "send_world" );
+		
 		
 		startSimulation(scope);
 	}
@@ -914,9 +752,13 @@ public class AbstractUnityLinker extends GamlAgent {
 	
 	@action (
 			name = "after_sending_geometries",
-			
+					args = { @arg (
+							name = "player",
+							type = IType.AGENT,
+							doc = @doc ("Player to which the message will be sent"))},
+					
 			doc = { @doc (
-					value = "Action trigger just after sending the background geometries to Unity ")})
+					value = "Action trigger just after sending the background geometries to a Unity client ")})
 	public void primAfterSendingGeometries(final IScope scope) throws GamaRuntimeException {
 	
 	}
@@ -960,7 +802,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		if (getPlayers(ag).containsKey(id) && getPlayers(ag).get(id) != null){
 			return;
 		}
-		//setUseMiddleware(getAgent(), true);
 		
 		Map<String, Object>  init = GamaMapFactory.create();
 		if (getPlayerLocationInit(ag).size() <= players.length(scope)) {
@@ -976,75 +817,52 @@ public class AbstractUnityLinker extends GamlAgent {
 	@action (
 			name = "filter_distance",
 			args = { @arg (
-					name = "ags",
+					name = "geometries",
 					type = IType.LIST,
-					doc = @doc ("list of agents to filter")),
+					doc = @doc ("list of geometries to filter")),
 					 @arg (name = "player",
 								type = IType.AGENT,
 								doc = @doc ("the player agent"))},
 					
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of agents to send to Unity from a given list of agents according to a max distance to the player")})
-	public IList<IAgent> primFilterDistance(final IScope scope) throws GamaRuntimeException {
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+	public IList<IShape> primFilterDistance(final IScope scope) throws GamaRuntimeException {
 		IAgent player= (IAgent) scope.getArg("player");
-		IList<IAgent> ags = GamaListFactory.create(Types.AGENT);
-		ags.addAll((IList<IAgent>) scope.getArg("ags"));
+		IList<IShape> geoms = GamaListFactory.create();
+		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
 		
 		Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
-		return (IList<IAgent>) Spatial.Queries.overlapping(scope, ags, Transformations.enlarged_by(scope, player, dist));
+		return (IList<IShape>) Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist));
 	}
 	 
-	@action (
-			name = "message_agents",
-			args = { @arg (
-					name = "ags",
-					type = IType.LIST,
-					doc = @doc ("list of agents to send to Unity"))},
-					
-			doc = { @doc (
-					value = "Action called by the send_world action that returns the message to send to Unity (as a list of map)")})
-	public IList<IMap> primMessageAgents(final IScope scope) throws GamaRuntimeException {
-		IList<IAgent> ags = GamaListFactory.create(Types.AGENT);
-		ags.addAll((IList<IAgent>) scope.getArg("ags"));
-		IList<IMap> output = GamaListFactory.create(Types.MAP);
-		for (IAgent ag : ags) {
-			WithArgs actTM = getAgent().getSpecies().getAction(TO_MAP);
-			Arguments argsTM = new Arguments();
-			argsTM.put("precision", ConstantExpressionDescription.create(getPrecision(getAgent())));
-			argsTM.put("ag", ConstantExpressionDescription.create(ag));
-			actTM.setRuntimeArgs(scope, argsTM);
-			
-			output.add((IMap) actTM.executeOn(scope));
-		}
-		return output;
-	}
+	
 	
 	@action (
 			name = "filter_overlapping",
 			args = { @arg (
-					name = "ags",
+					name = "geometries",
 					type = IType.LIST,
-					doc = @doc ("list of agents to filter")),
+					doc = @doc ("list of geometries to filter")),
 			 @arg (name = "player",
 				type = IType.AGENT,
 				doc = @doc ("the player agent"))},
 					
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of agents to send to Unity from a given list of agents according to a min proximity to the other agents to send")})
-	public IList<IAgent> primFilterOverlapping(final IScope scope) throws GamaRuntimeException {
-		IList<IAgent> ags = GamaListFactory.create(Types.AGENT);
-		ags.addAll((IList<IAgent>) scope.getArg("ags"));
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a min proximity to the other geometries to send")})
+	public IList<IShape> primFilterOverlapping(final IScope scope) throws GamaRuntimeException {
+		IAgent player= (IAgent) scope.getArg("player");
+		IList<IShape> geoms = GamaListFactory.create();
+		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
 		
-		IAgent thePlayer = (IAgent) scope.getArg("player");
-		IList<IAgent> toRemove = GamaListFactory.create() ;
-		for (IShape ag : ags) {
-			if (!toRemove.contains(ag)) { 
-				Double dist = (Double) thePlayer.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST);
-				toRemove.addAll((Collection<? extends IAgent>) Spatial.Queries.overlapping(scope, ags, Transformations.enlarged_by(scope, thePlayer, dist)));
+		IList<IShape> toRemove = GamaListFactory.create() ;
+		for (IShape g : geoms) {
+			if (!toRemove.contains(g)) { 
+				Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST);
+				toRemove.addAll((Collection<? extends IShape>) Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist)));
 			}  
 		}
-		ags.removeAll(toRemove);
-		return ags;
+		geoms.removeAll(toRemove);
+		return geoms;
 	}
 	
 	
@@ -1105,6 +923,9 @@ public class AbstractUnityLinker extends GamlAgent {
 										name = "y",
 										type = IType.INT,
 										doc = @doc ("y Location of the player agent")),	@arg (
+												name = "z",
+												type = IType.INT,
+												doc = @doc ("z Location of the player agent")),@arg (
 												name = "angle",
 												type = IType.INT,
 												doc = @doc ("angle of the player agent"))},
@@ -1117,15 +938,17 @@ public class AbstractUnityLinker extends GamlAgent {
 		if (thePlayer == null ) return;
 		Integer x = scope.getIntArg("x");
 		Integer y = scope.getIntArg("y");
+		Integer z = scope.getIntArg("z");
 		Integer angle = scope.getIntArg("angle");
-		//System.out.println("move_player_external: " + x + ',' +y + "," + angle + " " + scope.getStringArg("x"));
 		int precision = getPrecision(ag); 
 		Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
+
+		//if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+ getReadyToMovePlayers(ag));
 		if (getReadyToMovePlayers(ag).contains(thePlayer)) {
 			if (rot != null)
 				thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
 			if (x !=null && y != null) 
-				thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision));
+				thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision, z.floatValue()/precision));
 			thePlayer.setAttribute("to_display", true);
 		} 
 		
@@ -1160,7 +983,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		IAgent ag = getAgent();
 		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
 		if (thePlayer == null ) return;
-
 		getNewPlayerPosition(ag).put(thePlayer.getName(), GamaListFactory.create()); 
 		if (!getReadyToMovePlayers(ag).contains(thePlayer.getName()))
 			getReadyToMovePlayers(ag).add(thePlayer);
@@ -1189,6 +1011,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Integer> pos = GamaListFactory.create();
 		pos.add((int)(player.getLocation().x * precision));
 		pos.add((int) (player.getLocation().y * precision));
+		pos.add((int) (player.getLocation().z * precision));
 		getNewPlayerPosition(ag).put(player.getName(), pos); 
 	}
 	
@@ -1212,7 +1035,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	}
 	
-	
 	@action (
 			name = "send_parameters",
 					args = { @arg (
@@ -1231,15 +1053,34 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Integer> worldT = GamaListFactory.create(Types.INT);
 		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getWidth() * precision));
 		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
+		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
 
 		toSend.put("world", worldT);
-		IList<Integer> posT = GamaListFactory.create(Types.INT);
-		posT.add((int)(player.getLocation().x * precision));
-		posT.add((int)(player.getLocation().y * precision));
-		 
-		toSend.put("position", posT);
 		
 		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend );
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+	}
+	
+	
+	@action (
+			name = "send_unity_propetries",
+					args = { @arg (
+							name = "player",
+							type = IType.AGENT,
+							doc = @doc ("Player to which the message will be sent"))},
+								
+			doc = { @doc (
+					value = "Send the Unity properties to intialize the possible properties of geometries")})
+	public void primSendUnityProperties(final IScope scope) throws GamaRuntimeException {
+		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
+		IAgent ag = getAgent();
+		IAgent player = (IAgent) scope.getArg("player");
+		List<UnityProperties> props = getUnityProperties(ag);
+		List<Map> propMap = new ArrayList<>();
+		for(UnityProperties p : props) {
+			propMap.add(p.toMap());
+		}
+ 		toSend.put("properties", propMap);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
 	
@@ -1250,65 +1091,6 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	
-	@action (
-			name = "add_background_data",
-			args = { @arg (
-					name = "geoms",
-					type = IType.LIST, 
-					doc = @doc ("The list of geometry to send to Unity")),
-			@arg (
-				 name = "names",
-				 optional = true,
-				type = IType.LIST, 
-				doc = @doc ("The list of names linked to the geometries to send to Unity")),
-			@arg (
-					 name = "tag",
-					 optional = true,
-					type = IType.STRING, 
-					doc = @doc ("tag of the geometries in Unity")),
-			@arg (
-					 name = "is_3D",
-					 optional = true,
-					type = IType.BOOL, 
-					doc = @doc ("is the geometries in 3D in Unity")),
-			@arg (
-					 name = "is_interactable",
-					 optional = true,
-					type = IType.BOOL, 
-					doc = @doc ("is the geometries interactable in Unity")),
-			@arg (
-					 name = "is_grabable",
-					 optional = true,
-					type = IType.BOOL, 
-					doc = @doc ("if the geometries interactable, is the geometries grabable in Unity (ray interaction otherwise)")),
-			 @arg (
-				name = "height",
-				type = IType.FLOAT, 
-				doc = @doc ("height of the geometries in Unity")),
-			 @arg (
-				name = "color",
-				type = IType.COLOR, 
-				doc = @doc ("color of the geometries in Unity")),
-			 @arg (
-				name = "collider",
-				type = IType.BOOL, 
-				doc = @doc ("Add a collider to the geometries in Unity?")) },
-			doc = { @doc (
-					value = "Add background geometries from a list of geometries,a optional list of name (one per geometry), their heights, their collider usage, and an optional tag")})
-	public void primAddBackgroundData(final IScope scope) throws GamaRuntimeException {
-		final IList geoms = (IList) scope.getArg("geoms", IType.LIST);
-		final Double height = (Double) scope.getFloatArg("height");
-		final Boolean collider =  scope.hasArg("collider") ?(Boolean) scope.getBoolArg("collider") : null;
-		final Boolean is3D = scope.hasArg("is_3D") ? (Boolean) scope.getBoolArg("is_3D") : null;
-		final String tag = scope.hasArg("tag") ? (String) scope.getStringArg("tag") : null;
-		final IList names = scope.hasArg("names") ? (IList) scope.getArg("names", IType.LIST) : null;
-		
-		final Boolean isInteractable = scope.hasArg("is_interactable") ? (Boolean) scope.getBoolArg("is_interactable") : null;
-		final Boolean isGrabable = scope.hasArg("is_grabable") ? (Boolean) scope.getBoolArg("is_grabable") : null;
-		final GamaColor color =  scope.hasArg("color") ?(GamaColor) scope.getArg("color") : null;
-		addBackgroundGeometries(geoms, names, height, collider, tag,  is3D, isInteractable, isGrabable, color);
-	}
-
 	
 	
 	@action (
@@ -1327,56 +1109,14 @@ public class AbstractUnityLinker extends GamlAgent {
 							type = IType.MAP,
 							doc = @doc ("map of data to send to Unity")),
 							@arg (
-									name = "ag",
-									type = IType.AGENT,
-									doc = @doc ("Agent to send to Unity"))},
+									name = "geom",
+									type = IType.GEOMETRY,
+									doc = @doc ("Geometry to send to Unity"))},
 			doc = @doc (
 					returns = "other elements than the location to add to the data sent to Unity"))
 	public void primAddToMap(final IScope scope) throws GamaRuntimeException {
 		
 	}
-	
-	@action (
-			name = TO_MAP,
-					args = { @arg (
-							name = "precision",
-							type = IType.INT,
-							doc = @doc ("precision of the data to send (number of decimals)")),
-							@arg (
-									name = "ag",
-									type = IType.AGENT,
-									doc = @doc ("Agent to send to Unity"))
-						
-			},
-				
-			doc = @doc (
-					returns = "a map containing all the information to sent to unity concerning an agent"))
-	public IMap<String, IList<Integer>> primToMap(final IScope scope) throws GamaRuntimeException {
-		Integer precision = scope.getIntArg("precision");
-		IAgent ag = (IAgent) scope.getArg("ag");
-		IMap<String, IList<Integer>> map = GamaMapFactory.create();
-		
-		IList<Integer> vals = GamaListFactory.create();
-		vals.add(getIndexSpecies(ag));
-		vals.add(ag.getIndex());
-		vals.add((int)(ag.getLocation().x * precision));
-		vals.add((int)(ag.getLocation().y * precision));
-		vals.add((int)(getHeading(ag) * precision));
-		map.put("v", vals);
-		
-		Arguments args = new Arguments();
-		args.put("map", ConstantExpressionDescription.create(map));
-		args.put("ag", ConstantExpressionDescription.create(ag));
-		
-		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
-		
-		actATM.setRuntimeArgs(scope, args);
-		actATM.executeOn(scope);
-		
-		return map;
-
-	}
-	
 	public Integer getIndexSpecies(IAgent agent) {
 		return (Integer) agent.getAttribute(SPECIES_INDEX);
 	}
