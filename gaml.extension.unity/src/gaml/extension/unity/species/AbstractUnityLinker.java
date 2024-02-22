@@ -613,11 +613,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<Integer> posT = GamaListFactory.create(Types.INT);
 		int precision = getPrecision(ag);
 		
-		if (updatePos) {
-			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
-			toSend.put("position", pos);
-			getNewPlayerPosition(ag).get(player.getName()).clear();
-		}
+		
 		List<String> names = new ArrayList<>();
 		List<String> propertyID = new ArrayList<>();
 		
@@ -635,11 +631,16 @@ public class AbstractUnityLinker extends GamlAgent {
 				pointsGeom.add((IMap) doAction1Arg(scope, "message_geometry_shape", "geom", g));
 			}
 		}
+	    toSend.put("pointsLoc", pointsLoc);
+	  	
 	  	toSend.put("names", names);
 	  	toSend.put("propertyID", propertyID);
-	  	toSend.put("pointsLoc", pointsLoc);
 	  	toSend.put("pointsGeom", pointsGeom);
-		
+	  	if (updatePos) {
+			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
+			toSend.put("position", pos);
+			getNewPlayerPosition(ag).get(player.getName()).clear();
+		}
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 		
 		doAction1Arg(scope, "after_sending_geometries", "player", player);	
