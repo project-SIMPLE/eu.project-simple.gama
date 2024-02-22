@@ -12,6 +12,7 @@ package gaml.extension.unity.types;
 
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Map;
 
 import msi.gama.common.interfaces.IValue;
@@ -23,6 +24,7 @@ import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaColor;
 import msi.gama.util.GamaMapFactory;
+import msi.gama.util.IList;
 import msi.gama.util.file.json.Json;
 import msi.gama.util.file.json.JsonValue;
 import msi.gaml.types.IType;
@@ -38,9 +40,10 @@ import msi.gaml.types.IType;
 		type = IType.BOOL,
 		doc = @doc ("has the geometry a collider")),
 @variable (
-		name = "is_trigger",
-		type = IType.BOOL,
-		doc = @doc ("if true, the collider of this geometry is only used to trigger events and not by the physic engine")),
+		name = "constraints",
+		type = IType.LIST,
+		of = IType.BOOL,
+		doc = @doc ("Constraints for the movement of the geometry - [Freeze x position, Freeze y position, Freeze Z position, Freeze x rotation, Freeze y rotation, Freeze Z rotation]")),
 @variable (
 		name = "is_interactable",
 		type = IType.BOOL,
@@ -56,15 +59,15 @@ public class UnityInteraction implements IValue {
 	private boolean collider;
 	private boolean interactable;
 	private boolean grabable;
-	private boolean trigger;
+	private IList<Boolean> constraints;
 	
 	public UnityInteraction( boolean collider,
-			boolean interactable, boolean grabable, boolean trigger) {
+			boolean interactable, boolean grabable, IList<Boolean> constraints) {
 		super();
 		this.collider = collider;
 		this.interactable = interactable;
 		this.grabable = grabable;
-		this.trigger = trigger;
+		this.constraints = constraints;
 	}
 	
 
@@ -80,8 +83,8 @@ public class UnityInteraction implements IValue {
 	public boolean isGrabable() {
 		return grabable;
 	}
-	public boolean isTrigger() {
-		return trigger;
+	public IList<Boolean> getConstraints() {
+		return constraints;
 	}
 	
 
@@ -91,13 +94,13 @@ public class UnityInteraction implements IValue {
 		map.put("isInteractable",interactable);
 		map.put("isGrabable", grabable);
 		map.put("hasCollider", collider);
-		map.put("isTrigger", trigger);
+		map.put("constraints", new ArrayList<>(constraints) );
 		return map;
 	}
 
 	@Override
 	public String toString() {
-		return (collider ? "- has_collider" : "") +  (interactable ? "- is_interactable" : "") + (grabable ? "- is_grabable" : "") + (trigger ? "- is_trigger" : ""); 
+		return (collider ? "- has_collider" : "") +  (interactable ? "- is_interactable" : "") + (grabable ? "- is_grabable" : "") + " - "+constraints; 
 	}
 
 	

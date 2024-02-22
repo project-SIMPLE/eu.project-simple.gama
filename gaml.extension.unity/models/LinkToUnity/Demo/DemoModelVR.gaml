@@ -33,21 +33,21 @@ species unity_linker parent: abstract_unity_linker {
 		
 	//	unity_interaction <- #no_interaction;  
 		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
-		unity_property up_car <- geometry_properties("car","car", car_aspect );
+		unity_property up_car <- geometry_properties("car","car", car_aspect, geometry_ray(true) );
 		unity_properties << up_car;
 		
 		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
-		unity_property up_moto <- geometry_properties("moto",moto_aspect, "moto", true,true, false );
+		unity_property up_moto <- geometry_properties("moto", "moto", moto_aspect,geometry_ray(true));
 		unity_properties << up_moto;
 		
 		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0,1.0,0.0, precision);
-		unity_property up_tree<- geometry_properties("tree",tree_aspect, "tree", true,true, true );
+		unity_property up_tree<- geometry_properties("tree", "tree", tree_aspect, geometry_grabable([true,true,true,true,true, true]));
 		unity_properties << up_tree;
 		
 		
 		unity_aspect geom_aspect <- geometry_aspect(10.0, #gray, precision);
 		write sample(geom_aspect);
-		unity_property up_geom <- geometry_properties("block",geom_aspect, "selectable", true,true, false );
+		unity_property up_geom <- geometry_properties("block", "selectable", geom_aspect, geometry_ray(false));
 		unity_properties << up_geom;
 		background_geometries <- block as_map (each::up_geom) + static_object as_map (each::up_tree);
 		geometries_to_send <- simple_agentA as_map (each::up_car) + simple_agentB as_map (each::up_moto) ;

@@ -8,7 +8,7 @@ import msi.gama.precompiler.GamlAnnotations.doc;
 
 public interface Constants {
 
-	@constant (
+	/*@constant (
 			value = "no_interaction",
 			category = { IConstantCategory.CONSTANT },
 			concept = { IConcept.CONSTANT, "Unity" },
@@ -25,5 +25,5 @@ public interface Constants {
 			category = { IConstantCategory.CONSTANT },
 			concept = { IConcept.CONSTANT, "Unity" },
 			doc = @doc ("unity_interaction with a ray interaction")) UnityInteraction rayInter = new UnityInteraction(true, true, false, false);
-
+*/
 }

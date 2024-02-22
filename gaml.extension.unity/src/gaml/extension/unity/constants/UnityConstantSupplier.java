@@ -14,9 +14,9 @@ public class UnityConstantSupplier implements IConstantsSupplier {
 	public void supplyConstantsTo(final IConstantAcceptor acceptor) {
 
 		//browse(Constants.class, acceptor);
-		UnityInteraction noInt = new UnityInteraction(false, false, false, false);
+		//UnityInteraction noInt = new UnityInteraction(false, false, false, false);
 			
-			acceptor.accept("no_interaction", noInt, "Unity interaction with no interaction", null, false);
+		//	acceptor.accept("no_interaction", noInt, "Unity interaction with no interaction", null, false);
 		
 
 	}

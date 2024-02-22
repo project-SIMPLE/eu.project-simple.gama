@@ -9,6 +9,8 @@ import msi.gama.precompiler.GamlAnnotations.no_test;
 import msi.gama.precompiler.GamlAnnotations.operator;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gama.util.GamaColor;
+import msi.gama.util.GamaListFactory;
+import msi.gama.util.IList;
 
 public class Operators {
 	
@@ -59,8 +61,8 @@ public class Operators {
 					value = "geometry_grabable()",
 					isExecutable = false))
 	@no_test
-	public static UnityInteraction newUnityGeometryGrabable(boolean n) throws GamaRuntimeException {
-		return new UnityInteraction(true,true,true,false); 
+	public static UnityInteraction newUnityGeometryGrabable(IList<Boolean> constraints) throws GamaRuntimeException {
+		return new UnityInteraction(true,true,true,constraints); 
 	}
 	
 	@operator (
@@ -69,14 +71,14 @@ public class Operators {
 			category = { "Unity" },
 			concept = {"Unity"})
 	@doc (
-			value = "creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: is_trigger; if true, the collider of this geometry is only used to trigger events and not by the physic engine ",
+			value = "creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: constraints ",
 			masterDoc = true,
 			examples = @example (
 					value = "geometry_ray(true)",
 					isExecutable = false))
 	@no_test
-	public static UnityInteraction newUnityGeometryRay(boolean trigger) throws GamaRuntimeException {
-		return new UnityInteraction(true,true,false,trigger); 
+	public static UnityInteraction newUnityGeometryRay(boolean d) throws GamaRuntimeException {
+		return new UnityInteraction(true,true,false,GamaListFactory.create()); 
 	}
 	
 	
@@ -86,15 +88,15 @@ public class Operators {
 			category = { "Unity" },
 			concept = {"Unity"})
 	@doc (
-			value = "creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, is_trigger",
+			value = "creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, constraints",
 			masterDoc = true,
 			examples = @example (
 					value = "new_geometry_interaction(true, false,false,false)",
 					isExecutable = false))
 	@no_test
 	public static UnityInteraction newUnityGeometryInteraction( boolean collider,
-			boolean interactable, boolean grabable, boolean trigger) throws GamaRuntimeException {
-		return new UnityInteraction(collider,interactable,grabable,trigger); 
+			boolean interactable, boolean grabable, IList<Boolean> constraints) throws GamaRuntimeException {
+		return new UnityInteraction(collider,interactable,grabable,constraints); 
 	}
  
 	@operator (
@@ -126,7 +128,7 @@ public class Operators {
 					isExecutable = false))
 	@no_test
 	public static UnityProperties newUnityGeometrytoSendNoInt(String name,String tag, UnityAspect aspect) throws GamaRuntimeException {
-		return new UnityProperties(name, tag, aspect,new UnityInteraction(false, false, false, false));
+		return new UnityProperties(name, tag, aspect,new UnityInteraction(false, false, false, (IList)GamaListFactory.create()));
 	}
 
 
