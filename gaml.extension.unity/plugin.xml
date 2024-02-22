@@ -35,5 +35,11 @@
             name="Generate VR Model">
       </command>
    </extension>
+   <extension
+         point="gama.constants">
+      <implementation
+            class="gaml.extension.unity.constants.UnityConstantSupplier">
+      </implementation>
+   </extension>
 
 </plugin>

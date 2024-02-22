@@ -37,21 +37,6 @@ global {
 	}
 	
 	
-	/*reflex update_agent {
-		
-		do update_agents(simple_agentA, nb_agentsA);
-		do update_agents(simple_agentB, nb_agentsB);
-	}*/
-	
-	action update_agents( species<agent> sp, int number) {
-		if length(sp) > number {
-			ask (length(sp) - number) among sp {
-				do die;
-			}
-		} else if length(sp) < number {
-			create sp number: number - length(sp) ; 
-		}	
-	}
 	
 	
 }

@@ -18,13 +18,11 @@ import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gaml.types.GamaType;
 import msi.gaml.types.IType;
 
-/**
- * The Class BDIPlanType.
- */
+
 @type (
 		name = "unity_property",
 		id = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
-		wraps = { UnityPropertiesType.class },
+		wraps = { UnityProperties.class },
 		concept = { IConcept.TYPE, "Unity" })
 @doc ("a type representing a set of properties for the geometry/agent to send to Unity")
 public class UnityPropertiesType extends GamaType<UnityProperties> {

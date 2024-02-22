@@ -18,20 +18,17 @@ import msi.gama.runtime.exceptions.GamaRuntimeException;
 import msi.gaml.types.GamaType;
 import msi.gaml.types.IType;
 
-/**
- * The Class BDIPlanType.
- */
 @type (
 		name = "unity_aspect",
-		id = UnityAspectType.UNITYASPECTTYPE,
-		wraps = { UnityAspectType.class },
+		id = UnityAspectType.UNITYASPECTTYPE_ID,
+		wraps = { UnityAspect.class },
 		concept = { IConcept.TYPE, "Unity" })
 @doc ("a type representing a geometry to send to Unity")
 public class UnityAspectType extends GamaType<UnityAspect> {
 
 	/** The Constant id. */
-	public final static int UNITYASPECTTYPE = IType.AVAILABLE_TYPES + 352583;
-
+	public final static int UNITYASPECTTYPE_ID = IType.AVAILABLE_TYPES + 352583;
+ 
 	@Override
 	public boolean canCastToConst() {
 		return true;

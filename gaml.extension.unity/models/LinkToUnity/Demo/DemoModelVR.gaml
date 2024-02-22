@@ -23,15 +23,17 @@ species unity_linker parent: abstract_unity_linker {
 	
 	
  
-	bool do_send_world <- true;
+	bool do_send_world <- true; 
 	init {
 		//do init_species_to_send([string(simple_agentA),string(simple_agentB),string(static_object)]);
 		list<string> names ;
 		loop i from: 0 to: length(block) {
 			names << ""+i;
 		}
+		
+	//	unity_interaction <- #no_interaction;  
 		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
-		unity_property up_car <- geometry_properties("car",car_aspect, "car", true,true, false );
+		unity_property up_car <- geometry_properties("car","car", car_aspect );
 		unity_properties << up_car;
 		
 		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);

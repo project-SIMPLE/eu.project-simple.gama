@@ -2,6 +2,7 @@ package gaml.extension.unity.operators;
 
 import gaml.extension.unity.types.UnityProperties;
 import gaml.extension.unity.types.UnityAspect;
+import gaml.extension.unity.types.UnityInteraction;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.example;
 import msi.gama.precompiler.GamlAnnotations.no_test;
@@ -45,24 +46,89 @@ public class Operators {
 		return new UnityAspect(height,color, precision); 
 	}
 	
-
+	
+	@operator (
+			value = "geometry_grabable",
+			can_be_const = true,
+			category = { "Unity" },
+			concept = {"Unity"})
+	@doc (
+			value = "creates a new unity interaction for Unity for a grabable geometry",
+			masterDoc = true,
+			examples = @example (
+					value = "geometry_grabable()",
+					isExecutable = false))
+	@no_test
+	public static UnityInteraction newUnityGeometryGrabable(boolean n) throws GamaRuntimeException {
+		return new UnityInteraction(true,true,true,false); 
+	}
+	
+	@operator (
+			value = "geometry_ray",
+			can_be_const = true,
+			category = { "Unity" },
+			concept = {"Unity"})
+	@doc (
+			value = "creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: is_trigger; if true, the collider of this geometry is only used to trigger events and not by the physic engine ",
+			masterDoc = true,
+			examples = @example (
+					value = "geometry_ray(true)",
+					isExecutable = false))
+	@no_test
+	public static UnityInteraction newUnityGeometryRay(boolean trigger) throws GamaRuntimeException {
+		return new UnityInteraction(true,true,false,trigger); 
+	}
+	
+	
+	@operator (
+			value = "new_geometry_interaction",
+			can_be_const = true,
+			category = { "Unity" },
+			concept = {"Unity"})
+	@doc (
+			value = "creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, is_trigger",
+			masterDoc = true,
+			examples = @example (
+					value = "new_geometry_interaction(true, false,false,false)",
+					isExecutable = false))
+	@no_test
+	public static UnityInteraction newUnityGeometryInteraction( boolean collider,
+			boolean interactable, boolean grabable, boolean trigger) throws GamaRuntimeException {
+		return new UnityInteraction(collider,interactable,grabable,trigger); 
+	}
+ 
 	@operator (
 			value = "geometry_properties",
 			can_be_const = true,
 			category = { "Unity" },
 			concept = {"Unity"})
 	@doc (
-			value = "creates a new geometry to send to unity with the given properties: name, aspect, tag, layer name, has a collider, is interactable, is grabable, is static, frequency of sending to unity",
+			value = "creates a new geometry to send to unity with the given properties: name, tag, aspect, interaction",
 			masterDoc = true,
 			examples = @example (
-					value = "geometry_properties(\"car\",car_prefab, \"car\", true,true, false )",
+					value = "geometry_properties(\"car\",\"car\",car_prefab,interaction )",
 					isExecutable = false))
 	@no_test
-	public static UnityProperties newUnityGeometrytoSend(String name, UnityAspect aspect, String tag, boolean collider,
-			boolean interactable, boolean grabable) throws GamaRuntimeException {
-		return new UnityProperties(name, aspect, tag, collider,
-				interactable, grabable);
+	public static UnityProperties newUnityGeometrytoSend(String name,String tag, UnityAspect aspect, UnityInteraction interaction) throws GamaRuntimeException {
+		return new UnityProperties(name, tag, aspect,interaction);
 	}
+	
+	@operator (
+			value = "geometry_properties_no_interaction",
+			can_be_const = true,
+			category = { "Unity" },
+			concept = {"Unity"})
+	@doc (
+			value = "creates a new geometry to send to unity with no interaction with the given properties: name, tag, aspect",
+			masterDoc = true,
+			examples = @example (
+					value = "geometry_properties(\"car\",\"car\",car_prefab )",
+					isExecutable = false))
+	@no_test
+	public static UnityProperties newUnityGeometrytoSendNoInt(String name,String tag, UnityAspect aspect) throws GamaRuntimeException {
+		return new UnityProperties(name, tag, aspect,new UnityInteraction(false, false, false, false));
+	}
+
 
 
 }

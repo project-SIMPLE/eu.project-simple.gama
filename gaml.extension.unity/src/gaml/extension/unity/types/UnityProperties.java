@@ -33,47 +33,35 @@ import msi.gaml.types.IType;
 		doc = @doc ("The id of the Unity properties")),
 	@variable (
 		name = "aspect",
-		type = UnityAspectType.UNITYASPECTTYPE,
+		type = UnityAspectType.UNITYASPECTTYPE_ID,
 		doc = @doc ("The aspect associated to the Unity properties")),
 	@variable (
+			name = "interaction",
+			type = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
+			doc = @doc ("The interaction associated to the Unity properties")),
+		@variable (
 				name = "tag",
 				type = IType.STRING,
-				doc = @doc ("the tag associated to the Unity properties")),
-		@variable (
-				name = "collider",
-				type = IType.BOOL,
-				doc = @doc ("has the geometry a collider")),
-		@variable (
-				name = "interactable",
-				type = IType.BOOL,
-				doc = @doc ("is the geometry interactable")),
-		@variable (
-			name = "grabable",
-			type = IType.BOOL,
-			doc = @doc ("is the geometry grabable (interaction with Ray interactor otherwise")),
+				doc = @doc ("the tag associated to the Unity properties"))
 					
 		 })
 public class UnityProperties implements IValue {
 
 	private String id;
 	private UnityAspect aspect;
+	private UnityInteraction interaction;
 	private String tag;
-	private boolean collider;
-	private boolean interactable;
-	private boolean grabable;
+	
 	
 
 
 
-	public UnityProperties(String id, UnityAspect aspect, String tag,  boolean collider,
-			boolean interactable, boolean grabable) {
+	public UnityProperties(String id,  String tag, UnityAspect aspect, UnityInteraction interaction) {
 		super();
 		this.id = id;
 		this.aspect = aspect;
 		this.tag = tag;
-		this.collider = collider;
-		this.interactable = interactable;
-		this.grabable = grabable;
+		this.interaction = interaction;
 	}
 
 	public String getId() {
@@ -87,43 +75,30 @@ public class UnityProperties implements IValue {
 	public String getTag() {
 		return tag;
 	}
-
-
-	public boolean isCollider() {
-		return collider;
-	}
-
-	public boolean isInteractable() {
-		return interactable;
-	}
-
-	public boolean isGrabable() {
-		return grabable;
+	public UnityInteraction getInteraction() {
+		return interaction;
 	}
 
 	
 
 	@Override
 	public String toString() {
-		return id + " - " + aspect + " - " + tag + (collider ? "- has_collider" : "") +  (interactable ? "- is_interactable" : "") + (grabable ? "- is_grabable" : ""); 
-		//return serializeToGaml(true);
+		return id + " - " + aspect + " - " + interaction + " - " + tag ;
+		
 	}
 
 	@Override
 	public String stringValue(IScope scope) throws GamaRuntimeException {
-		return id + " - " + aspect + " - " + tag + (collider ? "- has_collider" : "") +  (interactable ? "- is_interactable" : "") + (grabable ? "- is_grabable" : ""); 
-		
+		return toString() ;
 	}
 
 	public Map<String, Object> toMap() {
 		Map<String, Object> map = GamaMapFactory.create();
 		map.put("id", id);
-		map.putAll(aspect.toMap());
 		map.put("tag", tag);
-		map.put("collider", collider);
-		map.put("isInteractable",interactable);
-		map.put("isGrabable", grabable);
-		map.put("hasCollider", collider);
+		map.putAll(aspect.toMap());
+		map.putAll(interaction.toMap());
+		
 		
 		return map;
 	}

@@ -27,12 +27,7 @@ import msi.gama.util.file.json.Json;
 import msi.gama.util.file.json.JsonValue;
 import msi.gaml.types.IType;
 
-/**
- * The Class BDIPlan.
- */
-/**
- * 
- */
+
 @vars ({ @variable (
 		name = "prefab",
 		type = IType.STRING,
@@ -172,17 +167,12 @@ public class UnityAspect implements IValue {
 		}
 		
 		return "geometry - " + height + " - "+ color;
-		//return serializeToGaml(true);
 	}
 
 	
 	@Override
 	public String stringValue(IScope scope) throws GamaRuntimeException {
-		if (prefab != null && !prefab.isBlank()) {
-			return prefab + " - " + size + " - " + rotation_coeff + " - " + rotation_offset + " - " + y_offset;
-		}
-		
-		return "geometry - " + height + " - "+ color;
+		return toString();
 	}
 
 
