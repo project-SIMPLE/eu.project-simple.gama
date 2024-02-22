@@ -80,7 +80,7 @@ import ummisco.gama.serializer.gaml.SerialisationOperators;
 	@variable(name = AbstractUnityLinker.PLAYER_SPECIES, type = IType.STRING, 
 	doc = { @doc ("Species of the player agent")}),  
 	
-	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, 
+	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, init = "|||",
 	doc = { @doc ("Symbol to be added at the end of the messages (only when the middleware is not used); it should be the same defined in Unity")}),  
 	
 	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="false", 

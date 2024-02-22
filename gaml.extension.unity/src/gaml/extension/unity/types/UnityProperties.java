@@ -51,17 +51,18 @@ public class UnityProperties implements IValue {
 	private UnityAspect aspect;
 	private UnityInteraction interaction;
 	private String tag;
+	private boolean toFollow;
 	
-	
 
 
 
-	public UnityProperties(String id,  String tag, UnityAspect aspect, UnityInteraction interaction) {
+	public UnityProperties(String id,  String tag, UnityAspect aspect, UnityInteraction interaction, boolean toFollow) {
 		super();
 		this.id = id;
 		this.aspect = aspect;
 		this.tag = tag;
 		this.interaction = interaction;
+		this.toFollow = toFollow;
 	}
 
 	public String getId() {
@@ -81,6 +82,10 @@ public class UnityProperties implements IValue {
 
 	
 
+	public boolean isToFollow() {
+		return toFollow;
+	}
+
 	@Override
 	public String toString() {
 		return id + " - " + aspect + " - " + interaction + " - " + tag ;
@@ -98,6 +103,7 @@ public class UnityProperties implements IValue {
 		map.put("tag", tag);
 		map.putAll(aspect.toMap());
 		map.putAll(interaction.toMap());
+		map.put("toFollow", toFollow);
 		
 		
 		return map;

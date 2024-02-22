@@ -105,14 +105,14 @@ public class Operators {
 			category = { "Unity" },
 			concept = {"Unity"})
 	@doc (
-			value = "creates a new geometry to send to unity with the given properties: name, tag, aspect, interaction",
+			value = "creates a new geometry to send to unity with the given properties: name, tag, aspect, interaction, toFollow",
 			masterDoc = true,
 			examples = @example (
 					value = "geometry_properties(\"car\",\"car\",car_prefab,interaction )",
 					isExecutable = false))
 	@no_test
-	public static UnityProperties newUnityGeometrytoSend(String name,String tag, UnityAspect aspect, UnityInteraction interaction) throws GamaRuntimeException {
-		return new UnityProperties(name, tag, aspect,interaction);
+	public static UnityProperties newUnityGeometrytoSend(String name,String tag, UnityAspect aspect, UnityInteraction interaction, boolean toFollow) throws GamaRuntimeException {
+		return new UnityProperties(name, tag, aspect,interaction, toFollow);
 	}
 	
 	@operator (
@@ -128,7 +128,7 @@ public class Operators {
 					isExecutable = false))
 	@no_test
 	public static UnityProperties newUnityGeometrytoSendNoInt(String name,String tag, UnityAspect aspect) throws GamaRuntimeException {
-		return new UnityProperties(name, tag, aspect,new UnityInteraction(false, false, false, (IList)GamaListFactory.create()));
+		return new UnityProperties(name, tag, aspect,new UnityInteraction(false, false, false, (IList)GamaListFactory.create()), false);
 	}
 
 
