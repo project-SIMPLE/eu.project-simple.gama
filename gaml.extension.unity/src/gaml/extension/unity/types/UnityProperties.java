@@ -1,9 +1,9 @@
 /*******************************************************************************************************
  *
- * BDIPlan.java, in msi.gaml.architecture.simplebdi, is part of the source code of the GAMA modeling and simulation
+ * UnityProperties.java, in gaml.extension.unity, is part of the source code of the GAMA modeling and simulation
  * platform (v.1.9.3).
  *
- * (c) 2007-2023 UMI 209 UMMISCO IRD/SU & Partners (IRIT, MIAT, TLU, CTU)
+ * (c) 2007-2024 UMI 209 UMMISCO IRD/SU & Partners (IRIT, MIAT, TLU, CTU)
  *
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
@@ -12,16 +12,16 @@ package gaml.extension.unity.types;
 
 import java.util.Map;
 
-import msi.gama.common.interfaces.IValue;
-import msi.gama.precompiler.GamlAnnotations.doc;
-import msi.gama.precompiler.GamlAnnotations.variable;
-import msi.gama.precompiler.GamlAnnotations.vars;
-import msi.gama.runtime.IScope;
-import msi.gama.runtime.exceptions.GamaRuntimeException;
-import msi.gama.util.GamaMapFactory;
-import msi.gama.util.file.json.Json;
-import msi.gama.util.file.json.JsonValue;
-import msi.gaml.types.IType;
+import gama.annotations.precompiler.GamlAnnotations.doc;
+import gama.annotations.precompiler.GamlAnnotations.variable;
+import gama.annotations.precompiler.GamlAnnotations.vars;
+import gama.core.common.interfaces.IValue;
+import gama.core.runtime.IScope;
+import gama.core.runtime.exceptions.GamaRuntimeException;
+import gama.core.util.GamaMapFactory;
+import gama.core.util.file.json.Json;
+import gama.core.util.file.json.JsonValue;
+import gama.gaml.types.IType;
 
 /**
  * The Class BDIPlan.
@@ -31,85 +31,140 @@ import msi.gaml.types.IType;
 		name = "id",
 		type = IType.STRING,
 		doc = @doc ("The id of the Unity properties")),
-	@variable (
-		name = "aspect",
-		type = UnityAspectType.UNITYASPECTTYPE_ID,
-		doc = @doc ("The aspect associated to the Unity properties")),
-	@variable (
-			name = "interaction",
-			type = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
-			doc = @doc ("The interaction associated to the Unity properties")),
+		@variable (
+				name = "aspect",
+				type = UnityAspectType.UNITYASPECTTYPE_ID,
+				doc = @doc ("The aspect associated to the Unity properties")),
+		@variable (
+				name = "interaction",
+				type = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
+				doc = @doc ("The interaction associated to the Unity properties")),
 		@variable (
 				name = "tag",
 				type = IType.STRING,
 				doc = @doc ("the tag associated to the Unity properties"))
-					
-		 })
+
+})
 public class UnityProperties implements IValue {
 
-	private String id;
-	private UnityAspect aspect;
-	private UnityInteraction interaction;
-	private String tag;
-	
-	
+	/** The id. */
+	private final String id;
 
+	/** The aspect. */
+	private final UnityAspect aspect;
 
+	/** The interaction. */
+	private final UnityInteraction interaction;
 
-	public UnityProperties(String id,  String tag, UnityAspect aspect, UnityInteraction interaction) {
-		super();
+	/** The tag. */
+	private final String tag;
+
+	/**
+	 * Instantiates a new unity properties.
+	 *
+	 * @param id
+	 *            the id
+	 * @param tag
+	 *            the tag
+	 * @param aspect
+	 *            the aspect
+	 * @param interaction
+	 *            the interaction
+	 */
+	public UnityProperties(final String id, final String tag, final UnityAspect aspect,
+			final UnityInteraction interaction) {
 		this.id = id;
 		this.aspect = aspect;
 		this.tag = tag;
 		this.interaction = interaction;
 	}
 
-	public String getId() {
-		return id;
-	}
+	/**
+	 * Gets the id.
+	 *
+	 * @return the id
+	 */
+	public String getId() { return id; }
 
-	public UnityAspect getAspect() {
-		return aspect;
-	}
+	/**
+	 * Gets the aspect.
+	 *
+	 * @return the aspect
+	 */
+	public UnityAspect getAspect() { return aspect; }
 
-	public String getTag() {
-		return tag;
-	}
-	public UnityInteraction getInteraction() {
-		return interaction;
-	}
+	/**
+	 * Gets the tag.
+	 *
+	 * @return the tag
+	 */
+	public String getTag() { return tag; }
 
-	
+	/**
+	 * Gets the interaction.
+	 *
+	 * @return the interaction
+	 */
+	public UnityInteraction getInteraction() { return interaction; }
 
 	@Override
 	public String toString() {
-		return id + " - " + aspect + " - " + interaction + " - " + tag ;
-		
+		return id + " - " + aspect + " - " + interaction + " - " + tag;
+
 	}
 
+	/**
+	 * String value.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the string
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@Override
-	public String stringValue(IScope scope) throws GamaRuntimeException {
-		return toString() ;
+	public String stringValue(final IScope scope) throws GamaRuntimeException {
+		return toString();
 	}
 
+	/**
+	 * To map.
+	 *
+	 * @return the map
+	 */
 	public Map<String, Object> toMap() {
 		Map<String, Object> map = GamaMapFactory.create();
 		map.put("id", id);
 		map.put("tag", tag);
 		map.putAll(aspect.toMap());
 		map.putAll(interaction.toMap());
-		
-		
+
 		return map;
 	}
 
+	/**
+	 * Copy.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i value
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@Override
-	public IValue copy(IScope scope) throws GamaRuntimeException {
+	public IValue copy(final IScope scope) throws GamaRuntimeException {
 		return null;
 	}
 
+	/**
+	 * Serialize to json.
+	 *
+	 * @param json
+	 *            the json
+	 * @return the json value
+	 */
 	@Override
-	public JsonValue serializeToJson(Json json) {
+	public JsonValue serializeToJson(final Json json) {
 		// TODO Auto-generated method stub
 		return null;
 	}

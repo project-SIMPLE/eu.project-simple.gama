@@ -1,3 +1,13 @@
+/*******************************************************************************************************
+ *
+ * WizardPageDisplay.java, in gaml.extension.unity, is part of the source code of the GAMA modeling and simulation
+ * platform (v.1.9.3).
+ *
+ * (c) 2007-2024 UMI 209 UMMISCO IRD/SU & Partners (IRIT, MIAT, TLU, CTU)
+ *
+ * Visit https://github.com/gama-platform/gama for license information and contacts.
+ *
+ ********************************************************************************************************/
 package gaml.extension.unity.commands.wizard;
 
 import java.util.ArrayList;
@@ -15,20 +25,35 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import msi.gama.kernel.model.IModel;
-import msi.gama.outputs.IOutput;
+import gama.core.kernel.model.IModel;
+import gama.core.outputs.IOutput;
 
+/**
+ * The Class WizardPageDisplay.
+ */
 public class WizardPageDisplay extends WizardPage {
 
+	/** The model. */
 	IModel model;
 
+	/** The container. */
 	private Composite container;
 
+	/** The generator. */
 	VRModelGenerator generator;
 
+	/** The items D. */
 	List<String> itemsD;
 
-	protected WizardPageDisplay(IModel model, VRModelGenerator gen) {
+	/**
+	 * Instantiates a new wizard page display.
+	 *
+	 * @param model
+	 *            the model
+	 * @param gen
+	 *            the gen
+	 */
+	protected WizardPageDisplay(final IModel model, final VRModelGenerator gen) {
 		super("Display");
 		setTitle("Define the information about the display");
 		setDescription("Please enter information about displays");
@@ -36,18 +61,25 @@ public class WizardPageDisplay extends WizardPage {
 		this.generator = gen;
 	}
 
+	/**
+	 * Update experiment.
+	 */
 	public void updateExperiment() {
-		itemsD = new ArrayList<String>();
-		for (IOutput d : model.getExperiment(generator.getExperimentName()).getOriginalSimulationOutputs())
+		itemsD = new ArrayList<>();
+		for (IOutput d : model.getExperiment(generator.getExperimentName()).getOriginalSimulationOutputs()) {
 			itemsD.add(d.getOriginalName());
+		}
 
 	}
 
+	/** The cd. */
 	Combo cd;
+
+	/** The group display H. */
 	Group groupDisplayH;
 
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		container = new Composite(parent, SWT.NONE);
 		container.setLayout(new FillLayout(SWT.VERTICAL));
 		Group groupDisplay = new Group(container, SWT.NONE);
@@ -61,14 +93,13 @@ public class WizardPageDisplay extends WizardPage {
 
 		/*
 		 * for (IExperimentPlan ep : model.getExperiments()) {
-		 * 
-		 * for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs())
-		 * itemsD.add(d.getName()); }
+		 *
+		 * for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs()) itemsD.add(d.getName()); }
 		 */
 
 		if (itemsD != null && itemsD.size() > 0) {
 
-			cd.setItems((String[]) itemsD.toArray(new String[itemsD.size()]));
+			cd.setItems(itemsD.toArray(new String[itemsD.size()]));
 			if (!itemsD.isEmpty()) {
 				cd.setText(itemsD.get(0));
 				generator.setMainDisplay(cd.getText());
@@ -81,7 +112,8 @@ public class WizardPageDisplay extends WizardPage {
 				Button bt = new Button(groupDisplayH, SWT.CHECK);
 				bt.addSelectionListener(new SelectionAdapter() {
 
-					public void widgetSelected(SelectionEvent event) {
+					@Override
+					public void widgetSelected(final SelectionEvent event) {
 						Button btn = (Button) event.getSource();
 						if (btn.getSelection()) {
 							generator.getDisplaysToHide().add(btn.getText());
@@ -95,27 +127,25 @@ public class WizardPageDisplay extends WizardPage {
 				bt.pack();
 			}
 			cd.addSelectionListener(new SelectionAdapter() {
-				public void widgetDefaultSelected(SelectionEvent e) {
+				@Override
+				public void widgetDefaultSelected(final SelectionEvent e) {
 					generator.setMainDisplay(cd.getText());
 				}
 			});
 		}
 		/*
-		 * Group groupDisplayH = new Group(container, SWT.NONE);
-		 * groupDisplayH.setLayout(new GridLayout(2, false));
+		 * Group groupDisplayH = new Group(container, SWT.NONE); groupDisplayH.setLayout(new GridLayout(2, false));
 		 * groupDisplayH.setText("Displays to hide");
-		 * 
+		 *
 		 * for (IExperimentPlan ep : model.getExperiments()) { for (IDisplayOutput d
-		 * :ep.getExperimentOutputs().getDisplayOutputs()){ String sp = d.getName();
-		 * Button bt = new Button(groupDisplayH, SWT.CHECK); bt.addSelectionListener(new
-		 * SelectionAdapter() {
-		 * 
-		 * @Override public void widgetSelected(SelectionEvent event) { Button btn =
-		 * (Button) event.getSource(); if(btn.getSelection()) {
-		 * generator.getDisplaysToHide().add(btn.getText()); } else {
-		 * 
+		 * :ep.getExperimentOutputs().getDisplayOutputs()){ String sp = d.getName(); Button bt = new
+		 * Button(groupDisplayH, SWT.CHECK); bt.addSelectionListener(new SelectionAdapter() {
+		 *
+		 * @Override public void widgetSelected(SelectionEvent event) { Button btn = (Button) event.getSource();
+		 * if(btn.getSelection()) { generator.getDisplaysToHide().add(btn.getText()); } else {
+		 *
 		 * generator.getDisplaysToHide().remove(btn.getText()); }
-		 * 
+		 *
 		 * } }); bt.setText(sp); bt.pack(); } }
 		 */
 

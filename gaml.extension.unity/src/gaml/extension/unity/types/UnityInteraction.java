@@ -1,94 +1,123 @@
 /*******************************************************************************************************
  *
- * BDIPlan.java, in msi.gaml.architecture.simplebdi, is part of the source code of the GAMA modeling and simulation
+ * UnityInteraction.java, in gaml.extension.unity, is part of the source code of the GAMA modeling and simulation
  * platform (v.1.9.3).
  *
- * (c) 2007-2023 UMI 209 UMMISCO IRD/SU & Partners (IRIT, MIAT, TLU, CTU)
+ * (c) 2007-2024 UMI 209 UMMISCO IRD/SU & Partners (IRIT, MIAT, TLU, CTU)
  *
  * Visit https://github.com/gama-platform/gama for license information and contacts.
  *
  ********************************************************************************************************/
 package gaml.extension.unity.types;
 
-
-import java.awt.Color;
 import java.util.Map;
 
-import msi.gama.common.interfaces.IValue;
-import msi.gama.precompiler.GamlAnnotations.doc;
-import msi.gama.precompiler.GamlAnnotations.getter;
-import msi.gama.precompiler.GamlAnnotations.variable;
-import msi.gama.precompiler.GamlAnnotations.vars;
-import msi.gama.runtime.IScope;
-import msi.gama.runtime.exceptions.GamaRuntimeException;
-import msi.gama.util.GamaColor;
-import msi.gama.util.GamaMapFactory;
-import msi.gama.util.file.json.Json;
-import msi.gama.util.file.json.JsonValue;
-import msi.gaml.types.IType;
+import gama.annotations.precompiler.GamlAnnotations.doc;
+import gama.annotations.precompiler.GamlAnnotations.variable;
+import gama.annotations.precompiler.GamlAnnotations.vars;
+import gama.core.common.interfaces.IValue;
+import gama.core.runtime.IScope;
+import gama.core.runtime.exceptions.GamaRuntimeException;
+import gama.core.util.GamaMapFactory;
+import gama.core.util.file.json.Json;
+import gama.core.util.file.json.JsonValue;
+import gama.gaml.types.IType;
 
 /**
  * The Class BDIPlan.
  */
 /**
- * 
+ *
  */
 @vars ({ @variable (
 		name = "has_collider",
 		type = IType.BOOL,
 		doc = @doc ("has the geometry a collider")),
-@variable (
-		name = "is_trigger",
-		type = IType.BOOL,
-		doc = @doc ("if true, the collider of this geometry is only used to trigger events and not by the physic engine")),
-@variable (
-		name = "is_interactable",
-		type = IType.BOOL,
-		doc = @doc ("is the geometry interactable")),
-@variable (
-	name = "is_grabable",
-	type = IType.BOOL,
-	doc = @doc ("is the geometry grabable (interaction with Ray interactor otherwise"))
+		@variable (
+				name = "is_trigger",
+				type = IType.BOOL,
+				doc = @doc ("if true, the collider of this geometry is only used to trigger events and not by the physic engine")),
+		@variable (
+				name = "is_interactable",
+				type = IType.BOOL,
+				doc = @doc ("is the geometry interactable")),
+		@variable (
+				name = "is_grabable",
+				type = IType.BOOL,
+				doc = @doc ("is the geometry grabable (interaction with Ray interactor otherwise"))
 
 })
 public class UnityInteraction implements IValue {
 
-	private boolean collider;
-	private boolean interactable;
-	private boolean grabable;
-	private boolean trigger;
-	
-	public UnityInteraction( boolean collider,
-			boolean interactable, boolean grabable, boolean trigger) {
-		super();
+	/** The collider. */
+	private final boolean collider;
+
+	/** The interactable. */
+	private final boolean interactable;
+
+	/** The grabable. */
+	private final boolean grabable;
+
+	/** The trigger. */
+	private final boolean trigger;
+
+	/**
+	 * Instantiates a new unity interaction.
+	 *
+	 * @param collider
+	 *            the collider
+	 * @param interactable
+	 *            the interactable
+	 * @param grabable
+	 *            the grabable
+	 * @param trigger
+	 *            the trigger
+	 */
+	public UnityInteraction(final boolean collider, final boolean interactable, final boolean grabable,
+			final boolean trigger) {
 		this.collider = collider;
 		this.interactable = interactable;
 		this.grabable = grabable;
 		this.trigger = trigger;
 	}
-	
 
-	
-	public boolean isCollider() {
-		return collider;
-	}
+	/**
+	 * Checks if is collider.
+	 *
+	 * @return true, if is collider
+	 */
+	public boolean isCollider() { return collider; }
 
-	public boolean isInteractable() {
-		return interactable;
-	}
+	/**
+	 * Checks if is interactable.
+	 *
+	 * @return true, if is interactable
+	 */
+	public boolean isInteractable() { return interactable; }
 
-	public boolean isGrabable() {
-		return grabable;
-	}
-	public boolean isTrigger() {
-		return trigger;
-	}
-	
+	/**
+	 * Checks if is grabable.
+	 *
+	 * @return true, if is grabable
+	 */
+	public boolean isGrabable() { return grabable; }
 
+	/**
+	 * Checks if is trigger.
+	 *
+	 * @return true, if is trigger
+	 */
+	public boolean isTrigger() { return trigger; }
+
+	/**
+	 * To map.
+	 *
+	 * @return the map
+	 */
 	public Map<String, Object> toMap() {
 		Map<String, Object> map = GamaMapFactory.create();
 		map.put("interaction", collider);
-		map.put("isInteractable",interactable);
+		map.put("isInteractable", interactable);
 		map.put("isGrabable", grabable);
 		map.put("hasCollider", collider);
 		map.put("isTrigger", trigger);
@@ -97,23 +126,47 @@ public class UnityInteraction implements IValue {
 
 	@Override
 	public String toString() {
-		return (collider ? "- has_collider" : "") +  (interactable ? "- is_interactable" : "") + (grabable ? "- is_grabable" : "") + (trigger ? "- is_trigger" : ""); 
+		return (collider ? "- has_collider" : "") + (interactable ? "- is_interactable" : "")
+				+ (grabable ? "- is_grabable" : "") + (trigger ? "- is_trigger" : "");
 	}
 
-	
+	/**
+	 * String value.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the string
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@Override
-	public String stringValue(IScope scope) throws GamaRuntimeException {
+	public String stringValue(final IScope scope) throws GamaRuntimeException {
 		return toString();
 	}
 
-
+	/**
+	 * Copy.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i value
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@Override
-	public IValue copy(IScope scope) throws GamaRuntimeException {
+	public IValue copy(final IScope scope) throws GamaRuntimeException {
 		return null;
 	}
 
+	/**
+	 * Serialize to json.
+	 *
+	 * @param json
+	 *            the json
+	 * @return the json value
+	 */
 	@Override
-	public JsonValue serializeToJson(Json json) {
+	public JsonValue serializeToJson(final Json json) {
 		// TODO Auto-generated method stub
 		return null;
 	}

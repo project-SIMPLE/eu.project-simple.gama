@@ -4,18 +4,18 @@ Bundle-Name: Unity
 Bundle-SymbolicName: gaml.extension.unity;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: gaml.extension.unity.species
-Require-Bundle: msi.gama.core,
- msi.gama.ext,
- ummisco.gama.network,
- org.eclipse.ui,
+Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.equinox.registry,
- msi.gama.lang.gaml,
  org.eclipse.xtext,
  org.eclipse.xtext.ui,
- ummisco.gama.serialize,
- ummisco.gama.ui.modeling,
- ummisco.gama.ui.shared
+ gama.core;bundle-version="0.0.0",
+ gama.ui.editor;bundle-version="0.0.0",
+ gama.dependencies;bundle-version="0.0.0",
+ gama.ui.shared;bundle-version="0.0.0",
+ gama.extension.network;bundle-version="0.0.0",
+ gaml.compiler;bundle-version="0.0.0",
+ gama.extension.serialize;bundle-version="0.0.0"
 Automatic-Module-Name: gaml.extension.unity
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
