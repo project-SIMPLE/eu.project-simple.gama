@@ -168,30 +168,6 @@
         <category id="Unity"/>
     </operatorsCategories>
     <operators>
-        <operator alphabetOrder="dh" id="geometry_ray" name="geometry_ray">
-            <operatorCategories>
-                <category id="Unity"/>
-            </operatorCategories>
-            <concepts>
-                <concept id="Unity"/>
-            </concepts>
-            <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
-                    <operand name="trigger" position="0" type="bool"/>
-                </operands>
-            </combinaisonIO>
-            <documentation>
-                <result masterDoc="true">creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: is_trigger; if true, the collider of this geometry is only used to trigger events and not by the physic engine </result>
-                <returns masterDoc="true"/>
-                <usagesExamples>
-                    <usage>
-                        <examples>
-                            <example code="geometry_ray(true)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
-                        </examples>
-                    </usage>
-                </usagesExamples>
-            </documentation>
-        </operator>
         <operator alphabetOrder="nr" id="new_geometry_interaction" name="new_geometry_interaction">
             <operatorCategories>
                 <category id="Unity"/>
@@ -204,16 +180,64 @@
                     <operand name="collider" position="0" type="bool"/>
                     <operand name="interactable" position="1" type="bool"/>
                     <operand name="grabable" position="2" type="bool"/>
-                    <operand name="trigger" position="3" type="bool"/>
+                    <operand name="constraints" position="3" type="gama.core.util.IList&lt;bool&gt;"/>
                 </operands>
             </combinaisonIO>
             <documentation>
-                <result masterDoc="true">creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, is_trigger</result>
+                <result masterDoc="true">creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, constraints</result>
                 <returns masterDoc="true"/>
                 <usagesExamples>
                     <usage>
                         <examples>
                             <example code="new_geometry_interaction(true, false,false,false)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
+                        </examples>
+                    </usage>
+                </usagesExamples>
+            </documentation>
+        </operator>
+        <operator alphabetOrder="dh" id="geometry_ray" name="geometry_ray">
+            <operatorCategories>
+                <category id="Unity"/>
+            </operatorCategories>
+            <concepts>
+                <concept id="Unity"/>
+            </concepts>
+            <combinaisonIO>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
+                    <operand name="d" position="0" type="bool"/>
+                </operands>
+            </combinaisonIO>
+            <documentation>
+                <result masterDoc="true">creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: constraints </result>
+                <returns masterDoc="true"/>
+                <usagesExamples>
+                    <usage>
+                        <examples>
+                            <example code="geometry_ray(true)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
+                        </examples>
+                    </usage>
+                </usagesExamples>
+            </documentation>
+        </operator>
+        <operator alphabetOrder="dh" id="geometry_grabable" name="geometry_grabable">
+            <operatorCategories>
+                <category id="Unity"/>
+            </operatorCategories>
+            <concepts>
+                <concept id="Unity"/>
+            </concepts>
+            <combinaisonIO>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
+                    <operand name="constraints" position="0" type="gama.core.util.IList&lt;bool&gt;"/>
+                </operands>
+            </combinaisonIO>
+            <documentation>
+                <result masterDoc="true">creates a new unity interaction for Unity for a grabable geometry</result>
+                <returns masterDoc="true"/>
+                <usagesExamples>
+                    <usage>
+                        <examples>
+                            <example code="geometry_grabable()" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
                         </examples>
                     </usage>
                 </usagesExamples>
@@ -240,57 +264,6 @@
                     <usage>
                         <examples>
                             <example code="geometry_aspect(10.0, #red)" isExecutable="false" isTestOnly="false" test="false" type="unity_aspect"/>
-                        </examples>
-                    </usage>
-                </usagesExamples>
-            </documentation>
-        </operator>
-        <operator alphabetOrder="dh" id="geometry_grabable" name="geometry_grabable">
-            <operatorCategories>
-                <category id="Unity"/>
-            </operatorCategories>
-            <concepts>
-                <concept id="Unity"/>
-            </concepts>
-            <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
-                    <operand name="n" position="0" type="bool"/>
-                </operands>
-            </combinaisonIO>
-            <documentation>
-                <result masterDoc="true">creates a new unity interaction for Unity for a grabable geometry</result>
-                <returns masterDoc="true"/>
-                <usagesExamples>
-                    <usage>
-                        <examples>
-                            <example code="geometry_grabable()" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
-                        </examples>
-                    </usage>
-                </usagesExamples>
-            </documentation>
-        </operator>
-        <operator alphabetOrder="dh" id="geometry_properties" name="geometry_properties">
-            <operatorCategories>
-                <category id="Unity"/>
-            </operatorCategories>
-            <concepts>
-                <concept id="Unity"/>
-            </concepts>
-            <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_property" type="-13">
-                    <operand name="name" position="0" type="string"/>
-                    <operand name="tag" position="1" type="string"/>
-                    <operand name="aspect" position="2" type="unity_aspect"/>
-                    <operand name="interaction" position="3" type="unity_interaction"/>
-                </operands>
-            </combinaisonIO>
-            <documentation>
-                <result masterDoc="true">creates a new geometry to send to unity with the given properties: name, tag, aspect, interaction</result>
-                <returns masterDoc="true"/>
-                <usagesExamples>
-                    <usage>
-                        <examples>
-                            <example code="geometry_properties(&quot;car&quot;,&quot;car&quot;,car_prefab,interaction )" isExecutable="false" isTestOnly="false" test="false" type="unity_property"/>
                         </examples>
                     </usage>
                 </usagesExamples>
@@ -346,6 +319,34 @@
                     <usage>
                         <examples>
                             <example code="geometry_properties(&quot;car&quot;,&quot;car&quot;,car_prefab )" isExecutable="false" isTestOnly="false" test="false" type="unity_property"/>
+                        </examples>
+                    </usage>
+                </usagesExamples>
+            </documentation>
+        </operator>
+        <operator alphabetOrder="dh" id="geometry_properties" name="geometry_properties">
+            <operatorCategories>
+                <category id="Unity"/>
+            </operatorCategories>
+            <concepts>
+                <concept id="Unity"/>
+            </concepts>
+            <combinaisonIO>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_property" type="-13">
+                    <operand name="name" position="0" type="string"/>
+                    <operand name="tag" position="1" type="string"/>
+                    <operand name="aspect" position="2" type="unity_aspect"/>
+                    <operand name="interaction" position="3" type="unity_interaction"/>
+                    <operand name="toFollow" position="4" type="bool"/>
+                </operands>
+            </combinaisonIO>
+            <documentation>
+                <result masterDoc="true">creates a new geometry to send to unity with the given properties: name, tag, aspect, interaction, toFollow</result>
+                <returns masterDoc="true"/>
+                <usagesExamples>
+                    <usage>
+                        <examples>
+                            <example code="geometry_properties(&quot;car&quot;,&quot;car&quot;,car_prefab,interaction )" isExecutable="false" isTestOnly="false" test="false" type="unity_property"/>
                         </examples>
                     </usage>
                 </usagesExamples>

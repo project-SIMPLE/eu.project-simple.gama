@@ -31,32 +31,12 @@ public class UnityAspectType extends GamaType<UnityAspect> {
 
 	/** The Constant id. */
 	public final static int UNITYASPECTTYPE_ID = IType.AVAILABLE_TYPES + 352583;
-
-	/**
-	 * Can cast to const.
-	 *
-	 * @return true, if successful
-	 */
+ 
 	@Override
 	public boolean canCastToConst() {
 		return true;
 	}
 
-	/**
-	 * Cast.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @param obj
-	 *            the obj
-	 * @param val
-	 *            the val
-	 * @param copy
-	 *            the copy
-	 * @return the unity aspect
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
 	@Override
 	@doc ("cast an object into a GeometryToSend if it is an instance of a GeometryToSend")
 	public UnityAspect cast(final IScope scope, final Object obj, final Object val, final boolean copy)
@@ -65,11 +45,6 @@ public class UnityAspectType extends GamaType<UnityAspect> {
 		return null;
 	}
 
-	/**
-	 * Gets the default.
-	 *
-	 * @return the default
-	 */
 	@Override
 	public UnityAspect getDefault() { return null; }
 

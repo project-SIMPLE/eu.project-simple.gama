@@ -21,6 +21,7 @@ import gama.gaml.types.IType;
 /**
  * The Class UnityInteractionType.
  */
+
 @type (
 		name = "unity_interaction",
 		id = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
@@ -32,31 +33,11 @@ public class UnityInteractionType extends GamaType<UnityInteraction> {
 	/** The Constant id. */
 	public final static int UNITYINTERACTIONTYPE_ID = IType.AVAILABLE_TYPES + 383736;
 
-	/**
-	 * Can cast to const.
-	 *
-	 * @return true, if successful
-	 */
 	@Override
 	public boolean canCastToConst() {
 		return true;
 	}
 
-	/**
-	 * Cast.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @param obj
-	 *            the obj
-	 * @param val
-	 *            the val
-	 * @param copy
-	 *            the copy
-	 * @return the unity interaction
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
 	@Override
 	@doc ("cast an object into a unity_interaction if it is an instance of a unity_interaction")
 	public UnityInteraction cast(final IScope scope, final Object obj, final Object val, final boolean copy)
@@ -65,11 +46,6 @@ public class UnityInteractionType extends GamaType<UnityInteraction> {
 		return null;
 	}
 
-	/**
-	 * Gets the default.
-	 *
-	 * @return the default
-	 */
 	@Override
 	public UnityInteraction getDefault() { return null; }
 

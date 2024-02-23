@@ -27,7 +27,7 @@ public interface Constants {
 			category = { IConstantCategory.CONSTANT },
 			concept = { IConcept.CONSTANT, "Unity" },
 			doc = @doc ("unity_interaction with no interaction")) UnityInteraction noInt =
-					new UnityInteraction(false, false, false, false);
+					new UnityInteraction(false, false, false, null);
 
 	/** The grabable. */
 	@constant (
@@ -35,7 +35,7 @@ public interface Constants {
 			category = { IConstantCategory.CONSTANT },
 			concept = { IConcept.CONSTANT, "Unity" },
 			doc = @doc ("unity_interaction with a grabable interaction")) UnityInteraction grabable =
-					new UnityInteraction(true, true, true, true);
+					new UnityInteraction(true, true, true, null);
 
 	/** The ray inter. */
 	@constant (
@@ -43,6 +43,6 @@ public interface Constants {
 			category = { IConstantCategory.CONSTANT },
 			concept = { IConcept.CONSTANT, "Unity" },
 			doc = @doc ("unity_interaction with a ray interaction")) UnityInteraction rayInter =
-					new UnityInteraction(true, true, false, false);
+					new UnityInteraction(true, true, false, null);
 
 }

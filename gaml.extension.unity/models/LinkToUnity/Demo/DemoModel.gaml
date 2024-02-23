@@ -1,10 +1,9 @@
 /**
-* Name: testSendAgentLocation
+* Name: DemoModel
 * Example of model using the UnityLink Template
 * Author: Patrick Taillandier
 * Tags: 
 */
-
 model DemoModel
  
 
@@ -16,14 +15,18 @@ global {
 	int nb_blocks <- 10 parameter: true min: 0 max: 10 step: 1.0;
 	float block_size <- 5.0 parameter: true min: 1.0 max: 10.0 step: 1.0;
 	float distance_hostspot <- 10.0 parameter: true min: 1.0 max: 20.0 step: 1.0;
+	geometry free_place ;
 	
 	init {
-		create simple_agentA number: nb_agentsA;
-		create simple_agentB number: nb_agentsB;
-		create static_object with:(location: {50, 40});
+		create static_object with:(location: {50, 40}) {
+			taken_place <- shape buffer 10.0 ;
+		}
 		
 		if (nb_blocks > 0) {
-			geometry free_place <- copy(shape) - (block_size/2.0) - (world.location buffer block_size);
+			free_place <- copy(shape) - (block_size/2.0) - (world.location buffer block_size);
+			ask static_object {
+				free_place <- free_place - taken_place;
+			}
 			loop times: nb_blocks {
 				if free_place = nil {break;}
 				create block {
@@ -34,6 +37,12 @@ global {
 			} 
 			
 		}
+		ask block {
+			bounds <- (shape + distance_hostspot) inter free_place;
+		}
+		create simple_agentA number: nb_agentsA with: (location:any_location_in(free_place));
+		create simple_agentB number: nb_agentsB with: (location:any_location_in(free_place));
+		
 	}
 	
 	
@@ -48,6 +57,7 @@ species block {
 	rgb color_hotspot <- #red;
 	rgb color_hotspot_dist <- rgb(255,0,0.0,0.5);
 	bool is_hotspot <- false;
+	geometry bounds;
 	
 	action update_hotspots {
 		list<block> hotspots <- block where each.is_hotspot;
@@ -60,8 +70,8 @@ species block {
 		else {
 			ask simple_agentA + simple_agentB {
 				my_hot_spot <- one_of(hotspots);
-				bounds <- my_hot_spot + distance_hostspot;
-				target <- any_location_in(bounds);
+				bounds <- my_hot_spot.bounds;
+				target <- any_location_in(free_place);
 			}
 		}
 	}
@@ -91,20 +101,35 @@ species simple_agentA  skills: [moving ] {
 	block my_hot_spot;
 	geometry bounds;
 	point target;
+	path my_path;
 	
-	
+	action choose_target(geometry bds) {
+		target <- any_location_in(bds);
+		int cpt <- 10;
+		loop while: cpt >= 0 and ! (bds covers line([location, target])  ) {
+			target <- any_location_in(bds);
+			cpt <- cpt - 1;
+		}
+		if (cpt <= 0) {
+			location <- any_location_in(free_place);
+			target <- location;
+		}
+	}
 	reflex move {
 		if (target = nil ){
 			if (bounds != nil) {
-				target <- any_location_in(bounds);
+				do choose_target(bounds);
 			} else {
-				target <- any_location_in(world);
+				do choose_target(free_place);
 			}
 		}	
 		do goto target: target;
 		if (location = target) {
 			target <- nil;
 		}  
+		if !(location overlaps free_place) {
+			target <- any_location_in(world);
+		}
 		
 	}
 	
@@ -120,8 +145,10 @@ species simple_agentB parent: simple_agentA skills: [moving] {
 }
 
 species static_object  {
-	rgb color <- #red;
+	rgb color <- #green;
 	int index <- 2;
+	
+	geometry taken_place;
 	
 	aspect default {
 		draw cube(2) color: color ;

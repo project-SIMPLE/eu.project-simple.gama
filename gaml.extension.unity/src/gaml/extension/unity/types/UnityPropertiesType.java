@@ -21,6 +21,7 @@ import gama.gaml.types.IType;
 /**
  * The Class UnityPropertiesType.
  */
+
 @type (
 		name = "unity_property",
 		id = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
@@ -32,31 +33,11 @@ public class UnityPropertiesType extends GamaType<UnityProperties> {
 	/** The Constant id. */
 	public final static int UNITYPROPERTIESTYPE_ID = IType.AVAILABLE_TYPES + 28463525;
 
-	/**
-	 * Can cast to const.
-	 *
-	 * @return true, if successful
-	 */
 	@Override
 	public boolean canCastToConst() {
 		return true;
 	}
 
-	/**
-	 * Cast.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @param obj
-	 *            the obj
-	 * @param val
-	 *            the val
-	 * @param copy
-	 *            the copy
-	 * @return the unity properties
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
 	@Override
 	@doc ("cast an object into a unity_properties if it is an instance of a unity_properties")
 	public UnityProperties cast(final IScope scope, final Object obj, final Object val, final boolean copy)
@@ -65,11 +46,6 @@ public class UnityPropertiesType extends GamaType<UnityProperties> {
 		return null;
 	}
 
-	/**
-	 * Gets the default.
-	 *
-	 * @return the default
-	 */
 	@Override
 	public UnityProperties getDefault() { return null; }
 

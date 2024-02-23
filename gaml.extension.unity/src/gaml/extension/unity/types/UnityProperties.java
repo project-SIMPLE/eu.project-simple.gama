@@ -23,148 +23,95 @@ import gama.core.util.file.json.Json;
 import gama.core.util.file.json.JsonValue;
 import gama.gaml.types.IType;
 
-/**
- * The Class BDIPlan.
- */
-
 @vars ({ @variable (
 		name = "id",
 		type = IType.STRING,
 		doc = @doc ("The id of the Unity properties")),
-		@variable (
-				name = "aspect",
-				type = UnityAspectType.UNITYASPECTTYPE_ID,
-				doc = @doc ("The aspect associated to the Unity properties")),
-		@variable (
-				name = "interaction",
-				type = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
-				doc = @doc ("The interaction associated to the Unity properties")),
+	@variable (
+		name = "aspect",
+		type = UnityAspectType.UNITYASPECTTYPE_ID,
+		doc = @doc ("The aspect associated to the Unity properties")),
+	@variable (
+			name = "interaction",
+			type = UnityInteractionType.UNITYINTERACTIONTYPE_ID,
+			doc = @doc ("The interaction associated to the Unity properties")),
 		@variable (
 				name = "tag",
 				type = IType.STRING,
 				doc = @doc ("the tag associated to the Unity properties"))
-
-})
+					
+		 })
 public class UnityProperties implements IValue {
 
-	/** The id. */
-	private final String id;
+	private String id;
+	private UnityAspect aspect;
+	private UnityInteraction interaction;
+	private String tag;
+	private boolean toFollow;
+	
 
-	/** The aspect. */
-	private final UnityAspect aspect;
 
-	/** The interaction. */
-	private final UnityInteraction interaction;
 
-	/** The tag. */
-	private final String tag;
-
-	/**
-	 * Instantiates a new unity properties.
-	 *
-	 * @param id
-	 *            the id
-	 * @param tag
-	 *            the tag
-	 * @param aspect
-	 *            the aspect
-	 * @param interaction
-	 *            the interaction
-	 */
-	public UnityProperties(final String id, final String tag, final UnityAspect aspect,
-			final UnityInteraction interaction) {
+	public UnityProperties(String id,  String tag, UnityAspect aspect, UnityInteraction interaction, boolean toFollow) {
+		super();
 		this.id = id;
 		this.aspect = aspect;
 		this.tag = tag;
 		this.interaction = interaction;
+		this.toFollow = toFollow;
 	}
 
-	/**
-	 * Gets the id.
-	 *
-	 * @return the id
-	 */
-	public String getId() { return id; }
+	public String getId() {
+		return id;
+	}
 
-	/**
-	 * Gets the aspect.
-	 *
-	 * @return the aspect
-	 */
-	public UnityAspect getAspect() { return aspect; }
+	public UnityAspect getAspect() {
+		return aspect;
+	}
 
-	/**
-	 * Gets the tag.
-	 *
-	 * @return the tag
-	 */
-	public String getTag() { return tag; }
+	public String getTag() {
+		return tag;
+	}
+	public UnityInteraction getInteraction() {
+		return interaction;
+	}
 
-	/**
-	 * Gets the interaction.
-	 *
-	 * @return the interaction
-	 */
-	public UnityInteraction getInteraction() { return interaction; }
+	
+
+	public boolean isToFollow() {
+		return toFollow;
+	}
 
 	@Override
 	public String toString() {
-		return id + " - " + aspect + " - " + interaction + " - " + tag;
-
+		return id + " - " + aspect + " - " + interaction + " - " + tag ;
+		
 	}
 
-	/**
-	 * String value.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @return the string
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
 	@Override
-	public String stringValue(final IScope scope) throws GamaRuntimeException {
-		return toString();
+	public String stringValue(IScope scope) throws GamaRuntimeException {
+		return toString() ;
 	}
 
-	/**
-	 * To map.
-	 *
-	 * @return the map
-	 */
 	public Map<String, Object> toMap() {
 		Map<String, Object> map = GamaMapFactory.create();
 		map.put("id", id);
 		map.put("tag", tag);
 		map.putAll(aspect.toMap());
 		map.putAll(interaction.toMap());
-
+		map.put("toFollow", toFollow);
+		
+		
 		return map;
 	}
 
-	/**
-	 * Copy.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @return the i value
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
 	@Override
-	public IValue copy(final IScope scope) throws GamaRuntimeException {
+	public IValue copy(IScope scope) throws GamaRuntimeException {
 		return null;
 	}
 
-	/**
-	 * Serialize to json.
-	 *
-	 * @param json
-	 *            the json
-	 * @return the json value
-	 */
 	@Override
-	public JsonValue serializeToJson(final Json json) {
+	public JsonValue serializeToJson(Json json) {
 		// TODO Auto-generated method stub
 		return null;
 	}

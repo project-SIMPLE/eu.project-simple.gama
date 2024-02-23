@@ -12,7 +12,6 @@ package gaml.extension.unity.constants;
 
 import gama.gaml.constants.IConstantAcceptor;
 import gama.gaml.constants.IConstantsSupplier;
-import gaml.extension.unity.types.UnityInteraction;
 
 /**
  * The Class UnityConstantSupplier.
@@ -28,11 +27,8 @@ public class UnityConstantSupplier implements IConstantsSupplier {
 	@Override
 	public void supplyConstantsTo(final IConstantAcceptor acceptor) {
 
-		// browse(Constants.class, acceptor);
-		UnityInteraction noInt = new UnityInteraction(false, false, false, false);
-
-		acceptor.accept("no_interaction", noInt, "Unity interaction with no interaction", null, false);
-
+		 browse(Constants.class, acceptor);
+		
 	}
 
 }
