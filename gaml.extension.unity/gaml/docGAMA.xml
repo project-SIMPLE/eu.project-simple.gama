@@ -168,6 +168,35 @@
         <category id="Unity"/>
     </operatorsCategories>
     <operators>
+        <operator alphabetOrder="nr" id="prefab_aspect" name="prefab_aspect">
+            <operatorCategories>
+                <category id="Unity"/>
+            </operatorCategories>
+            <concepts>
+                <concept id="Unity"/>
+            </concepts>
+            <combinaisonIO>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_aspect" type="-13">
+                    <operand name="prefabPath" position="0" type="string"/>
+                    <operand name="size" position="1" type="float"/>
+                    <operand name="yOffset" position="2" type="float"/>
+                    <operand name="rotationCoeff" position="3" type="float"/>
+                    <operand name="rotationOffset" position="4" type="float"/>
+                    <operand name="precision" position="5" type="int"/>
+                </operands>
+            </combinaisonIO>
+            <documentation>
+                <result masterDoc="true">creates a new unity prefab aspect for Unity with the given properties: path of the prefab, size, y-offset, rotation coeff, rotation offset</result>
+                <returns masterDoc="true"/>
+                <usagesExamples>
+                    <usage>
+                        <examples>
+                            <example code="prefab_aspect(&quot;Prefabs/Car&quot;,1.0,0.5,1.0,90.0)" isExecutable="false" isTestOnly="false" test="false" type="unity_aspect"/>
+                        </examples>
+                    </usage>
+                </usagesExamples>
+            </documentation>
+        </operator>
         <operator alphabetOrder="nr" id="new_geometry_interaction" name="new_geometry_interaction">
             <operatorCategories>
                 <category id="Unity"/>
@@ -190,30 +219,6 @@
                     <usage>
                         <examples>
                             <example code="new_geometry_interaction(true, false,false,false)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
-                        </examples>
-                    </usage>
-                </usagesExamples>
-            </documentation>
-        </operator>
-        <operator alphabetOrder="dh" id="geometry_ray" name="geometry_ray">
-            <operatorCategories>
-                <category id="Unity"/>
-            </operatorCategories>
-            <concepts>
-                <concept id="Unity"/>
-            </concepts>
-            <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
-                    <operand name="d" position="0" type="bool"/>
-                </operands>
-            </combinaisonIO>
-            <documentation>
-                <result masterDoc="true">creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: constraints </result>
-                <returns masterDoc="true"/>
-                <usagesExamples>
-                    <usage>
-                        <examples>
-                            <example code="geometry_ray(true)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
                         </examples>
                     </usage>
                 </usagesExamples>
@@ -243,7 +248,7 @@
                 </usagesExamples>
             </documentation>
         </operator>
-        <operator alphabetOrder="dh" id="geometry_aspect" name="geometry_aspect">
+        <operator alphabetOrder="dh" id="geometry_ray" name="geometry_ray">
             <operatorCategories>
                 <category id="Unity"/>
             </operatorCategories>
@@ -251,48 +256,17 @@
                 <concept id="Unity"/>
             </concepts>
             <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_aspect" type="-13">
-                    <operand name="height" position="0" type="float"/>
-                    <operand name="color" position="1" type="gama.core.util.GamaColor"/>
-                    <operand name="precision" position="2" type="int"/>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_interaction" type="-13">
+                    <operand name="d" position="0" type="bool"/>
                 </operands>
             </combinaisonIO>
             <documentation>
-                <result masterDoc="true">creates a new unity geometry aspect for Unity with the given properties: geometry to display, height, color</result>
+                <result masterDoc="true">creates a new unity interaction for Unity for a geometry interactable with a ray interactor with the given property: constraints </result>
                 <returns masterDoc="true"/>
                 <usagesExamples>
                     <usage>
                         <examples>
-                            <example code="geometry_aspect(10.0, #red)" isExecutable="false" isTestOnly="false" test="false" type="unity_aspect"/>
-                        </examples>
-                    </usage>
-                </usagesExamples>
-            </documentation>
-        </operator>
-        <operator alphabetOrder="nr" id="prefab_aspect" name="prefab_aspect">
-            <operatorCategories>
-                <category id="Unity"/>
-            </operatorCategories>
-            <concepts>
-                <concept id="Unity"/>
-            </concepts>
-            <combinaisonIO>
-                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_aspect" type="-13">
-                    <operand name="prefabPath" position="0" type="string"/>
-                    <operand name="size" position="1" type="float"/>
-                    <operand name="yOffset" position="2" type="float"/>
-                    <operand name="rotationCoeff" position="3" type="float"/>
-                    <operand name="rotationOffset" position="4" type="float"/>
-                    <operand name="precision" position="5" type="int"/>
-                </operands>
-            </combinaisonIO>
-            <documentation>
-                <result masterDoc="true">creates a new unity prefab aspect for Unity with the given properties: path of the prefab, size, y-offset, rotation coeff, rotation offset</result>
-                <returns masterDoc="true"/>
-                <usagesExamples>
-                    <usage>
-                        <examples>
-                            <example code="prefab_aspect(&quot;Prefabs/Car&quot;,1.0,0.5,1.0,90.0)" isExecutable="false" isTestOnly="false" test="false" type="unity_aspect"/>
+                            <example code="geometry_ray(true)" isExecutable="false" isTestOnly="false" test="false" type="unity_interaction"/>
                         </examples>
                     </usage>
                 </usagesExamples>
@@ -347,6 +321,32 @@
                     <usage>
                         <examples>
                             <example code="geometry_properties(&quot;car&quot;,&quot;car&quot;,car_prefab,interaction )" isExecutable="false" isTestOnly="false" test="false" type="unity_property"/>
+                        </examples>
+                    </usage>
+                </usagesExamples>
+            </documentation>
+        </operator>
+        <operator alphabetOrder="dh" id="geometry_aspect" name="geometry_aspect">
+            <operatorCategories>
+                <category id="Unity"/>
+            </operatorCategories>
+            <concepts>
+                <concept id="Unity"/>
+            </concepts>
+            <combinaisonIO>
+                <operands class="gaml/extension/unity/operators/Operators.java" contentType="-13" returnType="unity_aspect" type="-13">
+                    <operand name="height" position="0" type="float"/>
+                    <operand name="color" position="1" type="gama.core.util.GamaColor"/>
+                    <operand name="precision" position="2" type="int"/>
+                </operands>
+            </combinaisonIO>
+            <documentation>
+                <result masterDoc="true">creates a new unity geometry aspect for Unity with the given properties: geometry to display, height, color</result>
+                <returns masterDoc="true"/>
+                <usagesExamples>
+                    <usage>
+                        <examples>
+                            <example code="geometry_aspect(10.0, #red)" isExecutable="false" isTestOnly="false" test="false" type="unity_aspect"/>
                         </examples>
                     </usage>
                 </usagesExamples>
@@ -644,6 +644,72 @@
                     </args>
                     <documentation>
                         <result>Create a new unity player agent</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="add_background_geometries" returnType="void">
+                    <args>
+                        <arg name="geometries" optional="true" type="container">
+                            <documentation>
+                                <result>list of geometries add as backrgound geometries</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="property" optional="true" type="unity_property">
+                            <documentation>
+                                <result>the unity properties to attach this list of geometries</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="add_geometries_to_send" returnType="void">
+                    <args>
+                        <arg name="geometries" optional="true" type="container">
+                            <documentation>
+                                <result>list of geometries to send to Unity</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="property" optional="true" type="unity_property">
+                            <documentation>
+                                <result>the unity properties to attach this list of geometries</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player</result>
+                        <returns/>
+                    </documentation>
+                </action>
+                <action name="move_geoms_followed" returnType="void">
+                    <args>
+                        <arg name="ids" optional="true" type="string">
+                            <documentation>
+                                <result>ids of the geometries to move</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="points" optional="true" type="string">
+                            <documentation>
+                                <result>points of the geometries to move</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                        <arg name="sep" optional="true" type="string">
+                            <documentation>
+                                <result>separator used to tokenized the id and position</result>
+                                <returns/>
+                            </documentation>
+                        </arg>
+                    </args>
+                    <documentation>
+                        <result>Action called by the Unity Client to move agents</result>
                         <returns/>
                     </documentation>
                 </action>

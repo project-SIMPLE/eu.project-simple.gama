@@ -21,7 +21,7 @@ import gama.gaml.types.IType;
 /**
  * The Class UnityAspectType.
  */
-@type (
+@type ( 
 		name = "unity_aspect",
 		id = UnityAspectType.UNITYASPECTTYPE_ID,
 		wraps = { UnityAspect.class },
@@ -44,7 +44,7 @@ public class UnityAspectType extends GamaType<UnityAspect> {
 		if (obj instanceof UnityAspect) return (UnityAspect) obj;
 		return null;
 	}
-
+ 
 	@Override
 	public UnityAspect getDefault() { return null; }
 

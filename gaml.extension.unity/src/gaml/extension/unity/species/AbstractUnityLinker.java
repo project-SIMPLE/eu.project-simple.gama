@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.eclipse.xtext.util.Strings;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
 import gama.annotations.precompiler.GamlAnnotations.action;
@@ -167,7 +168,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String SERVER = "server";
 
 	private IMap currentMessage;
-	
+	private IMap<String, IShape> geometriesToFollow;
 	
 	
 	@getter (AbstractUnityLinker.DISTANCE_PLAYER_SELECTION)
@@ -747,6 +748,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 		doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,getBackgroundGeometries(ag), "update_position", true);
 		
+		
 		doActionNoArg(scope, "send_world" );
 		
 		
@@ -830,6 +832,103 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	@action (
+			name = "add_background_geometries",
+			args = { @arg (
+					name = "geometries",
+					type = IType.CONTAINER,
+					doc = @doc ("list of geometries add as backrgound geometries")),
+					 @arg (name = "property",
+					 type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+					 doc = @doc ("the unity properties to attach this list of geometries"))},
+					
+			doc = { @doc (
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+	public void primAddBackgroundGeometries(final IScope scope) throws GamaRuntimeException {
+		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries")); 
+		IAgent ag = getAgent();
+		Map gb = getBackgroundGeometries(ag);
+		UnityProperties property = (UnityProperties) scope.getArg("property");
+		if (geometriesToFollow == null)
+			geometriesToFollow = GamaMapFactory.create();
+		for (IShape s : geometries) {
+			gb.put(s, property);
+			String name = s instanceof IAgent ? ((IAgent)s).getName() : (String) s.getAttribute("name");
+			if (!geometriesToFollow.containsKey(name))
+				geometriesToFollow.put(name, s);
+		}
+	}
+	
+	@action (
+			name = "add_geometries_to_send",
+			args = { @arg (
+					name = "geometries",
+					type = IType.CONTAINER,
+					doc = @doc ("list of geometries to send to Unity")),
+					 @arg (name = "property",
+					 type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+					 doc = @doc ("the unity properties to attach this list of geometries"))},
+					
+			doc = { @doc (
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+	public void primAddGeometriesToSend(final IScope scope) throws GamaRuntimeException {
+		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries")); 
+		IAgent ag = getAgent();
+		Map gts = getGeometriesToSend(ag);
+		UnityProperties property = (UnityProperties) scope.getArg("property");
+		if (geometriesToFollow == null)
+			geometriesToFollow = GamaMapFactory.create();
+		for (IShape s : geometries) {
+			gts.put(s, property);
+			String name = s instanceof IAgent ? ((IAgent)s).getName() : (String) s.getAttribute("name");
+			if (!geometriesToFollow.containsKey(name))
+				geometriesToFollow.put(name, s);
+		}
+	}
+	 
+	@action (
+			name = "move_geoms_followed",
+			args = { @arg (
+					name = "ids",
+					type = IType.STRING,
+					doc = @doc ("ids of the geometries to move")),
+					 @arg (name = "points",
+					 type = IType.STRING,
+					 doc = @doc ("points of the geometries to move")),
+					 @arg (name = "sep",
+					 type = IType.STRING,
+					 doc = @doc ("separator used to tokenized the id and position"))},
+					
+			doc = { @doc (
+					value = "Action called by the Unity Client to move agents")})
+	public void primMoveGeomsFollowed(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = scope.getAgent();
+		String sep = scope.getStringArg("sep");
+		String ids = scope.getStringArg("ids");
+		String points = scope.getStringArg("points");
+		
+		if (sep == null || ids == null || points == null || sep.isBlank() || ids.isBlank() || points.isBlank())
+			return;
+		List<String> idsStr = Strings.split(ids, sep);
+		int precision = getPrecision(ag);
+		int nb = idsStr.size();
+		List<String> ptsStr = Strings.split(points, sep);
+		int cpt = 0;
+		for (int i = 0; i < nb ; i++) {
+			String id = idsStr.get(i);
+			if (id.isBlank()) {continue;}
+			IShape geom = geometriesToFollow.get(id);
+			if (geom != null) {
+				double x = (0.0 + (Integer.valueOf(ptsStr.get(cpt)))) / precision;
+				double y = (0.0 + (Integer.valueOf(ptsStr.get(cpt+1)))) / precision;
+				double z = (0.0 + (Integer.valueOf(ptsStr.get(cpt+2)))) / precision;
+				geom.setLocation(new GamaPoint(x,y,z));
+				
+			}
+			cpt = cpt + 3;
+		}
+	}
+	
+	@action (
 			name = "filter_distance",
 			args = { @arg (
 					name = "geometries",
@@ -849,7 +948,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
 		return (IList<IShape>) Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist));
 	}
-	 
+
 	
 	
 	@action (
