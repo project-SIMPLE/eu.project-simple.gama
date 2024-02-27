@@ -47,10 +47,6 @@
       <name>p2Repo</name>
       <url>https://updates.gama-platform.org/1.9.3</url>
       <layout>p2</layout>
-      <snapshots>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
         <checksumPolicy>ignore</checksumPolicy>
@@ -61,10 +57,6 @@
       <name>gamaRepo</name>
       <url>https://updates.gama-platform.org/1.9.3</url>
       <layout>default</layout>
-      <snapshots>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </snapshots>
       <releases>
         <enabled>true</enabled>
         <checksumPolicy>ignore</checksumPolicy>

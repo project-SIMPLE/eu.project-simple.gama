@@ -6,6 +6,9 @@ logs.zip
 *.java._trace
 *.smap
 
+**/.DS_Store
+.DS_Store
+
 src-gen/
 xtend-gen/
 
