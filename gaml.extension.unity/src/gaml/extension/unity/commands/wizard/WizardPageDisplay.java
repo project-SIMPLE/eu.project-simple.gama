@@ -91,12 +91,6 @@ public class WizardPageDisplay extends WizardPage {
 
 		cd = new Combo(groupDisplay, SWT.READ_ONLY);
 
-		/*
-		 * for (IExperimentPlan ep : model.getExperiments()) {
-		 *
-		 * for (IDisplayOutput d :ep.getExperimentOutputs().getDisplayOutputs()) itemsD.add(d.getName()); }
-		 */
-
 		if (itemsD != null && itemsD.size() > 0) {
 
 			cd.setItems(itemsD.toArray(new String[itemsD.size()]));

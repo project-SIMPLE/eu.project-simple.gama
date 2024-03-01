@@ -11,7 +11,9 @@
 package gaml.extension.unity.commands.wizard;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import gama.core.metamodel.shape.GamaPoint;
 
@@ -21,11 +23,10 @@ import gama.core.metamodel.shape.GamaPoint;
 public class VRModelGenerator {
 
 	/** The species to send. */
-	private List<String> speciesToSend = new ArrayList<>();
+	private Map<String, Map<String,String>> speciesToSend ;
 
-	/** The geometries. */
-	private List<DataGeometries> geometries = new ArrayList<>();
-
+	private Map<String, Map<String, String>> definedProperties;
+	
 	/** The location init. */
 	private GamaPoint locationInit = null;
 
@@ -222,21 +223,21 @@ public class VRModelGenerator {
 		}
 		if (speciesToSend != null && !speciesToSend.isEmpty()) {
 			String lisStr = "";
-			boolean first = true;
+			/*boolean first = true; 
 			for (String sp : speciesToSend) {
 				lisStr += (first ? "" : ", ") + "string(" + sp + ")";
 				first = false;
 			}
 			modelUnityLinker.append("\tinit {\n\t\tdo init_species_to_send([").append(lisStr).append("]);");
-			for (DataGeometries geoms : geometries) {
-				String gStr = "geoms: " + geoms.getSpeciesName() + " collect (each.shape"
-						+ (geoms.getBuffer() != null && geoms.getBuffer() != 0 ? " buffer " + geoms.getBuffer() + " ) "
-								: ") ");
-				String nStr = "names: " + geoms.getSpeciesName() + " collect (each.name) ";
+			for (DataUnityProperties geoms : geometries) {
+				String gStr = "";//"geoms: " + geoms.getSpeciesName() + " collect (each.shape"
+					//	+ (geoms.getBuffer() != null && geoms.getBuffer() != 0 ? " buffer " + geoms.getBuffer() + " ) "
+					//			: ") ");
+				String nStr = "names: " + "";//geoms.getSpeciesName() + " collect (each.name) ";
 				String hStr = "height: " + geoms.getHeight() + " ";
 				String cStr = "collider: " + geoms.getHasCollider() + " ";
 				String ccStr = "color: " + geoms.getColor() + " ";
-				String tDStr = "is_3D: " + geoms.getIs3D() + " ";
+				String tDStr = "is_3D: ";// + geoms.getIs3D() + " ";
 				String inStr = "is_interactable: " + geoms.getIsSelectable() + " ";
 				String inGrab = "is_grabable: " + geoms.getIsGrabable() + " ";
 
@@ -246,7 +247,7 @@ public class VRModelGenerator {
 				modelUnityLinker.append("\n\t\tdo add_background_data ").append(gStr).append(nStr).append(hStr)
 						.append(cStr).append(tStr).append(tDStr).append(inStr).append(ccStr).append(inGrab).append(";");
 
-			}
+			}*/
 			modelUnityLinker.append("\n\t}");
 
 		}
@@ -284,35 +285,6 @@ public class VRModelGenerator {
 	 */
 	public void setModelPath(final String modelPath) { this.modelPath = modelPath; }
 
-	/**
-	 * Gets the species to send.
-	 *
-	 * @return the species to send
-	 */
-	public List<String> getSpeciesToSend() { return speciesToSend; }
-
-	/**
-	 * Sets the species to send.
-	 *
-	 * @param speciesToSend
-	 *            the new species to send
-	 */
-	public void setSpeciesToSend(final List<String> speciesToSend) { this.speciesToSend = speciesToSend; }
-
-	/**
-	 * Gets the geometries.
-	 *
-	 * @return the geometries
-	 */
-	public List<DataGeometries> getGeometries() { return geometries; }
-
-	/**
-	 * Sets the geometries.
-	 *
-	 * @param geometries
-	 *            the new geometries
-	 */
-	public void setGeometries(final List<DataGeometries> geometries) { this.geometries = geometries; }
 
 	/**
 	 * Gets the location init.
@@ -504,4 +476,26 @@ public class VRModelGenerator {
 		this.hasMaxNumberPlayer = has_max_num_player;
 	}
 
+	public Map<String, Map<String, String>> getSpeciesToSend() {
+		if (speciesToSend == null) {
+			speciesToSend = new Hashtable<>();
+		}
+		return speciesToSend;
+	}
+
+	public void setSpeciesToSend(Map<String, Map<String, String>> speciesToSend) {
+		this.speciesToSend = speciesToSend;
+	}
+
+	public Map<String, Map<String, String>> getDefinedProperties() {
+		if (definedProperties == null) 
+			definedProperties = new Hashtable<>();
+		return definedProperties;
+	}
+
+	public void setDefinedProperties(Map<String, Map<String, String>> definedProperties) {
+		this.definedProperties = definedProperties;
+	}
+
+	
 }

@@ -440,18 +440,18 @@ public class AbstractUnityLinker extends GamlAgent {
 	public boolean doStep(final IScope scope) {
 		if (super.doStep(scope)) {
 			IAgent ag = getAgent();
-			setInitialized(ag, true);
+			//setInitialized(ag, true);
 			if (getConnectToUnity(ag)) {
-				if (getInitialized(ag) && getMovePlayerEvent(ag) && !getPlayers(ag).isEmpty()) {
+				if (/*getInitialized(ag) && */getMovePlayerEvent(ag) && !getPlayers(ag).isEmpty()) {
 					setMovePlayerEvent(ag, false);
 					interactionWithPlayer(scope, ag);
 				}
-				if(getInitialized(ag)) {
+				//if(getInitialized(ag)) {
 					if (getDoSendWorld(ag)) {
 						doActionNoArg(scope, "send_world");
 					}
 					
-				}
+				//}
 
 				if (currentMessage != null && !currentMessage.isEmpty()) {
 					sendCurrentMessage(scope);
@@ -586,6 +586,7 @@ public class AbstractUnityLinker extends GamlAgent {
 							geoms.put(s, geoms2.get(s));
 						}
 					}
+					getGeometriesToSend(ag).clear();
 					
 					doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,geoms, "update_position", !getNewPlayerPosition(ag).get(player.getName()).isEmpty());
 					

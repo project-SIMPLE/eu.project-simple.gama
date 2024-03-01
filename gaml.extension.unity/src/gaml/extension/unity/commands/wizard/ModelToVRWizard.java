@@ -67,12 +67,18 @@ public class ModelToVRWizard extends Wizard {
 		WizardPageDisplay wizD = new WizardPageDisplay(model, generator);
 		wizI.setwDisplay(wizD);
 		addPage(wizD);
-		addPage(new WizardPageAgentsToSend(model, generator));
-		addPage(new WizardPageGeometries(model, generator));
+		WizardPageProperties wpp = new WizardPageProperties(model, generator);
+		addPage(wpp);
+		WizardPageSpeciesToSend wpSTS = new WizardPageSpeciesToSend(model, generator);
+		wpp.setWpStS(wpSTS);
+		addPage(wpSTS);
+		
+		//addPage(new WizardPageAgentsToSend(model, generator));
+		//addPage(new WizardPageGeometries(model, generator));
 		finalPage = new WizardPagePlayer(model, generator);
 
 		addPage(finalPage);
-		getShell().setSize(600, 600);
+		getShell().setSize(820, 650);
 	}
 
 	@Override

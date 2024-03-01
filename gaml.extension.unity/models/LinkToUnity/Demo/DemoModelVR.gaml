@@ -17,15 +17,17 @@ species unity_linker parent: abstract_unity_linker {
 	list<point> init_locations <- [{50.0, 50.0}, {60.0, 60.0}];
 	string player_species <- string(unity_player);
 	int min_num_players <- 1;
-	int max_num_players <- 4;
+	int max_num_players <- 4; 
 	
 
 	bool do_send_world <- true; 
+	
 	init {
-		
+		 
 		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
 		unity_property up_car <- geometry_properties("car","car", car_aspect, #ray_interactable, false);
 		unity_properties << up_car;
+		
 		
 		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
 		unity_property up_moto <- geometry_properties("moto", "moto", moto_aspect,#ray_interactable, false);
@@ -42,9 +44,12 @@ species unity_linker parent: abstract_unity_linker {
 		
 		do add_background_geometries(block,up_geom);
 		do add_background_geometries(static_object,up_tree);
-		do add_geometries_to_send(simple_agentA,up_car);
-		do add_geometries_to_send(simple_agentB,up_moto); 
 		
+	}
+	
+	reflex send_agents {
+		do add_geometries_to_send(simple_agentA,unity_properties first_with (each.id = "car"));
+		do add_geometries_to_send(simple_agentB,unity_properties first_with (each.id = "moto"));
 	}
 
 	action add_to_send_parameter(map map_to_send) {
