@@ -19,6 +19,8 @@ global {
 	//Shape of the environment
 
 	geometry shape <- envelope(bounds_shape_file) ;
+	
+	
 				
 	init {
 		//Initialization of the building using the shapefile of buildings
@@ -69,13 +71,25 @@ species unity_linker parent: abstract_unity_linker {
 	int min_num_players <- 0;
 	int max_num_players <- 1;
 	bool do_send_world <- false;
+	unity_property up_building;
+	unity_property up_road;
 	
 	
 	init {
-		do add_background_data geoms: building collect each.shape names: building collect each.name height: 10.0 collider: true tag: "building" is_interactable: false;
-		do add_background_data geoms: road collect (each.shape buffer each.width) names: road collect each.name height: 0.1 is_3D: false collider: true tag: "road" is_interactable: true;
+		do define_properties;
 	
+		do add_background_geometries(building,up_building);
+		do add_background_geometries(road collect (each.shape buffer each.width),up_road);
+	}
+	
+	action define_properties {
+		unity_aspect building_aspect <- geometry_aspect(10.0, #gray, precision);
+		up_building <- geometry_properties("building", "building", building_aspect, #no_interaction , false);
+		unity_properties << up_building;
 		
+		unity_aspect road_aspect <- geometry_aspect(10.0, #gray, precision);
+		up_road <- geometry_properties("road", "road", road_aspect, #ray_interactable , false);
+		unity_properties << up_road;
 	}
 }
 
