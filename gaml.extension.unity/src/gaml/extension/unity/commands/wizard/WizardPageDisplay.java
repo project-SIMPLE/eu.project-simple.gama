@@ -117,12 +117,13 @@ public class WizardPageDisplay extends WizardPage {
 
 					}
 				});
+				bt.setSelection(true);
 				bt.setText(sp);
 				bt.pack();
 			}
 			cd.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetDefaultSelected(final SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					generator.setMainDisplay(cd.getText());
 				}
 			});

@@ -22,34 +22,41 @@ species unity_linker parent: abstract_unity_linker {
 
 	bool do_send_world <- true; 
 	
+	unity_property up_car;
+	unity_property up_moto;
+	unity_property up_tree ;
+	unity_property up_geom;
+	
+	
 	init {
-		 
+		do define_properties;
+		do add_background_geometries(block,up_geom);
+		do add_background_geometries(static_object,up_tree);
+	}
+	
+	action define_properties {
 		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
-		unity_property up_car <- geometry_properties("car","car", car_aspect, #ray_interactable, false);
+		up_car <- geometry_properties("car","car", car_aspect, #ray_interactable, false);
 		unity_properties << up_car;
 		
 		
 		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
-		unity_property up_moto <- geometry_properties("moto", "moto", moto_aspect,#ray_interactable, false);
+		up_moto <- geometry_properties("moto", "moto", moto_aspect,#ray_interactable, false);
 		unity_properties << up_moto;
 		
 		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0,1.0,0.0, precision);
-		unity_property up_tree<- geometry_properties("tree", "tree", tree_aspect, #grabable, true);
+		up_tree<- geometry_properties("tree", "tree", tree_aspect, #grabable, true);
 		unity_properties << up_tree;
 		
 		
 		unity_aspect geom_aspect <- geometry_aspect(10.0, #gray, precision);
-		unity_property up_geom <- geometry_properties("block", "selectable", geom_aspect, #ray_interactable, false);
+		up_geom <- geometry_properties("block", "selectable", geom_aspect, #ray_interactable, false);
 		unity_properties << up_geom;
-		
-		do add_background_geometries(block,up_geom);
-		do add_background_geometries(static_object,up_tree);
-		
 	}
 	
 	reflex send_agents {
-		do add_geometries_to_send(simple_agentA,unity_properties first_with (each.id = "car"));
-		do add_geometries_to_send(simple_agentB,unity_properties first_with (each.id = "moto"));
+		do add_geometries_to_send(simple_agentA,up_car);
+		do add_geometries_to_send(simple_agentB,up_moto);
 	}
 
 	action add_to_send_parameter(map map_to_send) {

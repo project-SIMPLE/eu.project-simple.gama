@@ -24,6 +24,11 @@ public class VRModelGenerator {
 
 	/** The species to send. */
 	private Map<String, Map<String,String>> speciesToSend ;
+	
+	private Map<String, Map<String,String>> speciesToSendStatic ;
+	
+	private Map<String, Map<String,String>> speciesToSendDynamic ;
+
 
 	private Map<String, Map<String, String>> definedProperties;
 	
@@ -221,36 +226,101 @@ public class VRModelGenerator {
 		if (minNumberPlayer > 0) {
 			modelUnityLinker.append("\tint min_num_players  <- ").append(minNumberPlayer).append(";\n");
 		}
-		if (speciesToSend != null && !speciesToSend.isEmpty()) {
-			String lisStr = "";
-			/*boolean first = true; 
-			for (String sp : speciesToSend) {
-				lisStr += (first ? "" : ", ") + "string(" + sp + ")";
-				first = false;
-			}
-			modelUnityLinker.append("\tinit {\n\t\tdo init_species_to_send([").append(lisStr).append("]);");
-			for (DataUnityProperties geoms : geometries) {
-				String gStr = "";//"geoms: " + geoms.getSpeciesName() + " collect (each.shape"
-					//	+ (geoms.getBuffer() != null && geoms.getBuffer() != 0 ? " buffer " + geoms.getBuffer() + " ) "
-					//			: ") ");
-				String nStr = "names: " + "";//geoms.getSpeciesName() + " collect (each.name) ";
-				String hStr = "height: " + geoms.getHeight() + " ";
-				String cStr = "collider: " + geoms.getHasCollider() + " ";
-				String ccStr = "color: " + geoms.getColor() + " ";
-				String tDStr = "is_3D: ";// + geoms.getIs3D() + " ";
-				String inStr = "is_interactable: " + geoms.getIsSelectable() + " ";
-				String inGrab = "is_grabable: " + geoms.getIsGrabable() + " ";
-
-				String tStr =
-						geoms.getTag() == null || "".equals(geoms.getTag()) ? "" : "tag: \"" + geoms.getTag() + "\" ";
-
-				modelUnityLinker.append("\n\t\tdo add_background_data ").append(gStr).append(nStr).append(hStr)
-						.append(cStr).append(tStr).append(tDStr).append(inStr).append(ccStr).append(inGrab).append(";");
-
-			}*/
-			modelUnityLinker.append("\n\t}");
-
+		for (String p : definedProperties.keySet() ) {
+			modelUnityLinker.append("\tunity_property ").append("up_" + p).append(";\n");
 		}
+		
+		if (speciesToSend != null && !speciesToSend.isEmpty()) {
+			speciesToSendStatic = new Hashtable<>(); 
+			speciesToSendDynamic = new Hashtable<>(); 
+			for (String sp : speciesToSend.keySet()) {
+				Map<String,String> data = speciesToSend.get(sp);
+ 				if (data.get("keep").equals("true")) {
+					if (data.get("static").equals("true")) {
+						speciesToSendStatic.put(sp, data);
+					} else {
+						speciesToSendDynamic.put(sp, data);
+					}
+				}
+			}
+		}
+		if ((speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) || (definedProperties != null && !definedProperties.isEmpty())){
+			modelUnityLinker.append("\n\tinit {");
+			if (speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) {
+				for (String sp : speciesToSendStatic.keySet()) {
+					Map<String,String> data = speciesToSendStatic.get(sp);
+					modelUnityLinker.append("\n\t\t" );
+					Double buffer = Double.valueOf(data.get("buffer"));
+					String geom = sp + ((buffer != null && buffer != 0.0) ? " collect (each.shape + " + buffer + ")": ""); 
+					modelUnityLinker.append("do add_background_geometries(" + geom + ",up_" + data.get("properties") + ");");
+				}
+			}
+			if (definedProperties != null && !definedProperties.isEmpty()) {
+				modelUnityLinker.append("\n\t\tdo define_properties;");
+			}
+			modelUnityLinker.append("\n\t}");
+			
+		}
+		
+		if (definedProperties != null && !definedProperties.isEmpty()){
+			modelUnityLinker.append("\n\taction define_properties {");
+			int cpt = 0;
+			for (String p : definedProperties.keySet() ) {
+				Map<String, String> data = definedProperties.get(p);
+				String idA = p + "_aspect";
+				modelUnityLinker.append("\n\t\tunity_aspect ").append(idA + " <- ");
+				boolean hasPrefab = "true".equals(data.get("has_prefab"));
+				if (hasPrefab) {
+					modelUnityLinker.append("prefab_aspect(\"" + data.get("prefab")+"\","+ data.get("size")+","+ data.get("y-offset") +","+ data.get("rotation_coeff")+","+ data.get("rotation_offset")+",precision);" );	
+				} else {
+					String color = data.get("color");
+					if (!color.startsWith("#") && ! color.startsWith("rgb")) {
+						color = "#"+color;
+					}
+					modelUnityLinker.append("geometry_aspect(" + data.get("height")+","+ color +",precision);" );	
+				}
+				String interaction = "";
+				if ("false".equals(data.get("collider"))) {
+					interaction = "#no_interaction";
+				} else {
+					if ("false".equals(data.get("interactable"))) {
+						interaction = "new_geometry_interaction(true, false,false,[])";
+					} else if ("false".equals(data.get("grabable"))) {
+						interaction = "#ray_interactable";
+					} else {
+						interaction = "#grabable";
+					}
+				}
+				
+				modelUnityLinker.append("\n\t\t");
+				modelUnityLinker.append("up_" + p).append(" <- ").append("geometry_properties(\"").append(data.get("name")+"\",\"").append(data.get("tag")+"\",").append(idA+",").append(interaction+",").append(data.get("follow")+");");
+				modelUnityLinker.append("\n\t\tunity_properties << ").append("up_"+p).append(";");
+				if (cpt < definedProperties.size()) modelUnityLinker.append("\n\n");
+				cpt++;
+			}
+			modelUnityLinker.append("\n\t}");
+		}
+		if (speciesToSendDynamic != null && !speciesToSendDynamic.isEmpty()) {
+			modelUnityLinker.append("\n\treflex send_geometries {");
+			for (String sp : speciesToSendDynamic.keySet()) {
+				Map<String,String> data = speciesToSendDynamic.get(sp);
+				String when = data.get("when");
+				boolean addC = false;
+				if (when != null && !when.isBlank() && !"every(1 #cycle)".equals(when)) {
+					addC = true;
+					modelUnityLinker.append("\n\t\tif ("+when+"){");
+				}
+				modelUnityLinker.append("\n\t\t" + (addC ? "\t" : ""));
+				Double buffer = Double.valueOf(data.get("buffer"));
+				String geom = sp + ((buffer != null && buffer != 0.0) ? " collect (each.shape + " + buffer + ")": ""); 
+				modelUnityLinker.append("do add_geometries_to_send(" + geom + ",up_" + data.get("properties") + ");");
+				if (addC) {
+					modelUnityLinker.append("\n\t\t}");
+				}
+			}
+			modelUnityLinker.append("\n\t}");
+		}
+		
 		modelUnityLinker.append("\n}");
 		return modelUnityLinker.toString();
 	}

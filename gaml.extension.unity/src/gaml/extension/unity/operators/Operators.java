@@ -103,7 +103,7 @@ public class Operators {
 			value = "creates a new unity interaction for Unity for a geometry with the given properties: has_collider,  is_interactable, is_grabable, constraints",
 			masterDoc = true,
 			examples = @example (
-					value = "new_geometry_interaction(true, false,false,false)",
+					value = "new_geometry_interaction(true, false,false,[])",
 					isExecutable = false))
 	@no_test
 	public static UnityInteraction newUnityGeometryInteraction( boolean collider,
