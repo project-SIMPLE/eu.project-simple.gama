@@ -16,7 +16,7 @@ A description of the use of the plugin with a tutorial can be found [here](https
 # Installation
 
 ## From GAMA
-To use the plugin from a release version of GAMA (version 1.9.3), it can be installed directly from the plugin installer.
+To use the plugin from a release version of GAMA ([version 2024-2](https://github.com/gama-platform/gama/releases/tag/2024.02.0)), it can be installed directly from the plugin installer.
 Specifically, select "Support/Install new plugins..." from the menu, 
 ![qs1](./images/InstallPlugin.png)
 
