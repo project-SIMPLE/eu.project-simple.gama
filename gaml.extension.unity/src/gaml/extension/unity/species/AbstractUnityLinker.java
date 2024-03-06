@@ -566,7 +566,6 @@ public class AbstractUnityLinker extends GamlAgent {
 				
 			
 				IMap<IShape, UnityProperties> geoms =  getGeometriesToSend(ag);
-			
 				if (geoms != null) {
 					boolean filterDist = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null &&
 							((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0 ;
@@ -586,13 +585,14 @@ public class AbstractUnityLinker extends GamlAgent {
 							geoms.put(s, geoms2.get(s));
 						}
 					}
-					getGeometriesToSend(ag).clear();
 					
 					doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,geoms, "update_position", !getNewPlayerPosition(ag).get(player.getName()).isEmpty());
 					
 					
 					
 				}
+				getGeometriesToSend(ag).clear();
+				
 			}
 			
 			
