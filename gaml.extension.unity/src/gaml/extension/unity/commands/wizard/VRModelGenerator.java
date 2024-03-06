@@ -214,7 +214,7 @@ public class VRModelGenerator {
 					first = false;
 				}
 			}
-			modelUnityLinker.append("\tpoint location_init <- ").append(locationInitStr).append(";\n");
+			modelUnityLinker.append("\tlist<point> init_locations <- [{").append(locationInitStr).append("}];\n");
 
 		}
 
@@ -246,6 +246,9 @@ public class VRModelGenerator {
 		}
 		if ((speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) || (definedProperties != null && !definedProperties.isEmpty())){
 			modelUnityLinker.append("\n\tinit {");
+			if (definedProperties != null && !definedProperties.isEmpty()) {
+				modelUnityLinker.append("\n\t\tdo define_properties;");
+			}
 			if (speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) {
 				for (String sp : speciesToSendStatic.keySet()) {
 					Map<String,String> data = speciesToSendStatic.get(sp);
@@ -255,9 +258,7 @@ public class VRModelGenerator {
 					modelUnityLinker.append("do add_background_geometries(" + geom + ",up_" + data.get("properties") + ");");
 				}
 			}
-			if (definedProperties != null && !definedProperties.isEmpty()) {
-				modelUnityLinker.append("\n\t\tdo define_properties;");
-			}
+			
 			modelUnityLinker.append("\n\t}");
 			
 		}

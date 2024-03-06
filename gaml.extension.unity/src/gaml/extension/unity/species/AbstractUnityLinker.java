@@ -636,9 +636,14 @@ public class AbstractUnityLinker extends GamlAgent {
 		
 	    List pointsLoc = new ArrayList<>();
 	    List pointsGeom = new ArrayList<>();
+	    
 	    for(IShape g : geoms.keySet()) {
 	    	UnityProperties up = geoms.get(g);
-			names.add( g instanceof IAgent ? ((IAgent)g).getName()  : (String) g.getAttribute("name"));
+	    	String name = g instanceof IAgent ? ((IAgent)g).getName()  : (String) g.getAttribute("name");
+	    	if (name == null || name.isBlank()) {
+	    		name = up.getId() + names.size();
+	    	}
+	    	names.add( name);
 			propertyID.add(up.getId());
 	    	boolean hp = up.getAspect().isPrefabAspect();
 	    	if (hp) {
@@ -647,13 +652,15 @@ public class AbstractUnityLinker extends GamlAgent {
 				pointsGeom.add((IMap) doAction1Arg(scope, "message_geometry_shape", "geom", g));
 			}
 		}
-	    toSend.put("pointsLoc", pointsLoc);
+	   toSend.put("pointsLoc", pointsLoc);
 	  	
 	  	toSend.put("names", names);
 	  	toSend.put("propertyID", propertyID);
 	  	toSend.put("pointsGeom", pointsGeom);
 	  	if (updatePos) {
 			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
+			System.out.println("pos: " + pos);
+			    
 			toSend.put("position", pos);
 			getNewPlayerPosition(ag).get(player.getName()).clear();
 		}

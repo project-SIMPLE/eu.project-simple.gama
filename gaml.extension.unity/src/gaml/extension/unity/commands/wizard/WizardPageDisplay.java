@@ -119,6 +119,7 @@ public class WizardPageDisplay extends WizardPage {
 				});
 				bt.setSelection(true);
 				bt.setText(sp);
+				generator.getDisplaysToHide().add(bt.getText());
 				bt.pack();
 			}
 			cd.addSelectionListener(new SelectionAdapter() {
