@@ -214,7 +214,7 @@ public class VRModelGenerator {
 					first = false;
 				}
 			}
-			modelUnityLinker.append("\tlist<point> init_locations <- [{").append(locationInitStr).append("}];\n");
+			modelUnityLinker.append("\tlist<point> init_locations <- [").append(locationInitStr).append("];\n");
 
 		}
 
