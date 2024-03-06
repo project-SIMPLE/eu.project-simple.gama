@@ -1,10 +1,13 @@
 *.class
 bin/
+bin1/
 *~
 logs.zip
 *.orig
 *.java._trace
 *.smap
+.DS_Store
+/*/gaml/
 
 src-gen/
 xtend-gen/
