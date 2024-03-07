@@ -11,7 +11,6 @@
 package gaml.extension.unity.species;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,324 +62,799 @@ import gaml.extension.unity.types.UnityPropertiesType;
  * The Class AbstractUnityLinker.
  */
 
-@species(name = "abstract_unity_linker", skills={"network"})
-@vars({ 
-	@variable(name = AbstractUnityLinker.CONNECT_TO_UNITY, type = IType.BOOL, init = "true",
-			doc = { @doc ("Activate the unity connection; if activated, the model will wait for an connection from Unity to start")}), 
-	@variable(name = AbstractUnityLinker.READY_TO_MOVE_PLAYER, type = IType.LIST, init = "[]",
-	doc = { @doc ("list of players that are readdy to have their position updated from Unity")}), 
+@species (
+		name = "abstract_unity_linker",
+		skills = { "network" })
+@vars ({ @variable (
+		name = AbstractUnityLinker.CONNECT_TO_UNITY,
+		type = IType.BOOL,
+		init = "true",
+		doc = { @doc ("Activate the unity connection; if activated, the model will wait for an connection from Unity to start") }),
+		@variable (
+				name = AbstractUnityLinker.READY_TO_MOVE_PLAYER,
+				type = IType.LIST,
+				init = "[]",
+				doc = { @doc ("list of players that are readdy to have their position updated from Unity") }),
 
-	@variable(name = AbstractUnityLinker.MIN_NUMBER_PLAYERS, type = IType.INT, init = "0",
-	doc = { @doc ("Number of Unity players required to start the simulation")}), 
-	@variable(name = AbstractUnityLinker.MAX_NUMBER_PLAYERS, type = IType.INT, init = "1",
-	doc = { @doc ("Maximal number of Unity players")}), 
-	@variable(name = AbstractUnityLinker.PRECISION, type = IType.INT, init = "10000", 
-			doc = { @doc ("Number of decimal for the data (location, rotation)")}),  
+		@variable (
+				name = AbstractUnityLinker.MIN_NUMBER_PLAYERS,
+				type = IType.INT,
+				init = "0",
+				doc = { @doc ("Number of Unity players required to start the simulation") }),
+		@variable (
+				name = AbstractUnityLinker.MAX_NUMBER_PLAYERS,
+				type = IType.INT,
+				init = "1",
+				doc = { @doc ("Maximal number of Unity players") }),
+		@variable (
+				name = AbstractUnityLinker.PRECISION,
+				type = IType.INT,
+				init = "10000",
+				doc = { @doc ("Number of decimal for the data (location, rotation)") }),
 
-	@variable(name = AbstractUnityLinker.UNITY_PROPERTIES, type = IType.LIST, of =  UnityPropertiesType.UNITYPROPERTIESTYPE_ID, 
-	doc = { @doc ("List of background geometries to sent to Unity.")}),  
+		@variable (
+				name = AbstractUnityLinker.UNITY_PROPERTIES,
+				type = IType.LIST,
+				of = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+				doc = { @doc ("List of background geometries to sent to Unity.") }),
 
-	@variable(name = AbstractUnityLinker.BACKGROUND_GEOMETRIES, type = IType.MAP, 
-	doc = { @doc ("Map of background geometries to sent to Unity with the unity properties to use.")}),  
+		@variable (
+				name = AbstractUnityLinker.BACKGROUND_GEOMETRIES,
+				type = IType.MAP,
+				doc = { @doc ("Map of background geometries to sent to Unity with the unity properties to use.") }),
 
-	@variable(name = AbstractUnityLinker.GEOMETRIES_TO_SEND, type = IType.MAP,  
-			doc = { @doc ("List of geometries to sent to Unity with the unity properties to use. It could be updated each simulation step")}),  
-	
-	@variable(name = AbstractUnityLinker.DO_SEND_WORLD, type = IType.BOOL, init="true", 
-			doc = { @doc ("Has the agents has to be sent to unity?")}),  
-	
-	@variable(name = AbstractUnityLinker.INITIALIZED, type = IType.BOOL, init="false", 
-	doc = { @doc ("Has the world being initialized yet?")}),  
+		@variable (
+				name = AbstractUnityLinker.GEOMETRIES_TO_SEND,
+				type = IType.MAP,
+				doc = { @doc ("List of geometries to sent to Unity with the unity properties to use. It could be updated each simulation step") }),
 
-	@variable(name = AbstractUnityLinker.PLAYER_SPECIES, type = IType.STRING, 
-	doc = { @doc ("Species of the player agent")}),  
-	
-	@variable(name = AbstractUnityLinker.END_MESSAGE_SYMBOL, type = IType.STRING, init = "|||",
-	doc = { @doc ("Symbol to be added at the end of the messages (only when the middleware is not used); it should be the same defined in Unity")}),  
-	
-	@variable(name = AbstractUnityLinker.RECEIVE_INFORMATION, type = IType.BOOL, init="false", 
-	doc = { @doc ("should GAMA receive information from Unity?")}),  
+		@variable (
+				name = AbstractUnityLinker.DO_SEND_WORLD,
+				type = IType.BOOL,
+				init = "true",
+				doc = { @doc ("Has the agents has to be sent to unity?") }),
 
-	@variable(name = AbstractUnityLinker.MOVE_PLAYER_EVENT, type = IType.BOOL, init="false", 
-			doc = { @doc ("Does the player agent moved from GAMA?")}),
-	
-	@variable(name = AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY, type = IType.BOOL, init="true", 
-			doc = { @doc ("Has the player to move in GAMA as it moves in Unity?")}), 
-	
-	@variable(name = AbstractUnityLinker.USE_MIDDLEWARE, type = IType.BOOL, init="true", 
-	doc = { @doc ("Use of the middleware to connect Unity and GAMA? Direct connection is only usable for 1 player game")}),  
+		@variable (
+				name = AbstractUnityLinker.INITIALIZED,
+				type = IType.BOOL,
+				init = "false",
+				doc = { @doc ("Has the world being initialized yet?") }),
 
-	@variable(name = AbstractUnityLinker.NEW_PLAYER_POSITION, type = IType.MAP,  
-			doc = { @doc ("The new poistion of the player to be sent to Unity - map with key: agent name, value: list of int [x,y]")}), 
-	@variable(name = AbstractUnityLinker.DISTANCE_PLAYER_SELECTION, type = IType.FLOAT, init = "2.0", 
-	doc = { @doc ("Maximal distance to select a player agent")}), 
-	@variable(name = AbstractUnityLinker.INIT_LOCATIONS, type = IType.LIST, of=  IType.POINT, 
-		doc = { @doc ("Init locations of the player agents in the environment - this information will be sent to Unity to move the players accordingly")}), 
+		@variable (
+				name = AbstractUnityLinker.PLAYER_SPECIES,
+				type = IType.STRING,
+				doc = { @doc ("Species of the player agent") }),
 
-	@variable(name = AbstractUnityLinker.THE_PLAYERS, type = IType.MAP, 
-	doc = { @doc ("Player agents indexes by their name")}), 
-})
-public class AbstractUnityLinker extends GamlAgent { 
+		@variable (
+				name = AbstractUnityLinker.END_MESSAGE_SYMBOL,
+				type = IType.STRING,
+				init = "'|||'",
+				doc = { @doc ("Symbol to be added at the end of the messages (only when the middleware is not used); it should be the same defined in Unity") }),
+
+		@variable (
+				name = AbstractUnityLinker.RECEIVE_INFORMATION,
+				type = IType.BOOL,
+				init = "false",
+				doc = { @doc ("should GAMA receive information from Unity?") }),
+
+		@variable (
+				name = AbstractUnityLinker.MOVE_PLAYER_EVENT,
+				type = IType.BOOL,
+				init = "false",
+				doc = { @doc ("Does the player agent moved from GAMA?") }),
+
+		@variable (
+				name = AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY,
+				type = IType.BOOL,
+				init = "true",
+				doc = { @doc ("Has the player to move in GAMA as it moves in Unity?") }),
+
+		@variable (
+				name = AbstractUnityLinker.USE_MIDDLEWARE,
+				type = IType.BOOL,
+				init = "true",
+				doc = { @doc ("Use of the middleware to connect Unity and GAMA? Direct connection is only usable for 1 player game") }),
+
+		@variable (
+				name = AbstractUnityLinker.NEW_PLAYER_POSITION,
+				type = IType.MAP,
+				doc = { @doc ("The new poistion of the player to be sent to Unity - map with key: agent name, value: list of int [x,y]") }),
+		@variable (
+				name = AbstractUnityLinker.DISTANCE_PLAYER_SELECTION,
+				type = IType.FLOAT,
+				init = "2.0",
+				doc = { @doc ("Maximal distance to select a player agent") }),
+		@variable (
+				name = AbstractUnityLinker.INIT_LOCATIONS,
+				type = IType.LIST,
+				of = IType.POINT,
+				doc = { @doc ("Init locations of the player agents in the environment - this information will be sent to Unity to move the players accordingly") }),
+
+		@variable (
+				name = AbstractUnityLinker.THE_PLAYERS,
+				type = IType.MAP,
+				doc = { @doc ("Player agents indexes by their name") }), })
+public class AbstractUnityLinker extends GamlAgent {
+
+	/** The Constant PLAYER_SPECIES. */
 	public static final String PLAYER_SPECIES = "player_species";
+
+	/** The Constant MIN_NUMBER_PLAYERS. */
 	public static final String MIN_NUMBER_PLAYERS = "min_num_players";
+
+	/** The Constant MAX_NUMBER_PLAYERS. */
 	public static final String MAX_NUMBER_PLAYERS = "max_num_players";
+
+	/** The Constant CONNECT_TO_UNITY. */
 	public static final String CONNECT_TO_UNITY = "connect_to_unity";
+
+	/** The Constant PRECISION. */
 	public static final String PRECISION = "precision";
+
+	/** The Constant GEOMETRIES_TO_SEND. */
 	public static final String GEOMETRIES_TO_SEND = "geometries_to_send";
+
+	/** The Constant BACKGROUND_GEOMETRIES. */
 	public static final String BACKGROUND_GEOMETRIES = "background_geometries";
+
+	/** The Constant UNITY_PROPERTIES. */
 	public static final String UNITY_PROPERTIES = "unity_properties";
+
+	/** The Constant DO_SEND_WORLD. */
 	public static final String DO_SEND_WORLD = "do_send_world";
 
+	/** The Constant GROUND_DEPTH. */
 	public static final String GROUND_DEPTH = "ground_depth";
+
+	/** The Constant END_MESSAGE_SYMBOL. */
 	public static final String END_MESSAGE_SYMBOL = "end_message_symbol";
 
+	/** The Constant MOVE_PLAYER_EVENT. */
 	public static final String MOVE_PLAYER_EVENT = "move_player_event";
+
+	/** The Constant USE_MIDDLEWARE. */
 	public static final String USE_MIDDLEWARE = "use_middleware";
+
+	/** The Constant MOVE_PLAYER_FROM_UNITY. */
 	public static final String MOVE_PLAYER_FROM_UNITY = "move_player_from_unity";
+
+	/** The Constant INIT_LOCATIONS. */
 	public static final String INIT_LOCATIONS = "init_locations";
+
+	/** The Constant THE_PLAYERS. */
 	public static final String THE_PLAYERS = "player_agents";
 
+	/** The Constant NEW_PLAYER_POSITION. */
 	public static final String NEW_PLAYER_POSITION = "new_player_position";
+
+	/** The Constant DISTANCE_PLAYER_SELECTION. */
 	public static final String DISTANCE_PLAYER_SELECTION = "distance_player_selection";
 
+	/** The Constant INITIALIZED. */
 	public static final String INITIALIZED = "initialized";
 
+	/** The Constant RECEIVE_INFORMATION. */
 	public static final String RECEIVE_INFORMATION = "receive_information";
 
+	/** The Constant WAITING_MESSAGE. */
 	public static final String WAITING_MESSAGE = "ready";
-	
+
+	/** The Constant READY_TO_MOVE_PLAYER. */
 	public static final String READY_TO_MOVE_PLAYER = "ready_to_move_player";
-	
-	
+
+	/** The Constant HEADING. */
 	public static final String HEADING = "heading";
+
+	/** The Constant ADD_TO_MAP. */
 	public static final String ADD_TO_MAP = "add_to_map";
-	
+
+	/** The Constant LOC_TO_SEND. */
 	public static final String LOC_TO_SEND = "loc_to_send";
+
+	/** The Constant TO_MAP. */
 	public static final String TO_MAP = "to_map";
+
+	/** The Constant SPECIES_INDEX. */
 	public static final String SPECIES_INDEX = "index";
-	
+
+	/** The Constant CONTENTS. */
 	public static final String CONTENTS = "contents";
+
+	/** The Constant ID. */
 	public static final String ID = "id";
+
+	/** The Constant CONTENT_MESSAGE. */
 	public static final String CONTENT_MESSAGE = "contents";
 
+	/** The Constant OUTPUT. */
 	public static final String OUTPUT = "output";
+
+	/** The Constant TYPE. */
 	public static final String TYPE = "type";
+
+	/** The Constant SERVER. */
 	public static final String SERVER = "server";
 
+	/** The current message. */
 	private IMap currentMessage;
+
+	/** The geometries to follow. */
 	private IMap<String, IShape> geometriesToFollow;
-	
-	
+
+	/**
+	 * Gets the distance selection.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the distance selection
+	 */
 	@getter (AbstractUnityLinker.DISTANCE_PLAYER_SELECTION)
 	public static Double getDistanceSelection(final IAgent agent) {
 		return (Double) agent.getAttribute(DISTANCE_PLAYER_SELECTION);
 	}
-	@setter(AbstractUnityLinker.DISTANCE_PLAYER_SELECTION)
+
+	/**
+	 * Sets the distance selection.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.DISTANCE_PLAYER_SELECTION)
 	public static void setDistanceSelection(final IAgent agent, final Double val) {
 		agent.setAttribute(DISTANCE_PLAYER_SELECTION, val);
 	}
-	
-		
+
+	/**
+	 * Gets the connect to unity.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the connect to unity
+	 */
 	@getter (AbstractUnityLinker.CONNECT_TO_UNITY)
 	public static Boolean getConnectToUnity(final IAgent agent) {
 		return (Boolean) agent.getAttribute(CONNECT_TO_UNITY);
 	}
-	@setter(AbstractUnityLinker.CONNECT_TO_UNITY)
+
+	/**
+	 * Sets the connect to unity.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param ctu
+	 *            the ctu
+	 */
+	@setter (AbstractUnityLinker.CONNECT_TO_UNITY)
 	public static void setConnectToUnity(final IAgent agent, final Boolean ctu) {
 		agent.setAttribute(CONNECT_TO_UNITY, ctu);
 	}
-	
+
+	/**
+	 * Gets the use middleware.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the use middleware
+	 */
 	@getter (AbstractUnityLinker.USE_MIDDLEWARE)
 	public static Boolean getUseMiddleware(final IAgent agent) {
 		return (Boolean) agent.getAttribute(USE_MIDDLEWARE);
 	}
-	@setter(AbstractUnityLinker.USE_MIDDLEWARE)
+
+	/**
+	 * Sets the use middleware.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param ctu
+	 *            the ctu
+	 */
+	@setter (AbstractUnityLinker.USE_MIDDLEWARE)
 	public static void setUseMiddleware(final IAgent agent, final Boolean ctu) {
 		agent.setAttribute(USE_MIDDLEWARE, ctu);
 	}
-		
+
+	/**
+	 * Gets the min player.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the min player
+	 */
 	@getter (AbstractUnityLinker.MIN_NUMBER_PLAYERS)
 	public static Integer getMinPlayer(final IAgent agent) {
 		return (Integer) agent.getAttribute(MIN_NUMBER_PLAYERS);
 	}
-	@setter(AbstractUnityLinker.MIN_NUMBER_PLAYERS)
+
+	/**
+	 * Sets the min player.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.MIN_NUMBER_PLAYERS)
 	public static void setMinPlayer(final IAgent agent, final Integer val) {
 		agent.setAttribute(MIN_NUMBER_PLAYERS, val);
 	}
-	
-		
+
+	/**
+	 * Gets the max player.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the max player
+	 */
 	@getter (AbstractUnityLinker.MAX_NUMBER_PLAYERS)
 	public static Integer getMaxPlayer(final IAgent agent) {
 		return (Integer) agent.getAttribute(MAX_NUMBER_PLAYERS);
 	}
-	@setter(AbstractUnityLinker.MAX_NUMBER_PLAYERS)
+
+	/**
+	 * Sets the max player.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.MAX_NUMBER_PLAYERS)
 	public static void setMaxPlayer(final IAgent agent, final Integer val) {
 		agent.setAttribute(MAX_NUMBER_PLAYERS, val);
 	}
-	
 
+	/**
+	 * Gets the precision.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the precision
+	 */
 	@getter (AbstractUnityLinker.PRECISION)
 	public static Integer getPrecision(final IAgent agent) {
 		return (Integer) agent.getAttribute(PRECISION);
 	}
-	@setter(AbstractUnityLinker.PRECISION)
+
+	/**
+	 * Sets the precision.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.PRECISION)
 	public static void setPrecision(final IAgent agent, final Integer val) {
 		agent.setAttribute(PRECISION, val);
 	}
-	
+
+	/**
+	 * Gets the unity properties.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the unity properties
+	 */
 	@getter (AbstractUnityLinker.UNITY_PROPERTIES)
-	public static  IList<UnityProperties> getUnityProperties(final IShape agent) {
-		return ( IList<UnityProperties>) agent.getAttribute(UNITY_PROPERTIES);
+	public static IList<UnityProperties> getUnityProperties(final IShape agent) {
+		return (IList<UnityProperties>) agent.getAttribute(UNITY_PROPERTIES);
 	}
-	@setter(AbstractUnityLinker.UNITY_PROPERTIES)
+
+	/**
+	 * Sets the unity properties.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.UNITY_PROPERTIES)
 	public static void setUnityProperties(final IAgent agent, final IList<UnityProperties> val) {
 		agent.setAttribute(UNITY_PROPERTIES, val);
 	}
-	
+
+	/**
+	 * Gets the background geometries.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the background geometries
+	 */
 	@getter (AbstractUnityLinker.BACKGROUND_GEOMETRIES)
-	public static  IMap<IShape,UnityProperties> getBackgroundGeometries(final IShape agent) {
-		return ( IMap<IShape,UnityProperties>) agent.getAttribute(BACKGROUND_GEOMETRIES);
+	public static IMap<IShape, UnityProperties> getBackgroundGeometries(final IShape agent) {
+		return (IMap<IShape, UnityProperties>) agent.getAttribute(BACKGROUND_GEOMETRIES);
 	}
-	@setter(AbstractUnityLinker.BACKGROUND_GEOMETRIES)
-	public static void setBackgroundGeometries(final IAgent agent, final IMap<IShape,UnityProperties> val) {
+
+	/**
+	 * Sets the background geometries.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.BACKGROUND_GEOMETRIES)
+	public static void setBackgroundGeometries(final IAgent agent, final IMap<IShape, UnityProperties> val) {
 		agent.setAttribute(BACKGROUND_GEOMETRIES, val);
 	}
-		
+
+	/**
+	 * Gets the geometries to send.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the geometries to send
+	 */
 	@getter (AbstractUnityLinker.GEOMETRIES_TO_SEND)
-	public static  IMap<IShape, UnityProperties> getGeometriesToSend(final IAgent agent) {
-		return ( IMap<IShape,UnityProperties>) agent.getAttribute(GEOMETRIES_TO_SEND);
+	public static IMap<IShape, UnityProperties> getGeometriesToSend(final IAgent agent) {
+		return (IMap<IShape, UnityProperties>) agent.getAttribute(GEOMETRIES_TO_SEND);
 	}
-	@setter(AbstractUnityLinker.GEOMETRIES_TO_SEND)
-	public static void setGeometriesToSend(final IAgent agent, final IMap<IShape,UnityProperties> val) {
+
+	/**
+	 * Sets the geometries to send.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.GEOMETRIES_TO_SEND)
+	public static void setGeometriesToSend(final IAgent agent, final IMap<IShape, UnityProperties> val) {
 		agent.setAttribute(GEOMETRIES_TO_SEND, val);
 	}
-	
+
+	/**
+	 * Gets the end message symbol.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the end message symbol
+	 */
 	@getter (AbstractUnityLinker.END_MESSAGE_SYMBOL)
 	public static String getEndMessageSymbol(final IAgent agent) {
 		return (String) agent.getAttribute(END_MESSAGE_SYMBOL);
 	}
-	@setter(AbstractUnityLinker.END_MESSAGE_SYMBOL)
+
+	/**
+	 * Sets the end message symbol.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.END_MESSAGE_SYMBOL)
 	public static void setEndMessageSymbol(final IAgent agent, final String val) {
 		agent.setAttribute(END_MESSAGE_SYMBOL, val);
 	}
-	
+
+	/**
+	 * Gets the player species.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the player species
+	 */
 	@getter (AbstractUnityLinker.PLAYER_SPECIES)
 	public static String getPlayerSpecies(final IAgent agent) {
 		return (String) agent.getAttribute(PLAYER_SPECIES);
 	}
-	@setter(AbstractUnityLinker.PLAYER_SPECIES)
+
+	/**
+	 * Sets the player species.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.PLAYER_SPECIES)
 	public static void setPlayerSpecies(final IAgent agent, final String val) {
 		agent.setAttribute(PLAYER_SPECIES, val);
 	}
-	
+
+	/**
+	 * Gets the do send world.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the do send world
+	 */
 	@getter (AbstractUnityLinker.DO_SEND_WORLD)
 	public static Boolean getDoSendWorld(final IAgent agent) {
 		return (Boolean) agent.getAttribute(DO_SEND_WORLD);
 	}
-	@setter(AbstractUnityLinker.DO_SEND_WORLD)
+
+	/**
+	 * Sets the do send world.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.DO_SEND_WORLD)
 	public static void setDoSendWorld(final IAgent agent, final Boolean val) {
 		agent.setAttribute(DO_SEND_WORLD, val);
 	}
-	
+
+	/**
+	 * Gets the receive information.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the receive information
+	 */
 	@getter (AbstractUnityLinker.RECEIVE_INFORMATION)
 	public static Boolean getReceiveInformation(final IAgent agent) {
 		return (Boolean) agent.getAttribute(RECEIVE_INFORMATION);
 	}
-	@setter(AbstractUnityLinker.RECEIVE_INFORMATION)
+
+	/**
+	 * Sets the receive information.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.RECEIVE_INFORMATION)
 	public static void setReceiveInformation(final IAgent agent, final Boolean val) {
 		agent.setAttribute(RECEIVE_INFORMATION, val);
 	}
-	
+
+	/**
+	 * Gets the initialized.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the initialized
+	 */
 	@getter (AbstractUnityLinker.INITIALIZED)
 	public static Boolean getInitialized(final IAgent agent) {
 		return (Boolean) agent.getAttribute(INITIALIZED);
 	}
-	@setter(AbstractUnityLinker.INITIALIZED)
+
+	/**
+	 * Sets the initialized.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.INITIALIZED)
 	public static void setInitialized(final IAgent agent, final Boolean val) {
 		agent.setAttribute(INITIALIZED, val);
 	}
-		
+
+	/**
+	 * Gets the move player event.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the move player event
+	 */
 	@getter (AbstractUnityLinker.MOVE_PLAYER_EVENT)
 	public static Boolean getMovePlayerEvent(final IAgent agent) {
 		return (Boolean) agent.getAttribute(MOVE_PLAYER_EVENT);
 	}
-	@setter(AbstractUnityLinker.MOVE_PLAYER_EVENT)
+
+	/**
+	 * Sets the move player event.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.MOVE_PLAYER_EVENT)
 	public static void setMovePlayerEvent(final IAgent agent, final Boolean val) {
 		agent.setAttribute(MOVE_PLAYER_EVENT, val);
 	}
-		
+
+	/**
+	 * Gets the move player from unity.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the move player from unity
+	 */
 	@getter (AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY)
 	public static Boolean getMovePlayerFromUnity(final IAgent agent) {
 		return (Boolean) agent.getAttribute(MOVE_PLAYER_FROM_UNITY);
 	}
-	@setter(AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY)
+
+	/**
+	 * Sets the move player from unity.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.MOVE_PLAYER_FROM_UNITY)
 	public static void setMovePlayerFromUnity(final IAgent agent, final Boolean val) {
 		agent.setAttribute(MOVE_PLAYER_FROM_UNITY, val);
 	}
-	
+
+	/**
+	 * Gets the player location init.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the player location init
+	 */
 	@getter (AbstractUnityLinker.INIT_LOCATIONS)
 	public static IList<GamaPoint> getPlayerLocationInit(final IAgent agent) {
 		return (IList<GamaPoint>) agent.getAttribute(INIT_LOCATIONS);
 	}
-	@setter(AbstractUnityLinker.INIT_LOCATIONS)
+
+	/**
+	 * Sets the player location init.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.INIT_LOCATIONS)
 	public static void setPlayerLocationInit(final IAgent agent, final IList val) {
 		agent.setAttribute(INIT_LOCATIONS, val);
 	}
-	
+
+	/**
+	 * Gets the ready to move players.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the ready to move players
+	 */
 	@getter (AbstractUnityLinker.READY_TO_MOVE_PLAYER)
 	public static IList<IAgent> getReadyToMovePlayers(final IAgent agent) {
 		return (IList<IAgent>) agent.getAttribute(READY_TO_MOVE_PLAYER);
 	}
-	@setter(AbstractUnityLinker.READY_TO_MOVE_PLAYER)
+
+	/**
+	 * Sets the ready to move players.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.READY_TO_MOVE_PLAYER)
 	public static void setReadyToMovePlayers(final IAgent agent, final IList val) {
 		agent.setAttribute(READY_TO_MOVE_PLAYER, val);
 	}
-	
+
+	/**
+	 * Gets the players.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the players
+	 */
 	@getter (AbstractUnityLinker.THE_PLAYERS)
 	public static IMap<String, IAgent> getPlayers(final IAgent agent) {
 		return (IMap<String, IAgent>) agent.getAttribute(THE_PLAYERS);
 	}
-	@setter(AbstractUnityLinker.THE_PLAYERS)
+
+	/**
+	 * Sets the players.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.THE_PLAYERS)
 	public static void setPlayers(final IAgent agent, final IMap<String, IAgent> val) {
 		agent.setAttribute(THE_PLAYERS, val);
 	}
-		
-	
+
+	/**
+	 * Gets the new player position.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the new player position
+	 */
 	@getter (AbstractUnityLinker.NEW_PLAYER_POSITION)
-	public static  IMap<String, IList<Integer>> getNewPlayerPosition(final IAgent agent) {
-		return ( IMap<String,IList<Integer>>) agent.getAttribute(NEW_PLAYER_POSITION);
+	public static IMap<String, IList<Integer>> getNewPlayerPosition(final IAgent agent) {
+		return (IMap<String, IList<Integer>>) agent.getAttribute(NEW_PLAYER_POSITION);
 	}
-	@setter(AbstractUnityLinker.NEW_PLAYER_POSITION)
+
+	/**
+	 * Sets the new player position.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @param val
+	 *            the val
+	 */
+	@setter (AbstractUnityLinker.NEW_PLAYER_POSITION)
 	public static void setNewPlayerPosition(final IAgent agent, final IMap<String, IList<Integer>> val) {
 		agent.setAttribute(NEW_PLAYER_POSITION, val);
 	}
-	
-	public AbstractUnityLinker(IPopulation<? extends IAgent> s, int index) {
+
+	/**
+	 * Instantiates a new abstract unity linker.
+	 *
+	 * @param s
+	 *            the s
+	 * @param index
+	 *            the index
+	 */
+	public AbstractUnityLinker(final IPopulation<? extends IAgent> s, final int index) {
 		super(s, index);
-		
+
 	}
-	
+
 	@Override
 	public void dispose() {
-		
+
 		super.dispose();
 	}
 
-	
-	private Object doActionNoArg(IScope scope, String actionName) {
+	/**
+	 * Do action no arg.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param actionName
+	 *            the action name
+	 * @return the object
+	 */
+	private Object doActionNoArg(final IScope scope, final String actionName) {
 		WithArgs act = getAgent().getSpecies().getAction(actionName);
 		return act.executeOn(scope);
 	}
-	
-	private Object doAction1Arg(IScope scope, String actionName, String argName, Object ArgVal ) {
+
+	/**
+	 * Do action 1 arg.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param actionName
+	 *            the action name
+	 * @param argName
+	 *            the arg name
+	 * @param ArgVal
+	 *            the arg val
+	 * @return the object
+	 */
+	private Object doAction1Arg(final IScope scope, final String actionName, final String argName,
+			final Object ArgVal) {
 		Arguments args = new Arguments();
 		args.put(argName, ConstantExpressionDescription.create(ArgVal));
 		WithArgs act = getAgent().getSpecies().getAction(actionName);
 		act.setRuntimeArgs(scope, args);
 		return act.executeOn(scope);
 	}
-	
-	private Object doAction2Arg(IScope scope, String actionName, String argName1, Object ArgVal1, String argName2, Object ArgVal2 ) {
+
+	/**
+	 * Do action 2 arg.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param actionName
+	 *            the action name
+	 * @param argName1
+	 *            the arg name 1
+	 * @param ArgVal1
+	 *            the arg val 1
+	 * @param argName2
+	 *            the arg name 2
+	 * @param ArgVal2
+	 *            the arg val 2
+	 * @return the object
+	 */
+	private Object doAction2Arg(final IScope scope, final String actionName, final String argName1,
+			final Object ArgVal1, final String argName2, final Object ArgVal2) {
 		Arguments args = new Arguments();
 		args.put(argName1, ConstantExpressionDescription.create(ArgVal1));
 		args.put(argName2, ConstantExpressionDescription.create(ArgVal2));
@@ -388,8 +862,31 @@ public class AbstractUnityLinker extends GamlAgent {
 		act.setRuntimeArgs(scope, args);
 		return act.executeOn(scope);
 	}
-	
-	private Object doAction3Arg(IScope scope, String actionName, String argName1, Object ArgVal1, String argName2, Object ArgVal2 , String argName3, Object ArgVal3) {
+
+	/**
+	 * Do action 3 arg.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param actionName
+	 *            the action name
+	 * @param argName1
+	 *            the arg name 1
+	 * @param ArgVal1
+	 *            the arg val 1
+	 * @param argName2
+	 *            the arg name 2
+	 * @param ArgVal2
+	 *            the arg val 2
+	 * @param argName3
+	 *            the arg name 3
+	 * @param ArgVal3
+	 *            the arg val 3
+	 * @return the object
+	 */
+	private Object doAction3Arg(final IScope scope, final String actionName, final String argName1,
+			final Object ArgVal1, final String argName2, final Object ArgVal2, final String argName3,
+			final Object ArgVal3) {
 		Arguments args = new Arguments();
 		args.put(argName1, ConstantExpressionDescription.create(ArgVal1));
 		args.put(argName2, ConstantExpressionDescription.create(ArgVal2));
@@ -398,18 +895,23 @@ public class AbstractUnityLinker extends GamlAgent {
 		act.setRuntimeArgs(scope, args);
 		return act.executeOn(scope);
 	}
-	
-	
-	
 
 	@Override
-	public Object _init_(IScope scope) {
+	public Object _init_(final IScope scope) {
 		Object init = super._init_(scope);
 		startSimulation(scope);
-		return init ;
+		return init;
 	}
-	
-	private void interactionWithPlayer(final IScope scope, IAgent ag) {
+
+	/**
+	 * Interaction with player.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param ag
+	 *            the ag
+	 */
+	private void interactionWithPlayer(final IScope scope, final IAgent ag) {
 		GamaPoint pt = scope.getGui().getMouseLocationInModel();
 		if (pt != null) {
 			IList<IAgent> ags = GamaListFactory.create();
@@ -419,84 +921,94 @@ public class AbstractUnityLinker extends GamlAgent {
 					getPlayers(ag).remove(playerName);
 					continue;
 				}
-				if (a.euclidianDistanceTo(pt) <=   getDistanceSelection(ag))
-					ags.add(a);
+				if (a.euclidianDistanceTo(pt) <= getDistanceSelection(ag)) { ags.add(a); }
 			}
 			if (ags.isEmpty()) {
-				Optional<IAgent> selected = getPlayers(ag).getValues().stream().filter (a -> (Boolean) a.getAttribute("selected")).findFirst(); 
-				if (selected.isPresent()) {
-					doAction2Arg(scope, "move_player", "player", selected.get(), "loc", pt) ;
-				}
+				Optional<IAgent> selected = getPlayers(ag).getValues().stream()
+						.filter(a -> (Boolean) a.getAttribute("selected")).findFirst();
+				if (selected.isPresent()) { doAction2Arg(scope, "move_player", "player", selected.get(), "loc", pt); }
 			} else {
 				IAgent player = (IAgent) Queries.closest_to(scope, ags, pt);
-				
-				player.setAttribute(AbstractUnityPlayer.SELECTED, !((Boolean)player.getAttribute(AbstractUnityPlayer.SELECTED)));
+
+				player.setAttribute(AbstractUnityPlayer.SELECTED,
+						!((Boolean) player.getAttribute(AbstractUnityPlayer.SELECTED)));
 			}
-				
-		} 
+
+		}
 	}
-	
- 	@Override
+
+	@Override
 	public boolean doStep(final IScope scope) {
 		if (super.doStep(scope)) {
 			IAgent ag = getAgent();
-			//setInitialized(ag, true);
+			// setInitialized(ag, true);
 			if (getConnectToUnity(ag)) {
-				if (/*getInitialized(ag) && */getMovePlayerEvent(ag) && !getPlayers(ag).isEmpty()) {
+				if (/* getInitialized(ag) && */getMovePlayerEvent(ag) && !getPlayers(ag).isEmpty()) {
 					setMovePlayerEvent(ag, false);
 					interactionWithPlayer(scope, ag);
 				}
-				//if(getInitialized(ag)) {
-					if (getDoSendWorld(ag)) {
-						doActionNoArg(scope, "send_world");
-					}
-					
-				//}
+				// if(getInitialized(ag)) {
+				if (getDoSendWorld(ag)) { doActionNoArg(scope, "send_world"); }
 
-				if (currentMessage != null && !currentMessage.isEmpty()) {
-					sendCurrentMessage(scope);
-				}
-				
+				// }
+
+				if (currentMessage != null && !currentMessage.isEmpty()) { sendCurrentMessage(scope); }
+
 			}
 			return true;
 		}
 		return false;
 	}
 
- 	
-	private void sendCurrentMessage(IScope scope) {
+	/**
+	 * Send current message.
+	 *
+	 * @param scope
+	 *            the scope
+	 */
+	private void sendCurrentMessage(final IScope scope) {
 		PlatformAgent pa = GAMA.getPlatformAgent();
 		String mes = "";
 		if (getUseMiddleware(getAgent())) {
 			mes = SerialisationOperators.toJson(scope, currentMessage, false);
-			pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
+			pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
 		} else {
-			Iterator<IMap> it = (Iterator<IMap>) ((IList<IMap>) currentMessage.get(CONTENTS)).iterable(scope).iterator();
-			while(it.hasNext()) {
+			Iterator<IMap> it =
+					(Iterator<IMap>) ((IList<IMap>) currentMessage.get(CONTENTS)).iterable(scope).iterator();
+			while (it.hasNext()) {
 				IMap v = it.next();
 				Object c = v.get(CONTENT_MESSAGE);
-				mes += SerialisationOperators.toJson(scope, c, false) + "|||" ;	
+				mes += SerialisationOperators.toJson(scope, c, false) + "|||";
 			}
 		}
-		if (!mes.isBlank() && !mes.equals("{}")) {
+		if (!mes.isBlank() && !"{}".equals(mes)) {
 			try {
-				pa.sendMessage(scope,ConstantExpressionDescription.create(mes));
-			} catch (WebsocketNotConnectedException e ) {
+				pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
+			} catch (WebsocketNotConnectedException e) {
 				if (!getUseMiddleware(getAgent())) {
 					getPlayers(pa).get(0).dispose();
 					getPlayers(pa).clear();
 				}
 			}
-		}	
+		}
 		currentMessage.clear();
-		
+
 	}
-	
-	
-	private void addToCurrentMessage(IScope scope, IList<String> recipients, Object content ) {
-		
+
+	/**
+	 * Adds the to current message.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param recipients
+	 *            the recipients
+	 * @param content
+	 *            the content
+	 */
+	private void addToCurrentMessage(final IScope scope, final IList<String> recipients, final Object content) {
+
 		if (currentMessage == null) {
-			
+
 			currentMessage = GamaMapFactory.synchronizedMap(GamaMapFactory.create());
 		}
 		if (currentMessage.isEmpty()) {
@@ -508,664 +1020,837 @@ public class AbstractUnityLinker extends GamlAgent {
 		newMessage.put(CONTENT_MESSAGE, content);
 		((IList) currentMessage.get(CONTENTS)).add(newMessage);
 	}
-	
+
+	/**
+	 * Prim sent message.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_message",
-			args = {
-					 @arg (name = "players",
-								type = IType.LIST,
-								doc = @doc ("Players to send the geometries to")),
-					 @arg (name = "mes",
-							type = IType.MAP, 
-							doc = @doc ("Map to send"))},
+			args = { @arg (
+					name = "players",
+					type = IType.LIST,
+					doc = @doc ("Players to send the geometries to")),
+					@arg (
+							name = "mes",
+							type = IType.MAP,
+							doc = @doc ("Map to send")) },
 			doc = { @doc (
-					value = "send a message to the Unity Client")})
+					value = "send a message to the Unity Client") })
 	public void primSentMessage(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IList<IAgent> players = (IList) scope.getListArg("players");
 		IMap mes = (IMap) scope.getArg("mes");
-		
-		
+
 		IMap message = GamaMapFactory.create();
 		message.put(CONTENTS, GamaListFactory.create());
 		message.put(TYPE, OUTPUT);
-		
+
 		IMap newMessage = GamaMapFactory.create();
-		
+
 		IList<String> recipients = GamaListFactory.create();
-		for(IAgent a : players) {
-			recipients.add(a.getName());
-		}
+		for (IAgent a : players) { recipients.add(a.getName()); }
 		newMessage.put(ID, recipients);
 		newMessage.put(CONTENT_MESSAGE, mes);
 		((IList) message.get(CONTENTS)).add(newMessage);
-		
+
 		PlatformAgent pa = GAMA.getPlatformAgent();
 		String mesStr = SerialisationOperators.toJson(scope, message, false);
-		
-		pa.sendMessage(scope,ConstantExpressionDescription.create(mesStr));
-	
+
+		pa.sendMessage(scope, ConstantExpressionDescription.create(mesStr));
+
 	}
 
+	/**
+	 * Prim sent world.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_world",
 			doc = { @doc (
-					value = "send the current state of the world to the Unity clients")})
+					value = "send the current state of the world to the Unity clients") })
 	public void primSentWorld(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		Set<String> players = getPlayers(ag).keySet();
-		
-		for (String playerName : players)  {
+
+		for (String playerName : players) {
 			IAgent player = getPlayers(ag).get(playerName);
 			if (player == null) {
 				getPlayers(ag).remove(playerName);
 				continue;
 			}
 			if (getDoSendWorld(getAgent())) {
-				
-			
-				IMap<IShape, UnityProperties> geoms =  getGeometriesToSend(ag);
+
+				IMap<IShape, UnityProperties> geoms = getGeometriesToSend(ag);
 				if (geoms != null) {
-					boolean filterDist = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null &&
-							((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS)) > 0 ;
-					
-					boolean filterProx = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) != null &&
-							((Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST)) > 0;
-					
+					boolean filterDist = player
+							.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null
+							&& (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) > 0;
+
+					boolean filterProx = player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) != null
+							&& (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST) > 0;
+
 					if (filterDist || filterProx) {
 						IList<IShape> geomsPl = GamaListFactory.create();
 						geomsPl.addAll(geoms.keySet());
-						if (filterDist) geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_distance", "geometries", geomsPl);
-						if (filterProx) geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_overlapping", "geometries", geomsPl);
-						geoms = GamaMapFactory.create();
-						IMap<IShape, UnityProperties> geoms2 =  getGeometriesToSend(ag);
-						
-						for (IShape s : geomsPl) {
-							geoms.put(s, geoms2.get(s));
+						if (filterDist) {
+							geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_distance", "geometries", geomsPl);
 						}
+						if (filterProx) {
+							geomsPl = (IList<IShape>) doAction1Arg(scope, "filter_overlapping", "geometries", geomsPl);
+						}
+						geoms = GamaMapFactory.create();
+						IMap<IShape, UnityProperties> geoms2 = getGeometriesToSend(ag);
+
+						for (IShape s : geomsPl) { geoms.put(s, geoms2.get(s)); }
 					}
-					
-					doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,geoms, "update_position", !getNewPlayerPosition(ag).get(player.getName()).isEmpty());
-					
-					
-					
+
+					doAction3Arg(scope, "send_geometries", "player", player, "geoms", geoms, "update_position",
+							!getNewPlayerPosition(ag).get(player.getName()).isEmpty());
+
 				}
 				getGeometriesToSend(ag).clear();
-				
+
 			}
-			
-			
-			//toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
+
+			// toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
 			addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
-			
-			
+
 			doAction1Arg(scope, "after_sending_world", "map_to_send", toSend);
-		}		
+		}
 	}
-		
+
+	/**
+	 * Prim sent geometries.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_geometries",
-					args = { @arg (
-							name = "player",
-							type = IType.AGENT,
-							doc = @doc ("Player to which the message will be sent")),
-							@arg (
-									name = "update_position",
-									type = IType.BOOL,
-									doc = @doc ("Has the player to be sent to Unity?")),
-							@arg (
-								name = "geoms",
-										type = IType.MAP,
-										doc = @doc ("Map of geometry to send (geometry::unity_property)"))},
-					doc = { @doc (
-					value = "send the background geometries to the Unity client")})
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")),
+					@arg (
+							name = "update_position",
+							type = IType.BOOL,
+							doc = @doc ("Has the player to be sent to Unity?")),
+					@arg (
+							name = "geoms",
+							type = IType.MAP,
+							doc = @doc ("Map of geometry to send (geometry::unity_property)")) },
+			doc = { @doc (
+					value = "send the background geometries to the Unity client") })
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
 		Boolean updatePos = scope.getBoolArg("update_position");
-		IMap<IShape,UnityProperties> geoms =  (IMap<IShape, UnityProperties>) scope.getArg("geoms");
+		IMap<IShape, UnityProperties> geoms = (IMap<IShape, UnityProperties>) scope.getArg("geoms");
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		IList<Integer> posT = GamaListFactory.create(Types.INT);
 		int precision = getPrecision(ag);
-		
-		
+
 		List<String> names = new ArrayList<>();
 		List<String> propertyID = new ArrayList<>();
-		
-		
-	    List pointsLoc = new ArrayList<>();
-	    List pointsGeom = new ArrayList<>();
-	    
-	    for(IShape g : geoms.keySet()) {
-	    	UnityProperties up = geoms.get(g);
-	    	String name = g instanceof IAgent ? ((IAgent)g).getName()  : (String) g.getAttribute("name");
-	    	if (name == null || name.isBlank()) {
-	    		name = up.getId() + names.size();
-	    	}
-	    	names.add( name);
+
+		List pointsLoc = new ArrayList<>();
+		List pointsGeom = new ArrayList<>();
+
+		for (IShape g : geoms.keySet()) {
+			UnityProperties up = geoms.get(g);
+			String name = g instanceof IAgent ? ((IAgent) g).getName() : (String) g.getAttribute("name");
+			if (name == null || name.isBlank()) { name = up.getId() + names.size(); }
+			names.add(name);
 			propertyID.add(up.getId());
-	    	boolean hp = up.getAspect().isPrefabAspect();
-	    	if (hp) {
-				pointsLoc.add((IMap) doAction1Arg(scope, "message_geometry_loc", "geom", g));
+			boolean hp = up.getAspect().isPrefabAspect();
+			if (hp) {
+				pointsLoc.add(doAction1Arg(scope, "message_geometry_loc", "geom", g));
 			} else {
-				pointsGeom.add((IMap) doAction1Arg(scope, "message_geometry_shape", "geom", g));
+				pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", g));
 			}
 		}
-	   toSend.put("pointsLoc", pointsLoc);
-	  	
-	  	toSend.put("names", names);
-	  	toSend.put("propertyID", propertyID);
-	  	toSend.put("pointsGeom", pointsGeom);
-	  	if (updatePos) {
+		toSend.put("pointsLoc", pointsLoc);
+
+		toSend.put("names", names);
+		toSend.put("propertyID", propertyID);
+		toSend.put("pointsGeom", pointsGeom);
+		if (updatePos) {
 			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
 			System.out.println("pos: " + pos);
-			    
+
 			toSend.put("position", pos);
 			getNewPlayerPosition(ag).get(player.getName()).clear();
 		}
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
-		
-		doAction1Arg(scope, "after_sending_geometries", "player", player);	
-		
+
+		doAction1Arg(scope, "after_sending_geometries", "player", player);
+
 	}
 
+	/**
+	 * Prim message geoms shape.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i map
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "message_geometry_shape",
 			args = { @arg (
 					name = "geom",
 					type = IType.GEOMETRY,
-					doc = @doc ("Geometry to send to Unity"))},
-					
+					doc = @doc ("Geometry to send to Unity")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the message to send to Unity")})
+					value = "Action called by the send_world action that returns the message to send to Unity") })
 	public IMap primMessageGeomsShape(final IScope scope) throws GamaRuntimeException {
 		IList<Integer> vals = GamaListFactory.create();
 		IShape geom = (IShape) scope.getArg("geom");
 		int precision = getPrecision(getAgent());
-		
-		
+
 		for (GamaPoint pt : geom.getPoints()) {
-			vals.add((int)(pt.x * precision));
-			vals.add((int)(pt.y * precision));
-			//vals.add((int)(pt.z * precision));
+			vals.add((int) (pt.x * precision));
+			vals.add((int) (pt.y * precision));
+			// vals.add((int)(pt.z * precision));
 
 		}
-		IMap<String, Object> map  = GamaMapFactory.create();
+		IMap<String, Object> map = GamaMapFactory.create();
 		map.put("c", vals);
 		Arguments args = new Arguments();
 		args.put("map", ConstantExpressionDescription.create(map));
 		args.put("geom", ConstantExpressionDescription.create(geom));
 		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
-			
+
 		actATM.setRuntimeArgs(scope, args);
 		actATM.executeOn(scope);
-		
+
 		return map;
 	}
-	
+
+	/**
+	 * Prim message geoms.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i map
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "message_geometry_loc",
 			args = { @arg (
 					name = "geom",
 					type = IType.GEOMETRY,
-					doc = @doc ("Geometry to send to Unity"))},
-					
+					doc = @doc ("Geometry to send to Unity")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the message to send to Unity")})
+					value = "Action called by the send_world action that returns the message to send to Unity") })
 	public IMap primMessageGeoms(final IScope scope) throws GamaRuntimeException {
 		IList<Integer> vals = GamaListFactory.create();
 		IShape geom = (IShape) scope.getArg("geom");
 		int precision = getPrecision(getAgent());
-		vals.add((int)(geom.getLocation().x * precision));
-		vals.add((int)(geom.getLocation().y * precision));
-		vals.add((int)(geom.getLocation().z * precision));
+		vals.add((int) (geom.getLocation().x * precision));
+		vals.add((int) (geom.getLocation().y * precision));
+		vals.add((int) (geom.getLocation().z * precision));
 		Double hd = (Double) geom.getAttribute("heading");
-		if (hd == null) hd = 0.0;
-		vals.add((int)(hd * precision));
-		IMap<String, Object> map  = GamaMapFactory.create();
+		if (hd == null) { hd = 0.0; }
+		vals.add((int) (hd * precision));
+		IMap<String, Object> map = GamaMapFactory.create();
 		map.put("c", vals);
-			
+
 		Arguments args = new Arguments();
 		args.put("map", ConstantExpressionDescription.create(map));
 		args.put("geom", ConstantExpressionDescription.create(geom));
 		WithArgs actATM = getAgent().getSpecies().getAction(ADD_TO_MAP);
-			
+
 		actATM.setRuntimeArgs(scope, args);
 		actATM.executeOn(scope);
-		
+
 		return map;
 	}
-	
+
+	/**
+	 * Prim sent init data.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_init_data",
-					args = { 
-							 @arg (name = "id",
-								type = IType.STRING,
-								doc = @doc ("if of the player to send the geometries to"))},
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("if of the player to send the geometries to")) },
 			doc = { @doc (
-					value = "Wait for the connection of a unity client and send the paramters to the client")})
+					value = "Wait for the connection of a unity client and send the paramters to the client") })
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IAgent player = getPlayers(ag).get(scope.getStringArg("id")) ;
-	
-		doAction1Arg(scope, "send_parameters", "player", player );
+		IAgent player = getPlayers(ag).get(scope.getStringArg("id"));
 
-		doAction1Arg(scope, "send_unity_propetries", "player", player );
-		doAction1Arg(scope, "send_player_position", "player", player );
-		
-		doAction3Arg(scope, "send_geometries", "player", player, "geoms" ,getBackgroundGeometries(ag), "update_position", true);
-		
-		
-		doActionNoArg(scope, "send_world" );
-		
-		
+		doAction1Arg(scope, "send_parameters", "player", player);
+
+		doAction1Arg(scope, "send_unity_propetries", "player", player);
+		doAction1Arg(scope, "send_player_position", "player", player);
+
+		doAction3Arg(scope, "send_geometries", "player", player, "geoms", getBackgroundGeometries(ag),
+				"update_position", true);
+
+		doActionNoArg(scope, "send_world");
+
 		startSimulation(scope);
 	}
-	
+
+	/**
+	 * Prim after sending world.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "after_sending_world",
-			args = {@arg (
+			args = { @arg (
 					name = "map_to_send",
 					type = IType.MAP,
-					doc = @doc ("data already sent to the client"))},
+					doc = @doc ("data already sent to the client")) },
 			doc = { @doc (
-					value = "Action trigger just after sending the world to Unity ")})
+					value = "Action trigger just after sending the world to Unity ") })
 	public void primAfterSendingWorld(final IScope scope) throws GamaRuntimeException {
-	
+
 	}
-	
+
+	/**
+	 * Prim after sending geometries.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "after_sending_geometries",
-					args = { @arg (
-							name = "player",
-							type = IType.AGENT,
-							doc = @doc ("Player to which the message will be sent"))},
-					
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")) },
+
 			doc = { @doc (
-					value = "Action trigger just after sending the background geometries to a Unity client ")})
+					value = "Action trigger just after sending the background geometries to a Unity client ") })
 	public void primAfterSendingGeometries(final IScope scope) throws GamaRuntimeException {
-	
+
 	}
-	
+
+	/**
+	 * Prim create init player.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "create_init_player",
-					args = { @arg (
-							name = "id",
-							type = IType.STRING,
-							doc = @doc ("name of the player agent"))},
-							
-				
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("name of the player agent")) },
+
 			doc = { @doc (
-					value = "Create and init a new unity player agent")})
+					value = "Create and init a new unity player agent") })
 	public void primCreateInitPlayer(final IScope scope) throws GamaRuntimeException {
 		setUseMiddleware(getAgent(), false);
 		String id = scope.getStringArg("id");
 		doAction1Arg(scope, "create_player", "id", id);
 		doAction1Arg(scope, "send_init_data", "id", id);
-		
+
 	}
-	
+
+	/**
+	 * Prim init player.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "create_player",
-					args = { @arg (
-							name = "id",
-							type = IType.STRING,
-							doc = @doc ("name of the player agent"))},
-							
-				
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("name of the player agent")) },
+
 			doc = { @doc (
-					value = "Create a new unity player agent")})
+					value = "Create a new unity player agent") })
 	public void primInitPlayer(final IScope scope) throws GamaRuntimeException {
 		IMap<String, IAgent> players = getPlayers(getAgent());
 		IAgent ag = getAgent();
 		String id = scope.getStringArg("id");
-		
+
 		ISpecies sp = Cast.asSpecies(scope, getPlayerSpecies(ag));
-		if (sp == null) return;
-		if (getMaxPlayer(ag) >= 0 && (getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
-		if (getPlayers(ag).containsKey(id) && getPlayers(ag).get(id) != null){
-			return;
-		}
-		
-		Map<String, Object>  init = GamaMapFactory.create();
+		if ((sp == null) || (getMaxPlayer(ag) >= 0 && getPlayers(ag).length(scope) >= getMaxPlayer(ag))) return;
+		if (getPlayers(ag).containsKey(id) && getPlayers(ag).get(id) != null) return;
+
+		Map<String, Object> init = GamaMapFactory.create();
 		if (getPlayerLocationInit(ag).size() <= players.length(scope)) {
 			getPlayerLocationInit(ag).add(Punctal.any_location_in(scope, scope.getSimulation()));
 		}
 		init.put(IKeyword.LOCATION, getPlayerLocationInit(ag).get(players.length(scope)));
 		init.put(IKeyword.NAME, id);
-		
+
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
 		getPlayers(getAgent()).put(id, player);
 	}
-	
+
+	/**
+	 * Prim add background geometries.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "add_background_geometries",
 			args = { @arg (
 					name = "geometries",
 					type = IType.CONTAINER,
 					doc = @doc ("list of geometries add as backrgound geometries")),
-					 @arg (name = "property",
-					 type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
-					 doc = @doc ("the unity properties to attach this list of geometries"))},
-					
+					@arg (
+							name = "property",
+							type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+							doc = @doc ("the unity properties to attach this list of geometries")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player") })
 	public void primAddBackgroundGeometries(final IScope scope) throws GamaRuntimeException {
-		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries")); 
+		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries"));
 		IAgent ag = getAgent();
 		Map gb = getBackgroundGeometries(ag);
 		UnityProperties property = (UnityProperties) scope.getArg("property");
-		if (geometriesToFollow == null)
-			geometriesToFollow = GamaMapFactory.create();
+		if (geometriesToFollow == null) { geometriesToFollow = GamaMapFactory.create(); }
 		for (IShape s : geometries) {
 			gb.put(s, property);
-			String name = s instanceof IAgent ? ((IAgent)s).getName() : (String) s.getAttribute("name");
-			if (!geometriesToFollow.containsKey(name))
-				geometriesToFollow.put(name, s);
+			String name = s instanceof IAgent ? ((IAgent) s).getName() : (String) s.getAttribute("name");
+			if (!geometriesToFollow.containsKey(name)) { geometriesToFollow.put(name, s); }
 		}
 	}
-	
+
+	/**
+	 * Prim add geometries to send.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "add_geometries_to_send",
 			args = { @arg (
 					name = "geometries",
 					type = IType.CONTAINER,
 					doc = @doc ("list of geometries to send to Unity")),
-					 @arg (name = "property",
-					 type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
-					 doc = @doc ("the unity properties to attach this list of geometries"))},
-					
+					@arg (
+							name = "property",
+							type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+							doc = @doc ("the unity properties to attach this list of geometries")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player") })
 	public void primAddGeometriesToSend(final IScope scope) throws GamaRuntimeException {
-		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries")); 
+		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries"));
 		IAgent ag = getAgent();
 		Map gts = getGeometriesToSend(ag);
 		UnityProperties property = (UnityProperties) scope.getArg("property");
-		if (geometriesToFollow == null)
-			geometriesToFollow = GamaMapFactory.create();
+		if (geometriesToFollow == null) { geometriesToFollow = GamaMapFactory.create(); }
 		for (IShape s : geometries) {
 			gts.put(s, property);
-			String name = s instanceof IAgent ? ((IAgent)s).getName() : (String) s.getAttribute("name");
-			if (!geometriesToFollow.containsKey(name))
-				geometriesToFollow.put(name, s);
+			String name = s instanceof IAgent ? ((IAgent) s).getName() : (String) s.getAttribute("name");
+			if (!geometriesToFollow.containsKey(name)) { geometriesToFollow.put(name, s); }
 		}
 	}
-	 
+
+	/**
+	 * Prim move geoms followed.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "move_geoms_followed",
 			args = { @arg (
 					name = "ids",
 					type = IType.STRING,
 					doc = @doc ("ids of the geometries to move")),
-					 @arg (name = "points",
-					 type = IType.STRING,
-					 doc = @doc ("points of the geometries to move")),
-					 @arg (name = "sep",
-					 type = IType.STRING,
-					 doc = @doc ("separator used to tokenized the id and position"))},
-					
+					@arg (
+							name = "points",
+							type = IType.STRING,
+							doc = @doc ("points of the geometries to move")),
+					@arg (
+							name = "sep",
+							type = IType.STRING,
+							doc = @doc ("separator used to tokenized the id and position")) },
+
 			doc = { @doc (
-					value = "Action called by the Unity Client to move agents")})
+					value = "Action called by the Unity Client to move agents") })
 	public void primMoveGeomsFollowed(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = scope.getAgent();
 		String sep = scope.getStringArg("sep");
 		String ids = scope.getStringArg("ids");
 		String points = scope.getStringArg("points");
-		
-		if (sep == null || ids == null || points == null || sep.isBlank() || ids.isBlank() || points.isBlank())
-			return;
+
+		if (sep == null || ids == null || points == null || sep.isBlank() || ids.isBlank() || points.isBlank()) return;
 		List<String> idsStr = Strings.split(ids, sep);
 		int precision = getPrecision(ag);
 		int nb = idsStr.size();
 		List<String> ptsStr = Strings.split(points, sep);
 		int cpt = 0;
-		for (int i = 0; i < nb ; i++) {
+		for (int i = 0; i < nb; i++) {
 			String id = idsStr.get(i);
-			if (id.isBlank()) {continue;}
+			if (id.isBlank()) { continue; }
 			IShape geom = geometriesToFollow.get(id);
 			if (geom != null) {
-				double x = (0.0 + (Integer.valueOf(ptsStr.get(cpt)))) / precision;
-				double y = (0.0 + (Integer.valueOf(ptsStr.get(cpt+1)))) / precision;
-				double z = (0.0 + (Integer.valueOf(ptsStr.get(cpt+2)))) / precision;
-				geom.setLocation(new GamaPoint(x,y,z));
-				
+				double x = (0.0 + Integer.valueOf(ptsStr.get(cpt))) / precision;
+				double y = (0.0 + Integer.valueOf(ptsStr.get(cpt + 1))) / precision;
+				double z = (0.0 + Integer.valueOf(ptsStr.get(cpt + 2))) / precision;
+				geom.setLocation(new GamaPoint(x, y, z));
+
 			}
 			cpt = cpt + 3;
 		}
 	}
-	
+
+	/**
+	 * Prim filter distance.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i list
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "filter_distance",
 			args = { @arg (
 					name = "geometries",
 					type = IType.LIST,
 					doc = @doc ("list of geometries to filter")),
-					 @arg (name = "player",
-								type = IType.AGENT,
-								doc = @doc ("the player agent"))},
-					
+					@arg (
+							name = "player",
+							type = IType.AGENT,
+							doc = @doc ("the player agent")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player")})
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player") })
 	public IList<IShape> primFilterDistance(final IScope scope) throws GamaRuntimeException {
-		IAgent player= (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player");
 		IList<IShape> geoms = GamaListFactory.create();
 		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
-		
+
 		Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
-		return (IList<IShape>) Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist));
+		return (IList<IShape>) Spatial.Queries.overlapping(scope, geoms,
+				Transformations.enlarged_by(scope, player, dist));
 	}
 
-	
-	
+	/**
+	 * Prim filter overlapping.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i list
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "filter_overlapping",
 			args = { @arg (
 					name = "geometries",
 					type = IType.LIST,
 					doc = @doc ("list of geometries to filter")),
-			 @arg (name = "player",
-				type = IType.AGENT,
-				doc = @doc ("the player agent"))},
-					
+					@arg (
+							name = "player",
+							type = IType.AGENT,
+							doc = @doc ("the player agent")) },
+
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a min proximity to the other geometries to send")})
+					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a min proximity to the other geometries to send") })
 	public IList<IShape> primFilterOverlapping(final IScope scope) throws GamaRuntimeException {
-		IAgent player= (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player");
 		IList<IShape> geoms = GamaListFactory.create();
 		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
-		
-		IList<IShape> toRemove = GamaListFactory.create() ;
+
+		IList<IShape> toRemove = GamaListFactory.create();
 		for (IShape g : geoms) {
-			if (!toRemove.contains(g)) { 
+			if (!toRemove.contains(g)) {
 				Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST);
-				toRemove.addAll((Collection) Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist)));
-			}  
+				toRemove.addAll(
+						Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist)));
+			}
 		}
 		geoms.removeAll(toRemove);
 		return geoms;
 	}
-	
-	
+
+	/**
+	 * Prim new player loc.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the gama point
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "new_player_location",
 			args = { @arg (
 					name = "loc",
 					type = IType.POINT,
 					doc = @doc ("Location of the player agent")),
-					
+
 					@arg (
 							name = "player",
 							type = IType.AGENT,
-							doc = @doc ("the player agent"))},
-					
+							doc = @doc ("the player agent")) },
+
 			doc = { @doc (
-					value = "Action called by the move_player action that returns the location to send to Unity from a given player location")})
+					value = "Action called by the move_player action that returns the location to send to Unity from a given player location") })
 	public GamaPoint primNewPlayerLoc(final IScope scope) throws GamaRuntimeException {
 		return (GamaPoint) scope.getArg("loc");
 	}
-	
+
+	/**
+	 * Prim move player.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "move_player",
-					args = { 
-						@arg (name = "player",
-						type = IType.AGENT,
-						doc = @doc ("the player agent to move")),
-						
-						@arg (
-								name = "loc",
-								type = IType.POINT,
-								doc = @doc ("Location of the player agent"))},
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("the player agent to move")),
+
+					@arg (
+							name = "loc",
+							type = IType.POINT,
+							doc = @doc ("Location of the player agent")) },
 			doc = { @doc (
-					value = "move the player agent")})
+					value = "move the player agent") })
 	public void primMovePlayer(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
 		GamaPoint loc = (GamaPoint) scope.getArg("loc");
 		getReadyToMovePlayers(ag).remove(player);
-		loc = (GamaPoint)doAction2Arg(scope, "new_player_location", "player", player, "loc", loc);
+		loc = (GamaPoint) doAction2Arg(scope, "new_player_location", "player", player, "loc", loc);
 		player.setLocation(loc);
 		doAction1Arg(scope, "send_player_position", "player", player);
-		
+
 	}
-	
-	
+
+	/**
+	 * Prim move player from unity.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "move_player_external",
-					args = { 
-						@arg (name = "id",
-						type = IType.STRING,
-						doc = @doc ("id of the player agent to move")),
-						
-						@arg (
-								name = "x",
-								type = IType.INT,
-								doc = @doc ("x Location of the player agent")),	@arg (
-										name = "y",
-										type = IType.INT,
-										doc = @doc ("y Location of the player agent")),	@arg (
-												name = "z",
-												type = IType.INT,
-												doc = @doc ("z Location of the player agent")),@arg (
-												name = "angle",
-												type = IType.INT,
-												doc = @doc ("angle of the player agent"))},
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("id of the player agent to move")),
+
+					@arg (
+							name = "x",
+							type = IType.INT,
+							doc = @doc ("x Location of the player agent")),
+					@arg (
+							name = "y",
+							type = IType.INT,
+							doc = @doc ("y Location of the player agent")),
+					@arg (
+							name = "z",
+							type = IType.INT,
+							doc = @doc ("z Location of the player agent")),
+					@arg (
+							name = "angle",
+							type = IType.INT,
+							doc = @doc ("angle of the player agent")) },
 			doc = { @doc (
-					value = "move the player agent ")})
+					value = "move the player agent ") })
 	public void primMovePlayerFromUnity(final IScope scope) throws GamaRuntimeException {
-	
+
 		IAgent ag = getAgent();
-		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
-		if (thePlayer == null ) return;
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id"));
+		if (thePlayer == null) return;
 		Integer x = scope.getIntArg("x");
 		Integer y = scope.getIntArg("y");
 		Integer z = scope.getIntArg("z");
 		Integer angle = scope.getIntArg("angle");
-		int precision = getPrecision(ag); 
-		Double rot = ((Double) thePlayer.getAttribute("player_rotation"));
+		int precision = getPrecision(ag);
+		Double rot = (Double) thePlayer.getAttribute("player_rotation");
 
-		//if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+ getReadyToMovePlayers(ag));
+		// if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+
+		// getReadyToMovePlayers(ag));
 		if (getReadyToMovePlayers(ag).contains(thePlayer)) {
-			if (rot != null)
-				thePlayer.setAttribute("rotation", angle.floatValue()/precision + rot ); 
-			if (x !=null && y != null) 
-				thePlayer.setLocation(new GamaPoint(x.floatValue()/precision, y.floatValue()/precision, z.floatValue()/precision));
+			if (rot != null) { thePlayer.setAttribute("rotation", angle.floatValue() / precision + rot); }
+			if (x != null && y != null) {
+				thePlayer.setLocation(new GamaPoint(x.floatValue() / precision, y.floatValue() / precision,
+						z.floatValue() / precision));
+			}
 			thePlayer.setAttribute("to_display", true);
-		} 
-		
+		}
+
 	}
-	
+
+	/**
+	 * Prim ping GAMA.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "ping_GAMA",
-					args = { @arg (
-							name = "id",
-							type = IType.STRING,
-							doc = @doc ("Player agent that try to ping GAMA"))},
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("Player agent that try to ping GAMA")) },
 			doc = { @doc (
-					value = "Ping GAMA to test the connection")})
+					value = "Ping GAMA to test the connection") })
 	public void primPingGAMA(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
-		if (thePlayer == null ) return;
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id"));
+		if (thePlayer == null) return;
 		PlatformAgent pa = GAMA.getPlatformAgent();
-		pa.sendMessage(scope,ConstantExpressionDescription.create("pong"));		
+		pa.sendMessage(scope, ConstantExpressionDescription.create("pong"));
 	}
-	
 
+	/**
+	 * Prim player position updated.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "player_position_updated",
-					args = { @arg (
-							name = "id",
-							type = IType.STRING,
-							doc = @doc ("Player agent of which the position has been updated"))},
+			args = { @arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("Player agent of which the position has been updated")) },
 			doc = { @doc (
-					value = "reactivate the reception of player position")})
+					value = "reactivate the reception of player position") })
 	public void primPlayerPositionUpdated(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id")) ;
-		if (thePlayer == null ) return;
-		getNewPlayerPosition(ag).put(thePlayer.getName(), GamaListFactory.create()); 
-		if (!getReadyToMovePlayers(ag).contains(thePlayer.getName()))
-			getReadyToMovePlayers(ag).add(thePlayer);
-		
-		
+		IAgent thePlayer = getPlayers(ag).get(scope.getStringArg("id"));
+		if (thePlayer == null) return;
+		getNewPlayerPosition(ag).put(thePlayer.getName(), GamaListFactory.create());
+		if (!getReadyToMovePlayers(ag).contains(thePlayer.getName())) { getReadyToMovePlayers(ag).add(thePlayer); }
+
 	}
-	
-	
-	
-	
+
+	/**
+	 * Prim send player position.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_player_position",
-					args = { @arg (
-							name = "player",
-							type = IType.AGENT,
-							doc = @doc ("Player agent of which to send the position"))},
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player agent of which to send the position")) },
 			doc = { @doc (
-					value = "send the new position of the player to Unity (used to teleport the player from GAMA) ")})
+					value = "send the new position of the player to Unity (used to teleport the player from GAMA) ") })
 	public void primSendPlayerPosition(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		if (!getConnectToUnity(ag)) {
-			return; 
-		}
+		if (!getConnectToUnity(ag)) return;
 		IAgent player = (IAgent) scope.getArg("player");
 		int precision = getPrecision(ag);
 		IList<Integer> pos = GamaListFactory.create();
-		pos.add((int)(player.getLocation().x * precision));
+		pos.add((int) (player.getLocation().x * precision));
 		pos.add((int) (player.getLocation().y * precision));
 		pos.add((int) (player.getLocation().z * precision));
-		getNewPlayerPosition(ag).put(player.getName(), pos); 
+		getNewPlayerPosition(ag).put(player.getName(), pos);
 	}
-	
-	
-	private void startSimulation(IScope scope) {
-		if (getPlayers(getAgent()).size() >= getMinPlayer(getAgent())) {
-			scope.getSimulation().resume(scope);
-		} 
+
+	/**
+	 * Start simulation.
+	 *
+	 * @param scope
+	 *            the scope
+	 */
+	private void startSimulation(final IScope scope) {
+		if (getPlayers(getAgent()).size() >= getMinPlayer(getAgent())) { scope.getSimulation().resume(scope); }
 	}
-	
-	
+
+	/**
+	 * Prim add to sent parameter.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "add_to_send_parameter",
-					args = {@arg (
-							name = "map_to_send",
-							type = IType.MAP,
-							doc = @doc ("data already sent to the client"))},
+			args = { @arg (
+					name = "map_to_send",
+					type = IType.MAP,
+					doc = @doc ("data already sent to the client")) },
 			doc = { @doc (
-					value = "add values to the parameters sent to the Unity Client")})
+					value = "add values to the parameters sent to the Unity Client") })
 	public void primAddToSentParameter(final IScope scope) throws GamaRuntimeException {
-		
+
 	}
-	
+
+	/**
+	 * Prim send parameters.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_parameters",
-					args = { @arg (
-							name = "player",
-							type = IType.AGENT,
-							doc = @doc ("Player to which the message will be sent"))},
-								
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")) },
+
 			doc = { @doc (
-					value = "Send the parameter to Unity to intialized the connection")})
+					value = "Send the parameter to Unity to intialized the connection") })
 	public void primSendParameters(final IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
@@ -1173,48 +1858,68 @@ public class AbstractUnityLinker extends GamlAgent {
 		int precision = getPrecision(ag);
 		toSend.put(PRECISION, precision);
 		IList<Integer> worldT = GamaListFactory.create(Types.INT);
-		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getWidth() * precision));
-		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
-		worldT.add((int)(scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
+		worldT.add((int) (scope.getSimulation().getGeometricEnvelope().getWidth() * precision));
+		worldT.add((int) (scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
+		worldT.add((int) (scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
 
 		toSend.put("world", worldT);
-		
-		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend );
+
+		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
-	
-	
+
+	/**
+	 * Prim send unity properties.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = "send_unity_propetries",
-					args = { @arg (
-							name = "player",
-							type = IType.AGENT,
-							doc = @doc ("Player to which the message will be sent"))},
-								
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")) },
+
 			doc = { @doc (
-					value = "Send the Unity properties to intialize the possible properties of geometries")})
+					value = "Send the Unity properties to intialize the possible properties of geometries") })
 	public void primSendUnityProperties(final IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
 		List<UnityProperties> props = getUnityProperties(ag);
 		List<Map> propMap = new ArrayList<>();
-		for(UnityProperties p : props) {
-			propMap.add(p.toMap());
-		}
- 		toSend.put("properties", propMap);
+		for (UnityProperties p : props) { propMap.add(p.toMap()); }
+		toSend.put("properties", propMap);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
-	
-	private IList buildPlayerListfor1Player(IScope scope, IAgent player) {
+
+	/**
+	 * Builds the player listfor 1 player.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @param player
+	 *            the player
+	 * @return the i list
+	 */
+	private IList buildPlayerListfor1Player(final IScope scope, final IAgent player) {
 		IList players = GamaListFactory.create();
 		players.add(player.getName());
-		return players; 
+		return players;
 	}
-	
-	
-	
-	
+
+	/**
+	 * Prim loc to send.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the gama point
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = LOC_TO_SEND,
 			doc = @doc (
@@ -1223,31 +1928,52 @@ public class AbstractUnityLinker extends GamlAgent {
 		return scope.getAgent().getLocation();
 
 	}
-	
+
+	/**
+	 * Prim add to map.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
 	@action (
 			name = ADD_TO_MAP,
-					args = { @arg (
-							name = "map",
-							type = IType.MAP,
-							doc = @doc ("map of data to send to Unity")),
-							@arg (
-									name = "geom",
-									type = IType.GEOMETRY,
-									doc = @doc ("Geometry to send to Unity"))},
+			args = { @arg (
+					name = "map",
+					type = IType.MAP,
+					doc = @doc ("map of data to send to Unity")),
+					@arg (
+							name = "geom",
+							type = IType.GEOMETRY,
+							doc = @doc ("Geometry to send to Unity")) },
 			doc = @doc (
 					returns = "other elements than the location to add to the data sent to Unity"))
 	public void primAddToMap(final IScope scope) throws GamaRuntimeException {
-		
+
 	}
-	public Integer getIndexSpecies(IAgent agent) {
+
+	/**
+	 * Gets the index species.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the index species
+	 */
+	public Integer getIndexSpecies(final IAgent agent) {
 		return (Integer) agent.getAttribute(SPECIES_INDEX);
 	}
-	
-	public Double getHeading(IAgent agent) {
-		if (agent.hasAttribute(HEADING))
-			return (Double) agent.getAttribute(HEADING);
+
+	/**
+	 * Gets the heading.
+	 *
+	 * @param agent
+	 *            the agent
+	 * @return the heading
+	 */
+	public Double getHeading(final IAgent agent) {
+		if (agent.hasAttribute(HEADING)) return (Double) agent.getAttribute(HEADING);
 		return 0.0;
 	}
-	
 
 }
