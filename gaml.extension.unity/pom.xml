@@ -14,38 +14,38 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>msi.gama</groupId>
-			<artifactId>msi.gama.core</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.core</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>msi.gama</groupId>
-			<artifactId>msi.gama.ext</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.dependencies</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ummisco.gama.network</groupId>
-			<artifactId>ummisco.gama.network</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.extension.network</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>msi.gama</groupId>
-			<artifactId>msi.gama.lang.gaml</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gaml.compiler</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ummisco.gama.serialize</groupId>
-			<artifactId>ummisco.gama.serialize</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.extension.serialize</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>msi.gama</groupId>
-			<artifactId>ummisco.gama.ui.modeling</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.ui.editor</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>msi.gama</groupId>
-			<artifactId>ummisco.gama.ui.shared</artifactId>
+			<groupId>org.gama</groupId>
+			<artifactId>gama.ui.shared</artifactId>
 			<version>${gama.version}</version>
 		</dependency>
 	</dependencies>

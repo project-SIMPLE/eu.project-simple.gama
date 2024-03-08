@@ -9,13 +9,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.equinox.registry,
  org.eclipse.xtext,
  org.eclipse.xtext.ui,
- gama.core;bundle-version="0.0.0",
- gama.ui.editor;bundle-version="0.0.0",
- gama.dependencies;bundle-version="0.0.0",
- gama.ui.shared;bundle-version="0.0.0",
- gama.extension.network;bundle-version="0.0.0",
- gaml.compiler;bundle-version="0.0.0",
- gama.extension.serialize;bundle-version="0.0.0"
+ gama.core,
+ gama.ui.editor,
+ gama.dependencies,
+ gama.ui.shared,
+ gama.extension.network,
+ gaml.compiler,
+ gama.extension.serialize
 Automatic-Module-Name: gaml.extension.unity
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
