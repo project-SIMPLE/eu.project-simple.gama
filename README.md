@@ -1,5 +1,5 @@
 # Overview
-The gaml.extension.unitu GAMA plugin  provides a number of tools and GAML extensions (built-in species and new experiment type) to transform a GAMA model into a Unity 3D universe.
+The gaml.extension.unity GAMA plugin  provides a number of tools and GAML extensions (built-in species and new experiment type) to transform a GAMA model into a Unity 3D universe.
 It works with the [simple UNITY template](https://github.com/project-SIMPLE/simple.template.unity) and the [simple server middleware](https://github.com/project-SIMPLE/GamaServerMiddleware). 
 
 The plugin integrates 3 new element types for GAMA:
