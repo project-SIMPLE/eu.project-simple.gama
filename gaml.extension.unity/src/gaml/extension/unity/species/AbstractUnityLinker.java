@@ -124,6 +124,10 @@ import gaml.extension.unity.types.UnityPropertiesType;
 				name = AbstractUnityLinker.PLAYER_SPECIES,
 				type = IType.STRING,
 				doc = { @doc ("Species of the player agent") }),
+		@variable (
+				name = AbstractUnityLinker.PLAYER_UNITY_PROPERTIES,
+				type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+				doc = { @doc ("Properties used to send the player agent geometry to Unity - if nil, the player agents are not sent") }),
 
 		@variable (
 				name = AbstractUnityLinker.END_MESSAGE_SYMBOL,
@@ -178,6 +182,9 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	/** The Constant PLAYER_SPECIES. */
 	public static final String PLAYER_SPECIES = "player_species";
+
+	/** The Constant PLAYER_UNITY_PROPERTIES. */
+	public static final String PLAYER_UNITY_PROPERTIES = "player_unity_property";
 
 	/** The Constant MIN_NUMBER_PLAYERS. */
 	public static final String MIN_NUMBER_PLAYERS = "min_num_players";
@@ -531,6 +538,17 @@ public class AbstractUnityLinker extends GamlAgent {
 		agent.setAttribute(END_MESSAGE_SYMBOL, val);
 	}
 
+	@getter (AbstractUnityLinker.PLAYER_UNITY_PROPERTIES)
+	public static UnityProperties getPlayerUnityProperties(final IAgent agent) {
+		return (UnityProperties) agent.getAttribute(PLAYER_UNITY_PROPERTIES);
+	}
+
+	@setter (AbstractUnityLinker.PLAYER_UNITY_PROPERTIES)
+	public static void setPlayerUnityProperties(final IAgent agent, final UnityProperties val) {
+		agent.setAttribute(PLAYER_UNITY_PROPERTIES, val);
+	}
+
+	
 	/**
 	 * Gets the player species.
 	 *
@@ -1091,6 +1109,16 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (getDoSendWorld(getAgent())) {
 
 				IMap<IShape, UnityProperties> geoms = getGeometriesToSend(ag);
+				if (getPlayerUnityProperties(ag) !=null && getPlayers(ag).size() > 1) {
+					if (geoms == null) {
+						geoms = GamaMapFactory.create();
+					}
+					for (IAgent p : getPlayers(ag).getValues()) {
+						if (p != player) {
+							geoms.put(ag, getPlayerUnityProperties(ag));
+						}
+					}
+				}
 				if (geoms != null) {
 					boolean filterDist = player
 							.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS) != null

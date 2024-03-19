@@ -31,7 +31,7 @@ import gama.gaml.types.IType;
 public class UnityPropertiesType extends GamaType<UnityProperties> {
 
 	/** The Constant id. */
-	public final static int UNITYPROPERTIESTYPE_ID = IType.AVAILABLE_TYPES + 28463525;
+	public final static int UNITYPROPERTIESTYPE_ID = IType.AVAILABLE_TYPES + 123163525;
 
 	@Override
 	public boolean canCastToConst() {
