@@ -18,8 +18,8 @@ global {
 	geometry free_place ;
 	
 	init {
-		create static_object with:(location: {50, 40}) {
-			taken_place <- shape buffer 10.0 ;
+		create static_object with:(location: {5, 50}) {
+			taken_place <- rectangle(10.0, 100.0) at_location {5, 50};
 		}
 		
 		if (nb_blocks > 0) {

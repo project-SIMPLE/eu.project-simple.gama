@@ -28,6 +28,14 @@ public interface Constants {
 			concept = { IConcept.CONSTANT, "Unity" },
 			doc = @doc ("unity_interaction with no interaction")) UnityInteraction noInt =
 					new UnityInteraction(false, false, false, null);
+	
+	/** The collider. */
+	@constant (
+			value = "collider",
+			category = { IConstantCategory.CONSTANT },
+			concept = { IConcept.CONSTANT, "Unity" },
+			doc = @doc ("unity_interaction with just a collider")) UnityInteraction collider =
+					new UnityInteraction(true, false, false, null);
 
 	/** The grabable. */
 	@constant (

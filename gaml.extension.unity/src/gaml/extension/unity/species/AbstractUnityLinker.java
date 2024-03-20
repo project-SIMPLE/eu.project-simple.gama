@@ -126,7 +126,10 @@ import gaml.extension.unity.types.UnityPropertiesType;
 				doc = { @doc ("Species of the player agent") }),
 		@variable (
 				name = AbstractUnityLinker.PLAYER_UNITY_PROPERTIES,
-				type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+						type = IType.LIST,
+						of = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
+						
+			//	type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
 				doc = { @doc ("Properties used to send the player agent geometry to Unity - if nil, the player agents are not sent") }),
 
 		@variable (
@@ -539,12 +542,15 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 
 	@getter (AbstractUnityLinker.PLAYER_UNITY_PROPERTIES)
-	public static UnityProperties getPlayerUnityProperties(final IAgent agent) {
-		return (UnityProperties) agent.getAttribute(PLAYER_UNITY_PROPERTIES);
+	public static List<UnityProperties> getPlayerUnityProperties(final IAgent agent) {
+	//public static UnityProperties getPlayerUnityProperties(final IAgent agent) {
+	//	return (UnityProperties) agent.getAttribute(PLAYER_UNITY_PROPERTIES);
+		return ((List<UnityProperties>) agent.getAttribute(PLAYER_UNITY_PROPERTIES));
 	}
 
 	@setter (AbstractUnityLinker.PLAYER_UNITY_PROPERTIES)
-	public static void setPlayerUnityProperties(final IAgent agent, final UnityProperties val) {
+	//public static void setPlayerUnityProperties(final IAgent agent, final UnityProperties val) {
+	public static void setPlayerUnityProperties(final IAgent agent, final List<UnityProperties> val) {
 		agent.setAttribute(PLAYER_UNITY_PROPERTIES, val);
 	}
 
@@ -1109,13 +1115,14 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (getDoSendWorld(getAgent())) {
 
 				IMap<IShape, UnityProperties> geoms = getGeometriesToSend(ag);
-				if (getPlayerUnityProperties(ag) !=null && getPlayers(ag).size() > 1) {
+				UnityProperties up = getPlayerUnityProperties(ag).isEmpty() ? null : getPlayerUnityProperties(ag).get(0);
+				if (up !=null && getPlayers(ag).size() > 1) {
 					if (geoms == null) {
 						geoms = GamaMapFactory.create();
 					}
 					for (IAgent p : getPlayers(ag).getValues()) {
 						if (p != player) {
-							geoms.put(ag, getPlayerUnityProperties(ag));
+							geoms.put(ag, up);
 						}
 					}
 				}
@@ -1744,7 +1751,7 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		// if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+
 		// getReadyToMovePlayers(ag));
-		if (getReadyToMovePlayers(ag).contains(thePlayer)) {
+		if (getReadyToMovePlayers(ag) != null && getReadyToMovePlayers(ag).contains(thePlayer)) {
 			if (rot != null) { thePlayer.setAttribute("rotation", angle.floatValue() / precision + rot); }
 			if (x != null && y != null) {
 				thePlayer.setLocation(new GamaPoint(x.floatValue() / precision, y.floatValue() / precision,
