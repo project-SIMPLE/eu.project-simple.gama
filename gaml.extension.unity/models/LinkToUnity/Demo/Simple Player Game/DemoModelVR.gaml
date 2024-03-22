@@ -111,7 +111,7 @@ species unity_player parent: abstract_unity_player{
 				draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
 			}
 			if file_exists("../images/headset.png")  {
-				draw image("../images/headset.png")  size: {player_size, player_size} at: location + {0, 0, 5} rotate: rotation - 90;
+				draw image("../images/headset.png")  size: {player_size, player_size} at: location + {0, 0, 5} rotate: heading - 90;
 			
 			} else {
 				draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;

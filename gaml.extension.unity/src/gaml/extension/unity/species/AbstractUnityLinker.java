@@ -11,6 +11,7 @@
 package gaml.extension.unity.species;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import gama.core.metamodel.shape.IShape;
 import gama.core.runtime.GAMA;
 import gama.core.runtime.IScope;
 import gama.core.runtime.exceptions.GamaRuntimeException;
+import gama.core.util.GamaColor;
 import gama.core.util.GamaListFactory;
 import gama.core.util.GamaMap;
 import gama.core.util.GamaMapFactory;
@@ -130,7 +132,7 @@ import gaml.extension.unity.types.UnityPropertiesType;
 						of = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
 						
 			//	type = UnityPropertiesType.UNITYPROPERTIESTYPE_ID,
-				doc = { @doc ("Properties used to send the player agent geometry to Unity - if nil, the player agents are not sent") }),
+				doc = { @doc ("Properties used to send the player agent geometry to Unity - if nil/empty, the player agents are not sent") }),
 
 		@variable (
 				name = AbstractUnityLinker.END_MESSAGE_SYMBOL,
@@ -187,7 +189,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static final String PLAYER_SPECIES = "player_species";
 
 	/** The Constant PLAYER_UNITY_PROPERTIES. */
-	public static final String PLAYER_UNITY_PROPERTIES = "player_unity_property";
+	public static final String PLAYER_UNITY_PROPERTIES = "player_unity_properties";
 
 	/** The Constant MIN_NUMBER_PLAYERS. */
 	public static final String MIN_NUMBER_PLAYERS = "min_num_players";
@@ -290,6 +292,8 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	/** The geometries to follow. */
 	private IMap<String, IShape> geometriesToFollow;
+	
+	private IMap<String, UnityProperties> propertiesForPlayer;
 
 	/**
 	 * Gets the distance selection.
@@ -1088,6 +1092,39 @@ public class AbstractUnityLinker extends GamlAgent {
 		pa.sendMessage(scope, ConstantExpressionDescription.create(mesStr));
 
 	}
+	
+	@action (
+			name = "end_of_game",
+			args = { @arg (
+					name = "mes",
+					type = IType.STRING,
+					doc = @doc ("Message to display for the Unity client"))},
+			doc = { @doc (
+					value = "put an end to the game and restart the game") })
+	public void primEndOfGame(final IScope scope) {
+		currentMessage.clear();
+		String message = scope.getStringArg("mes");
+		IAgent ag = getAgent();
+		IMap<String, Object> toSend = GamaMapFactory.create();
+		Set<String> players = getPlayers(ag).keySet();
+
+		for (String playerName : players) {
+			IAgent player = getPlayers(ag).get(playerName);
+			if (player == null) {
+				getPlayers(ag).remove(playerName);
+				continue;
+			}
+		}
+		if (!getPlayers(ag).isEmpty()) {
+			toSend.put("endOfGame", message);
+			addToCurrentMessage(scope, getPlayers(ag).getKeys(), toSend);
+			sendCurrentMessage(scope);
+		}
+
+		GAMA.pauseFrontmostExperiment(true);
+		GAMA.reloadFrontmostExperiment(true);
+
+	}
 
 	/**
 	 * Prim sent world.
@@ -1115,14 +1152,21 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (getDoSendWorld(getAgent())) {
 
 				IMap<IShape, UnityProperties> geoms = getGeometriesToSend(ag);
-				UnityProperties up = getPlayerUnityProperties(ag).isEmpty() ? null : getPlayerUnityProperties(ag).get(0);
-				if (up !=null && getPlayers(ag).size() > 1) {
+						
+				
+				if (propertiesForPlayer !=null && !propertiesForPlayer.isEmpty() && getPlayers(ag).size() > 1) {
 					if (geoms == null) {
 						geoms = GamaMapFactory.create();
+					} else {
+						geoms = geoms.copy(scope);
 					}
 					for (IAgent p : getPlayers(ag).getValues()) {
-						if (p != player) {
-							geoms.put(ag, up);
+						if (!p.getName().equals(playerName)) {
+							UnityProperties up = propertiesForPlayer.get(p.getName());
+							if (up != null) {
+								geoms.put(p, up);
+								
+							}
 						}
 					}
 				}
@@ -1153,15 +1197,14 @@ public class AbstractUnityLinker extends GamlAgent {
 							!getNewPlayerPosition(ag).get(player.getName()).isEmpty());
 
 				}
-				getGeometriesToSend(ag).clear();
-
 			}
-
-			// toSend.put("position", getNewPlayerPosition(ag).get(player.getName()));
 			addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 
 			doAction1Arg(scope, "after_sending_world", "map_to_send", toSend);
 		}
+		if (getGeometriesToSend(ag) != null)
+			getGeometriesToSend(ag).clear();
+		
 	}
 
 	/**
@@ -1223,11 +1266,12 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("pointsGeom", pointsGeom);
 		if (updatePos) {
 			List<Integer> pos = new ArrayList<>(getNewPlayerPosition(ag).get(player.getName()));
-			System.out.println("pos: " + pos);
-
+			
 			toSend.put("position", pos);
 			getNewPlayerPosition(ag).get(player.getName()).clear();
 		}
+		doAction1Arg(scope, "add_to_send_world", "map_to_send", toSend);
+		
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 
 		doAction1Arg(scope, "after_sending_geometries", "player", player);
@@ -1452,6 +1496,18 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
 		getPlayers(getAgent()).put(id, player);
+		
+		if (propertiesForPlayer == null)
+			propertiesForPlayer = GamaMapFactory.concurrentMap();
+		List<UnityProperties>  props = getPlayerUnityProperties(ag);
+		if (props != null && !props.isEmpty()) {
+			if (getPlayers(ag).size() > props.size()) {
+				int index = scope.getRandom().between(0, props.size()-1);
+				propertiesForPlayer.put(id, props.get(index));
+			} else {
+				propertiesForPlayer.put(id, props.get(getPlayers(ag).size() - 1));
+			}
+		}
 	}
 
 	/**
@@ -1748,11 +1804,10 @@ public class AbstractUnityLinker extends GamlAgent {
 		Integer angle = scope.getIntArg("angle");
 		int precision = getPrecision(ag);
 		Double rot = (Double) thePlayer.getAttribute("player_rotation");
-
 		// if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+
 		// getReadyToMovePlayers(ag));
 		if (getReadyToMovePlayers(ag) != null && getReadyToMovePlayers(ag).contains(thePlayer)) {
-			if (rot != null) { thePlayer.setAttribute("rotation", angle.floatValue() / precision + rot); }
+			if (rot != null) { thePlayer.setAttribute("heading", angle.floatValue() / precision + rot); }
 			if (x != null && y != null) {
 				thePlayer.setLocation(new GamaPoint(x.floatValue() / precision, y.floatValue() / precision,
 						z.floatValue() / precision));
@@ -1868,6 +1923,18 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primAddToSentParameter(final IScope scope) throws GamaRuntimeException {
 
 	}
+	
+	@action (
+			name = "add_to_send_world",
+			args = { @arg (
+					name = "map_to_send",
+					type = IType.MAP,
+					doc = @doc ("data already sent to the client")) },
+			doc = { @doc (
+					value = "add values to the world sent to the Unity Client") })
+	public void primAddToSentWorld(final IScope scope) throws GamaRuntimeException {
+
+	} 
 
 	/**
 	 * Prim send parameters.
@@ -1898,6 +1965,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		worldT.add((int) (scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
 
 		toSend.put("world", worldT);
+
 
 		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);

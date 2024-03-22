@@ -34,7 +34,7 @@ import gama.gaml.types.IType;
  */
 
 @species(name = "abstract_unity_player")
-@vars({ @variable(name = IKeyword.ROTATION, type = IType.FLOAT,
+@vars({ @variable(name = IKeyword.HEADING, type = IType.FLOAT,
 	doc = { @doc ("rotation to apply for the display of the agent in GAMA")}),
 	@variable(name = IKeyword.COLOR, type = IType.COLOR,
 			doc = { @doc ("color of the agent for the display in GAMA")}),
@@ -88,13 +88,13 @@ public class AbstractUnityPlayer extends GamlAgent{
 	public static void setToDisplay(final IAgent agent, final Boolean val) {
 		agent.setAttribute(TO_DISPLAY, val);
 	}
-	@getter (IKeyword.ROTATION)
-	public static Double getRotation(final IAgent agent) {
-		return (Double) agent.getAttribute(IKeyword.ROTATION);
+	@getter (IKeyword.HEADING)
+	public static Double getHeading(final IAgent agent) {
+		return (Double) agent.getAttribute(IKeyword.HEADING);
 	}
-	@setter(IKeyword.ROTATION)
-	public static void setRotation(final IAgent agent, final Double val) {
-		agent.setAttribute(IKeyword.ROTATION, val);
+	@setter(IKeyword.HEADING)
+	public static void setHeading(final IAgent agent, final Double val) {
+		agent.setAttribute(IKeyword.HEADING, val);
 	}
 	
 	@getter (IKeyword.COLOR)
@@ -169,7 +169,7 @@ public class AbstractUnityPlayer extends GamlAgent{
 	}
 	
 	private static IShape getCone(IScope scope, IAgent agent) {
-		Double rotation = getRotation(agent);
+		Double rotation = getHeading(agent);
 		Double cone_amplitude = getConeAmplitude(agent);
 		IShape g = Spatial.Creation.cone(scope, (int)(rotation - cone_amplitude/2),(int)(rotation + cone_amplitude/2));
 		g = Spatial.Operators.inter(scope, g, Spatial.Creation.circle(scope, getConeDistance(agent)));
