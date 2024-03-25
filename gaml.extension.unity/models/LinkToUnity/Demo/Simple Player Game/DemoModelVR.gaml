@@ -35,12 +35,12 @@ species unity_linker parent: abstract_unity_linker {
 	}
 	
 	action define_properties {
-		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,-1.0,-90.0, precision);
+		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,1.0,-90.0, precision);
 		up_car <- geometry_properties("car","car", car_aspect, #ray_interactable, false);
 		unity_properties << up_car;
 		
 		
-		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
+		unity_aspect moto_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,1.0,-90.0, precision);
 		up_moto <- geometry_properties("moto", "moto", moto_aspect,#ray_interactable, false);
 		unity_properties << up_moto;
 		

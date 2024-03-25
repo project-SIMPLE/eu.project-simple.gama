@@ -169,7 +169,7 @@ public class AbstractUnityPlayer extends GamlAgent{
 	}
 	
 	private static IShape getCone(IScope scope, IAgent agent) {
-		Double rotation = getHeading(agent);
+		Double rotation = getHeading(agent) * -1 ;
 		Double cone_amplitude = getConeAmplitude(agent);
 		IShape g = Spatial.Creation.cone(scope, (int)(rotation - cone_amplitude/2),(int)(rotation + cone_amplitude/2));
 		g = Spatial.Operators.inter(scope, g, Spatial.Creation.circle(scope, getConeDistance(agent)));

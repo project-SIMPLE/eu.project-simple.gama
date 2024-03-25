@@ -1381,7 +1381,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = getPlayers(ag).get(scope.getStringArg("id"));
-
+		if (player == null) return;
 		doAction1Arg(scope, "send_parameters", "player", player);
 
 		doAction1Arg(scope, "send_unity_propetries", "player", player);
