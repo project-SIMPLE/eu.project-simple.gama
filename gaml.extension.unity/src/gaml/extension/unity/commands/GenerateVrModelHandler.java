@@ -11,6 +11,8 @@
 package gaml.extension.unity.commands;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -38,9 +40,9 @@ public class GenerateVrModelHandler extends AbstractHandler {
 		final IModel model = editor.getDocument()
 				.readOnly(state -> GamlModelBuilder.getDefaultInstance().compile(state.getURI(), null));
 		if (model == null) return null;
-		final File file = new File(model.getProjectPath() + "/models/" + model.getName() + "-VR.gaml");
-
-		String path = editor.getDocument().getResourceURI().path();
+		File m = new File(model.getFilePath());
+		final File file = new File(model.getFilePath().replace(".gaml", "-VR.gaml"));
+		String path = m.getName();
 		createVRModel(path, model, file);
 		return null;
 	}

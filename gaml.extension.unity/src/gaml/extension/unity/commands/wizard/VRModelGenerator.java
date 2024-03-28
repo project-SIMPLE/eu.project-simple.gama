@@ -81,6 +81,7 @@ public class VRModelGenerator {
 	 */
 	public String BuildVRModel() {
 		StringBuilder modelVR = new StringBuilder("model ").append(modelName).append("\n\n");
+		
 		modelVR.append("import \"").append(modelPath).append("\"\n\n");
 		modelVR.append(UnityLinkerSpecies()).append("\n\n");
 
