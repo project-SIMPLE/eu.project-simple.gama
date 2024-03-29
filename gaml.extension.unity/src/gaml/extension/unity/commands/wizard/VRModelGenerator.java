@@ -32,6 +32,8 @@ public class VRModelGenerator {
 
 	private Map<String, Map<String, String>> definedProperties;
 	
+	private List<String> playerProperties = null;
+	
 	/** The location init. */
 	private GamaPoint locationInit = null;
 
@@ -204,20 +206,7 @@ public class VRModelGenerator {
 		StringBuilder modelUnityLinker = new StringBuilder("species unity_linker parent: abstract_unity_linker {\n");
 		modelUnityLinker.append("\tstring player_species <- string(unity_player);\n");
 
-		if (locationInit != null) {
-			String locationInitStr = "";
-			if (maxNumPlayer <= 0) {
-				locationInitStr += "" + locationInit;
-			} else {
-				boolean first = true;
-				for (int i = 0; i < maxNumPlayer; i++) {
-					locationInitStr += (first ? "" : ",") + locationInit;
-					first = false;
-				}
-			}
-			modelUnityLinker.append("\tlist<point> init_locations <- [").append(locationInitStr).append("];\n");
-
-		}
+		
 
 		if (hasMaxNumberPlayer) {
 			modelUnityLinker.append("\tint max_num_players  <- ").append(maxNumPlayer).append(";\n");
@@ -229,6 +218,26 @@ public class VRModelGenerator {
 		}
 		for (String p : definedProperties.keySet() ) {
 			modelUnityLinker.append("\tunity_property ").append("up_" + p).append(";\n");
+		}
+		
+		if (locationInit != null) {
+			String locationInitStr = "";
+			if (maxNumPlayer <= 0) {
+				locationInitStr += "" + locationInit;
+			} else {
+				boolean first = true;
+				for (int i = 0; i < maxNumPlayer; i++) {
+					locationInitStr += (first ? "" : ",") + locationInit;
+					first = false;
+				}
+			}
+			
+			modelUnityLinker.append("\tlist<point> init_locations <- define_init_locations();\n");
+			modelUnityLinker.append("\n\tlist<point> define_init_locations {\n");
+			modelUnityLinker.append("\t\treturn [").append(locationInitStr).append("];\n");
+			modelUnityLinker.append("\t}\n\n");
+			
+
 		}
 		
 		if (speciesToSend != null && !speciesToSend.isEmpty()) {
@@ -250,6 +259,16 @@ public class VRModelGenerator {
 			if (definedProperties != null && !definedProperties.isEmpty()) {
 				modelUnityLinker.append("\n\t\tdo define_properties;");
 			}
+			if (playerProperties != null && !playerProperties.isEmpty()) {
+				String pp = "";
+				boolean first = true;
+				for(String prop : playerProperties) {
+					pp += (first ? "" : ",") + prop ;
+					first = false;
+				}
+				modelUnityLinker.append("\n\t\tplayer_unity_properties <- [" + pp + "];");
+			}
+				//player_unity_properties <- [ up_lg,up_turtle, up_slime, up_ghost ];
 			if (speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) {
 				for (String sp : speciesToSendStatic.keySet()) {
 					Map<String,String> data = speciesToSendStatic.get(sp);
@@ -567,6 +586,14 @@ public class VRModelGenerator {
 
 	public void setDefinedProperties(Map<String, Map<String, String>> definedProperties) {
 		this.definedProperties = definedProperties;
+	}
+
+	public List<String> getPlayerProperties() {
+		return playerProperties;
+	}
+
+	public void setPlayerProperties(List<String> playerProperties) {
+		this.playerProperties = playerProperties;
 	}
 
 	

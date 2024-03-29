@@ -1,10 +1,10 @@
 model Race_to_token_model_VR
-
-import "/resource/Multi-player%20game/models/Race.gaml"
+ 
+import "Race.gaml"
 
 species unity_linker parent: abstract_unity_linker {
 	string player_species <- string(unity_player);
-	list<point> init_locations <- random_loc();
+	list<point> init_locations <- define_init_locations();
 	
 	int nb_players <- 3;
 	int max_num_players  <- nb_players;
@@ -12,21 +12,21 @@ species unity_linker parent: abstract_unity_linker {
 
 	unity_property up_wall;
 	unity_property up_token;
-	unity_property up_ghost;
+	unity_property up_ghost; 
 	unity_property up_lg;
 	unity_property up_slime;
-	unity_property up_turtle;
+	unity_property up_turtle; 
 	
 	map<string,int> score_players;
 	
 
-	init {
-		do define_properties;
+	init {  
+		//do define_properties;
 		do add_background_geometries(wall,up_wall);
 		player_unity_properties <- [ up_lg,up_turtle, up_slime, up_ghost ];
 		
 	}
-	list<point> random_loc {
+	list<point> define_init_locations {
 		list<point> locs ;
 		list<cell> free_cells <- list(cell);
 		ask token {
@@ -39,6 +39,7 @@ species unity_linker parent: abstract_unity_linker {
 		}
 		return locs;
 	} 
+	
 	
 	map<string, int> rank {
 		map<string, int> ranking;
@@ -66,7 +67,7 @@ species unity_linker parent: abstract_unity_linker {
 			map_to_send["numTokens"] <- length(token);
 		}	
 	}
-	
+	   
 	reflex end_of_game when: empty(token) {
 		map<string, int> ranking <- rank();
 		string mes <- "";
@@ -125,8 +126,6 @@ species unity_linker parent: abstract_unity_linker {
 			
 		}
 	}
-	
-	
 }
 
 species unity_player parent: abstract_unity_player{
