@@ -263,12 +263,11 @@ public class VRModelGenerator {
 				String pp = "";
 				boolean first = true;
 				for(String prop : playerProperties) {
-					pp += (first ? "" : ",") + prop ;
+					pp += (first ? "" : ",") + "up_"+ prop ;
 					first = false;
 				}
 				modelUnityLinker.append("\n\t\tplayer_unity_properties <- [" + pp + "];");
 			}
-				//player_unity_properties <- [ up_lg,up_turtle, up_slime, up_ghost ];
 			if (speciesToSendStatic != null && !speciesToSendStatic.isEmpty()) {
 				for (String sp : speciesToSendStatic.keySet()) {
 					Map<String,String> data = speciesToSendStatic.get(sp);
