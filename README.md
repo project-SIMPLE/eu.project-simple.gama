@@ -21,7 +21,7 @@ A description of the use of the plugin with a tutorial can be found [here](https
 # Installation
 
 ## From GAMA
-To use the plugin from a release version of GAMA (version 1.9.3), it can be installed directly from the plugin installer.
+To use the plugin from a release version of GAMA (version 2024-03), it can be installed directly from the plugin installer.
 Specifically, select "Support/Install new plugins..." from the menu, 
 ![qs1](https://github.com/project-SIMPLE/gaml.extension.unity/raw/2024-06/images/InstallPlugin.png)
 
@@ -29,7 +29,7 @@ then "Work with", copy the address [https://project-simple.github.io/gaml.extens
 ![qs1](https://github.com/project-SIMPLE/gaml.extension.unity/raw/2024-06/images/Plugin.png)
 
 ## Developer mode 
-If you have a developer version of GAMA (branch 1.9.3), you can clone the project directly to add the plugin to GAMA. 
+If you have a developer version of GAMA (branch 2024/06), you can clone the project directly to add the plugin to GAMA. 
 
 
  
