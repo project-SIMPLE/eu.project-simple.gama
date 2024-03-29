@@ -26,7 +26,7 @@ import gama.gaml.types.IType;
 		id = UnityAspectType.UNITYASPECTTYPE_ID,
 		wraps = { UnityAspect.class },
 		concept = { IConcept.TYPE, "Unity" })
-@doc ("a type representing a geometry to send to Unity")
+@doc ("a type representing the way a geometry will be displayed in Unity")
 public class UnityAspectType extends GamaType<UnityAspect> {
 
 	/** The Constant id. */
