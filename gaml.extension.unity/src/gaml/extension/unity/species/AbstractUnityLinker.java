@@ -1008,14 +1008,15 @@ public class AbstractUnityLinker extends GamlAgent {
 				Object c = v.get(CONTENT_MESSAGE);
 				mes += SerialisationOperators.toJson(scope, c, false) + "|||";
 			}
-		}
-		if (!mes.isBlank() && !"{}".equals(mes)) {
-			try {
-				pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
-			} catch (WebsocketNotConnectedException e) {
-				if (!getUseMiddleware(getAgent())) {
-					getPlayers(pa).get(0).dispose();
-					getPlayers(pa).clear();
+		
+			if (!mes.isBlank() && !"{}".equals(mes)) {
+				try {
+					pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
+				} catch (WebsocketNotConnectedException e) {
+					if (!getUseMiddleware(getAgent())) {
+						getPlayers(pa).get(0).dispose();
+						getPlayers(pa).clear();
+					}
 				}
 			}
 		}
@@ -1088,7 +1089,6 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		PlatformAgent pa = GAMA.getPlatformAgent();
 		String mesStr = SerialisationOperators.toJson(scope, message, false);
-
 		pa.sendMessage(scope, ConstantExpressionDescription.create(mesStr));
 
 	}
@@ -1198,7 +1198,8 @@ public class AbstractUnityLinker extends GamlAgent {
 
 				}
 			}
-			addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+			if (! toSend.isEmpty())
+				addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 
 			doAction1Arg(scope, "after_sending_world", "map_to_send", toSend);
 		}
@@ -1494,7 +1495,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		init.put(IKeyword.LOCATION, getPlayerLocationInit(ag).get(players.length(scope)));
 		init.put(IKeyword.NAME, id);
 
-		IAgent player = sp.getPopulation(scope).createAgentAt(scope, 0, init, false, true);
+		IAgent player = sp.getPopulation(scope).createAgentAt(scope, getPlayers(ag).length(scope), init, false, true);
 		getPlayers(getAgent()).put(id, player);
 		
 		if (propertiesForPlayer == null)
@@ -1804,8 +1805,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		Integer angle = scope.getIntArg("angle");
 		int precision = getPrecision(ag);
 		Double rot = (Double) thePlayer.getAttribute("player_rotation");
-		// if ( !getReadyToMovePlayers(ag).isEmpty()) System.out.println("getReadyToMovePlayers(ag): "+
-		// getReadyToMovePlayers(ag));
 		if (getReadyToMovePlayers(ag) != null && getReadyToMovePlayers(ag).contains(thePlayer)) {
 			if (rot != null) { thePlayer.setAttribute("heading", angle.floatValue() / precision + rot); }
 			if (x != null && y != null) {
