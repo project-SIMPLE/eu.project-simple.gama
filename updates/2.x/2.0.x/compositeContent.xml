@@ -2,11 +2,12 @@
 <?compositeMetadataRepository version='1.0.0'?>
 <repository name='&quot;Project SIMPLE - GAMA&apos;s extension Site&quot; 2.0.x' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
   <properties size='2'>
-    <property name='p2.timestamp' value='1709889579041'/>
+    <property name='p2.timestamp' value='1713842331365'/>
     <property name='p2.atomic.composite.loading' value='false'/>
   </properties>
-  <children size='2'>
+  <children size='3'>
     <child location='../../../releases/2.0.0.v20240308-0914'/>
     <child location='../../../releases/2.0.0.v20240308-0915'/>
+    <child location='../../../releases/2.0.0.v20240423-0314'/>
   </children>
 </repository>
