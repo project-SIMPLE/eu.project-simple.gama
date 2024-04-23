@@ -16,14 +16,14 @@ global {
 	float block_size <- 5.0 parameter: true min: 1.0 max: 10.0 step: 1.0;
 	float distance_hostspot <- 10.0 parameter: true min: 1.0 max: 20.0 step: 1.0;
 	geometry free_place ;
-	
+	graph network;
 	init {
 		create static_object with:(location: {5, 50}) {
 			taken_place <- rectangle(10.0, 100.0) at_location {5, 50};
 		}
 		
 		if (nb_blocks > 0) {
-			free_place <- copy(shape) - (block_size/2.0) - (world.location buffer block_size);
+			free_place <- copy(shape) - (block_size) ;
 			ask static_object {
 				free_place <- free_place - taken_place;
 			}
@@ -32,13 +32,26 @@ global {
 				create block {
 					shape <- square(block_size);
 					location <- any_location_in(free_place);
-					free_place <- free_place - shape;
+					free_place <- free_place - (shape + 2.0);
 				}
 			} 
 			
 		}
 		ask block {
 			bounds <- (shape + distance_hostspot) inter free_place;
+		}
+		
+		list<geometry> generated_lines <- generate_pedestrian_network([],[free_place],true,false,5,0.001,true,0.01,0.01,0.0,0.0);
+		
+		create pedestrian_path from: generated_lines  {
+			do initialize bounds:[free_place] distance: min(10.0,(block closest_to self) distance_to self) masked_by: [block] distance_extremity: 1.0;
+		}
+		
+		
+		network <- as_edge_graph(pedestrian_path);
+		
+		ask pedestrian_path {
+			do build_intersection_areas pedestrian_graph: network;
 		}
 		create simple_agentA number: nb_agentsA with: (location:any_location_in(free_place));
 		create simple_agentB number: nb_agentsB with: (location:any_location_in(free_place));
@@ -50,7 +63,11 @@ global {
 	 
 }
 
-
+species pedestrian_path skills: [pedestrian_road]{
+	aspect default {
+		draw shape  color: #red;
+	}	
+}
 
 species block {
 	rgb color <- #black;
@@ -59,6 +76,13 @@ species block {
 	bool is_hotspot <- false;
 	geometry bounds;
 	
+	user_command test_hotspot {
+		if (not is_hotspot) {
+			do become_hotspot;
+		} else {
+			do remove_hotspot;
+		}
+	}
 	action update_hotspots {
 		list<block> hotspots <- block where each.is_hotspot;
 		if (empty(hotspots)) {
@@ -94,44 +118,59 @@ species block {
  
 
 
-species simple_agentA  skills: [moving ] {
-	int index <- 0;
+species simple_agentA  skills: [pedestrian ] {
 	rgb color <- #blue;
-	float amplitude <- 30.0;
 	block my_hot_spot;
 	geometry bounds;
 	point target;
 	path my_path;
 	
+	init {
+		obstacle_consideration_distance <-1.0;
+		pedestrian_consideration_distance <-1.0;
+		shoulder_length <- 2.0;
+		avoid_other <- true;
+		proba_detour <- 0.25;
+			
+		use_geometry_waypoint <- true;
+		tolerance_waypoint<- 0.1;
+		pedestrian_species <- [simple_agentA, simple_agentB];
+		obstacle_species<-[block];
+			
+		pedestrian_model <- "simple";
+		A_pedestrians_SFM <- 1.5;
+		relaxion_SFM <- 2.0;
+		gama_SFM <- 0.35;
+		lambda_SFM <- 2.0;
+		n_prime_SFM <- 3.0;
+		n_SFM <- 2.0;
+	}
+	
 	action choose_target(geometry bds) {
 		target <- any_location_in(bds);
-		int cpt <- 10;
-		loop while: cpt >= 0 and ! (bds covers line([location, target])  ) {
+		
+		if (free_place covers line([location, target])  ) {
 			target <- any_location_in(bds);
-			cpt <- cpt - 1;
-		}
-		if (cpt <= 0) {
-			location <- any_location_in(free_place);
-			target <- location;
+		} else {
+			loop while: (free_place covers line([location, target])) {
+				target <- any_location_in(free_place);
+			}
+			
 		}
 	}
-	reflex move {
-		if (target = nil ){
+	
+	
+	reflex move  {
+		if (final_waypoint = nil) {
 			if (bounds != nil) {
 				do choose_target(bounds);
 			} else {
 				do choose_target(free_place);
 			}
-		}	
-		do goto target: target;
-		if (location = target) {
-			target <- nil;
-		}  
-		if !(location overlaps free_place) {
-			target <- any_location_in(world);
+			do compute_virtual_path pedestrian_graph:network target: target;
 		}
-		
-	}
+		do walk ;
+	}	
 	
 	aspect default {
 		draw triangle(1) rotate:heading +90 color: color ;
@@ -139,9 +178,7 @@ species simple_agentA  skills: [moving ] {
 }
 
 species simple_agentB parent: simple_agentA skills: [moving] {
-	int index <- 1;
-	rgb color <- #green;
-	float amplitude <- 60.0;
+		rgb color <- #green;
 }
 
 species static_object  {
@@ -162,7 +199,8 @@ experiment simple_simulation type: gui autorun: true{
 	
 	output {
 		display map { 
-			
+			species pedestrian_path refresh: false;
+		
 			species simple_agentA;
 			species simple_agentB;
 			species static_object;

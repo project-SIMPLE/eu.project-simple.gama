@@ -8,8 +8,8 @@
 model Race_to_token
 
 global {
-	int size_maze <- 3;
-	int number_tokens <- 1;
+	int size_maze <- 10;
+	int number_tokens <- 20;
 	
 	init {
 		do generate_maze;
