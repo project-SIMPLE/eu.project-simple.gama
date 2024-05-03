@@ -1,7 +1,7 @@
 /**
 * Name: SendAndReceiveMessage
-* Show how to send and recieve a message from Unity 
-* Author: patricktaillandier
+* Show how to send and recieve a message from Unity. It works with the Scene "Assets/Scenes/Code Example/Send Receive Message" from the Unity Template
+* Author: Patrick Taillandier
 * Tags: Unity, messages
 */
 
