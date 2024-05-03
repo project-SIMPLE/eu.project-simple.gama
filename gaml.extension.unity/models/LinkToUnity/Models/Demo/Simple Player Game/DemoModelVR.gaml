@@ -1,10 +1,14 @@
 /**
 * Name: DemoModelVR
-* Based on the internal empty template. 
-* Author: patricktaillandier
-* Tags: 
+* Simple demonstration of a single-player VR experience. In this demo, the player can see cars and motorcycles sent by GAMA. When a car or motorcycle is clicked,
+* the vehicle is removed from the simulation. The player can also see blocks. If the player clicks on a block, it turns red and becomes a hot spot 
+* (vehicles will try to drive near this hot spot). Finally, the player can see a tree (static_agent) and move it (grab).
+* The tree's position will be updated accordingly in the GAMA simulation.
+* It works with the Scene "Assets/Scenes/Single Player Game/Main Scene" from the Unity Template (Scenes to use: Startup Menu, IP Menu, Single Player Game/Main Scene).
+* Author: Patrick Taillandier
+* Author: Patrick Taillandier
+* Tags: Unity, user interaction, single player, grab, ray interactor
 */
-
  
 model DemoModelVR
 

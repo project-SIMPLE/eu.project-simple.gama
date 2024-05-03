@@ -1,3 +1,12 @@
+/**
+* Name: Race_to_token_model_VR
+* Simple demonstration of a multi-player VR experience. In this demo, the players have to collect as much as possible token (treasure chest) in a maze.
+* The player who collected the highest number of tokens is the winner.  
+* It works with the Scene "Assets/Scenes/Multi Player Game/Main Scene" from the Unity Template (Scenes to use: Startup Menu, IP Menu, Multi Player Game/Main Scene, End of Game Menu) 
+* Author: Patrick Taillandier
+* Tags: Unity, user interaction, single player, grab, ray interactor
+*/
+
 model Race_to_token_model_VR
  
 import "Race.gaml"
@@ -6,7 +15,7 @@ species unity_linker parent: abstract_unity_linker {
 	string player_species <- string(unity_player);
 	list<point> init_locations <- define_init_locations();
 	
-	int nb_players <- 3;
+	int nb_players <- 4;
 	int max_num_players  <- nb_players;
 	int min_num_players  <- nb_players;
 
@@ -21,7 +30,7 @@ species unity_linker parent: abstract_unity_linker {
 	
 
 	init {  
-		//do define_properties;
+		do define_properties;
 		do add_background_geometries(wall,up_wall);
 		player_unity_properties <- [ up_lg,up_turtle, up_slime, up_ghost ];
 		

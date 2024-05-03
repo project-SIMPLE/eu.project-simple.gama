@@ -998,7 +998,9 @@ public class AbstractUnityLinker extends GamlAgent {
 		PlatformAgent pa = GAMA.getPlatformAgent();
 		String mes = "";
 		if (getUseMiddleware(getAgent())) {
+			
 			mes = SerialisationOperators.toJson(scope, currentMessage, false);
+			
 			pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
 		} else {
 			Iterator<IMap> it =
@@ -1008,7 +1010,6 @@ public class AbstractUnityLinker extends GamlAgent {
 				Object c = v.get(CONTENT_MESSAGE);
 				mes += SerialisationOperators.toJson(scope, c, false) + "|||";
 			}
-		
 			if (!mes.isBlank() && !"{}".equals(mes)) {
 				try {
 					pa.sendMessage(scope, ConstantExpressionDescription.create(mes));
@@ -1194,7 +1195,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					}
 
 					doAction3Arg(scope, "send_geometries", "player", player, "geoms", geoms, "update_position",
-							!getNewPlayerPosition(ag).get(player.getName()).isEmpty());
+							getNewPlayerPosition(ag) !=null	&& getNewPlayerPosition(ag).get(player.getName()) !=null	&&!getNewPlayerPosition(ag).get(player.getName()).isEmpty());
 
 				}
 			}
@@ -1380,6 +1381,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			doc = { @doc (
 					value = "Wait for the connection of a unity client and send the paramters to the client") })
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
+		
 		IAgent ag = getAgent();
 		IAgent player = getPlayers(ag).get(scope.getStringArg("id"));
 		if (player == null) return;
