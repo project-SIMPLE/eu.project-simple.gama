@@ -15,7 +15,7 @@ species unity_linker parent: abstract_unity_linker {
 	string player_species <- string(unity_player);
 	list<point> init_locations <- define_init_locations();
 	
-	int nb_players <- 4;
+	int nb_players <- 1;
 	int max_num_players  <- nb_players;
 	int min_num_players  <- nb_players;
 

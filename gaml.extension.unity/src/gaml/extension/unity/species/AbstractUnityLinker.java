@@ -294,6 +294,9 @@ public class AbstractUnityLinker extends GamlAgent {
 	private IMap<String, IShape> geometriesToFollow;
 	
 	private IMap<String, UnityProperties> propertiesForPlayer;
+	
+
+	private IList<String> playersInitialized;
 
 	/**
 	 * Gets the distance selection.
@@ -923,6 +926,18 @@ public class AbstractUnityLinker extends GamlAgent {
 		act.setRuntimeArgs(scope, args);
 		return act.executeOn(scope);
 	}
+	private Object doAction4Arg(final IScope scope, final String actionName, final String argName1,
+			final Object ArgVal1, final String argName2, final Object ArgVal2, final String argName3,
+			final Object ArgVal3, final String argName4, final Object ArgVal4) {
+		Arguments args = new Arguments();
+		args.put(argName1, ConstantExpressionDescription.create(ArgVal1));
+		args.put(argName2, ConstantExpressionDescription.create(ArgVal2));
+		args.put(argName3, ConstantExpressionDescription.create(ArgVal3));
+		args.put(argName4, ConstantExpressionDescription.create(ArgVal4));
+		WithArgs act = getAgent().getSpecies().getAction(actionName);
+		act.setRuntimeArgs(scope, args);
+		return act.executeOn(scope);
+	}
 
 	@Override
 	public Object _init_(final IScope scope) {
@@ -976,7 +991,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					interactionWithPlayer(scope, ag);
 				}
 				// if(getInitialized(ag)) {
-				if (getDoSendWorld(ag)) { doActionNoArg(scope, "send_world"); }
+				if (getDoSendWorld(ag) && !getPlayers(ag).isEmpty())  { doActionNoArg(scope, "send_world"); }
 
 				// }
 
@@ -1145,6 +1160,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		Set<String> players = getPlayers(ag).keySet();
 
 		for (String playerName : players) {
+			if (playersInitialized == null || !playersInitialized.contains(playerName)) continue;
 			IAgent player = getPlayers(ag).get(playerName);
 			if (player == null) {
 				getPlayers(ag).remove(playerName);
@@ -1194,8 +1210,8 @@ public class AbstractUnityLinker extends GamlAgent {
 						for (IShape s : geomsPl) { geoms.put(s, geoms2.get(s)); }
 					}
 
-					doAction3Arg(scope, "send_geometries", "player", player, "geoms", geoms, "update_position",
-							getNewPlayerPosition(ag) !=null	&& getNewPlayerPosition(ag).get(player.getName()) !=null	&&!getNewPlayerPosition(ag).get(player.getName()).isEmpty());
+					doAction4Arg(scope, "send_geometries", "player", player, "geoms", geoms, "update_position",
+							getNewPlayerPosition(ag) !=null	&& getNewPlayerPosition(ag).get(player.getName()) !=null	&&!getNewPlayerPosition(ag).get(player.getName()).isEmpty(), "is_init", false);
 
 				}
 			}
@@ -1228,6 +1244,10 @@ public class AbstractUnityLinker extends GamlAgent {
 							type = IType.BOOL,
 							doc = @doc ("Has the player to be sent to Unity?")),
 					@arg (
+							name = "is_init",
+							type = IType.BOOL,
+							doc = @doc ("send the geometries for the initialization?")),
+					@arg (
 							name = "geoms",
 							type = IType.MAP,
 							doc = @doc ("Map of geometry to send (geometry::unity_property)")) },
@@ -1236,6 +1256,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IAgent player = (IAgent) scope.getArg("player");
+		Boolean isInit = scope.getBoolArg("is_init");
 		Boolean updatePos = scope.getBoolArg("update_position");
 		IMap<IShape, UnityProperties> geoms = (IMap<IShape, UnityProperties>) scope.getArg("geoms");
 		IMap<String, Object> toSend = GamaMapFactory.create();
@@ -1262,7 +1283,8 @@ public class AbstractUnityLinker extends GamlAgent {
 			}
 		}
 		toSend.put("pointsLoc", pointsLoc);
-
+		toSend.put("isInit", isInit);
+		
 		toSend.put("names", names);
 		toSend.put("propertyID", propertyID);
 		toSend.put("pointsGeom", pointsGeom);
@@ -1383,19 +1405,22 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentInitData(final IScope scope) throws GamaRuntimeException {
 		
 		IAgent ag = getAgent();
-		IAgent player = getPlayers(ag).get(scope.getStringArg("id"));
+		String playerId = scope.getStringArg("id");
+		IAgent player = getPlayers(ag).get(playerId);
 		if (player == null) return;
 		doAction1Arg(scope, "send_parameters", "player", player);
 
 		doAction1Arg(scope, "send_unity_propetries", "player", player);
 		doAction1Arg(scope, "send_player_position", "player", player);
 
-		doAction3Arg(scope, "send_geometries", "player", player, "geoms", getBackgroundGeometries(ag),
-				"update_position", true);
+		doAction4Arg(scope, "send_geometries", "player", player, "geoms", getBackgroundGeometries(ag),
+				"update_position", true, "is_init", true);
 
-		doActionNoArg(scope, "send_world");
+		//doActionNoArg(scope, "send_world");
 
 		startSimulation(scope);
+		if (playersInitialized == null) playersInitialized = GamaListFactory.create();
+		playersInitialized.add(playerId);
 	}
 
 	/**
