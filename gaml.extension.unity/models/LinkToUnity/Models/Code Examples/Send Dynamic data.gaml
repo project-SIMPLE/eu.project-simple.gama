@@ -67,7 +67,7 @@ species unity_linker parent: abstract_unity_linker {
 		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
 		unity_aspect car_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Car",30,0.2,1.0,-90.0, precision);
 		
-		//define the up_car unity property, with the name "car" for the agents, no specific layer, the car_aspect unity aspect, no interaction, and the agents location are not sent back 
+		//define the up_car unity property, with the name "car", no specific layer, the car_aspect unity aspect, no interaction, and the agents location are not sent back 
 		//to GAMA. 
 		up_car<- geometry_properties("car", nil, car_aspect, #no_interaction, false);
 		
@@ -78,7 +78,7 @@ species unity_linker parent: abstract_unity_linker {
 		//define a unity_aspect called geom_aspect that will display the agents using their geometries, with a height of 1 meter, the gray color, and we use the default precision. 
 		unity_aspect geom_aspect <- geometry_aspect(1.0, #gray, precision);
 		
-		//define the up_geom unity property, with the name "circle" for the agents, no specific layer, no interaction, and the agents location are not sent back 
+		//define the up_geom unity property, with the name "circle", no specific layer, no interaction, and the agents location are not sent back 
 		//to GAMA. 
 		up_geom <- geometry_properties("circle", nil, geom_aspect, #no_interaction, false);
 		

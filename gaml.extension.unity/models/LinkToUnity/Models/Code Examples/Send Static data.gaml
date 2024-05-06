@@ -74,7 +74,7 @@ species unity_linker parent: abstract_unity_linker {
 		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
 		unity_aspect tree_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Nature/PREFABS/Plants/SM_Arbre_001",2.0,0,1.0,0.0, precision);
 		
-		//define the up_tree unity property, with the name "tree" for the agents, no specific layer, no interaction, and the agents location are not sent back 
+		//define the up_tree unity property, with the name "tree", no specific layer, no interaction, and the agents location are not sent back 
 		//to GAMA. 
 		up_tree<- geometry_properties("tree", nil, tree_aspect, #no_interaction, false);
 		
@@ -85,7 +85,7 @@ species unity_linker parent: abstract_unity_linker {
 		//define a unity_aspect called geom_aspect that will display the agents using their geometries, with a height of 10 meters, the gray color, and we use the default precision. 
 		unity_aspect geom_aspect <- geometry_aspect(10.0, #gray, precision);
 		
-		//define the up_geom unity property, with the name "polygon" for the agents, no specific layer, no interaction, and the agents location are not sent back 
+		//define the up_geom unity property, with the name "polygon", no specific layer, no interaction, and the agents location are not sent back 
 		//to GAMA. 
 		up_geom <- geometry_properties("polygon", nil, geom_aspect, #no_interaction, false);
 		
