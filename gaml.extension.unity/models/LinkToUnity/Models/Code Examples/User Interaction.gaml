@@ -94,8 +94,10 @@ species unity_linker parent: abstract_unity_linker {
 	//action that defines the different unity properties
 	action define_properties {
 		
-		//define a unity_aspect called gray_square_aspect that will display the agents using their geometries, with a height of 2 meters, the gray color, and we use the default precision. 
-		unity_aspect gray_square_aspect <- geometry_aspect(2.0, #gray, precision);
+		//define a unity_aspect called gray_square_aspect that will display in Unity the agents with the Gray Cube prefab, with a scale of 1.0, a y-offset of 0.5, 
+		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		unity_aspect gray_square_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/Gray Cube",1.0,0.5,1.0,0.0, precision);
+		
 		
 		//define the up_no_interaction unity property, with the name "no interaction", no specific layer, the gray_square_aspect aspect, no interaction, and the agents location are not sent back 
 		//to GAMA. 
@@ -105,8 +107,11 @@ species unity_linker parent: abstract_unity_linker {
 		unity_properties << up_no_interaction;
 		
 		
-		//define a unity_aspect called gray_square_aspect that will display the agents using their geometries, with a height of 2 meters, the yellow color, and we use the default precision. 
-		unity_aspect yellow_square_aspect <- geometry_aspect(2.0, #yellow, precision);
+		//define a unity_aspect called gray_square_aspect that will display in Unity the agents with the Yellow Cube prefab, with a scale of 1.0, a y-offset of 0.5, 
+		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		unity_aspect yellow_square_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/Yellow Cube",1.0,0.5,1.0,0.0, precision);
+		
+		//unity_aspect yellow_square_aspect <- geometry_aspect(2.0, #yellow, precision);
 		
 		//define the up_collider unity property, with the name "collider", no specific layer, the yellow_square_aspect aspect, a collider interaction, and the agents location are not sent back 
 		//to GAMA. 
@@ -116,8 +121,10 @@ species unity_linker parent: abstract_unity_linker {
 		unity_properties << up_collider;
 	
 	
-		//define a unity_aspect called gray_square_aspect that will display the agents using their geometries, with a height of 2 meters, the green color, and we use the default precision. 
-		unity_aspect green_square_aspect <- geometry_aspect(2.0, #green, precision);
+		//define a unity_aspect called gray_square_aspect that will display in Unity the agents with the Green Cube prefab, with a scale of 1.0, a y-offset of 0.5, 
+		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		unity_aspect green_square_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/Green Cube",1.0,0.5,1.0,0.0, precision);
+		
 		
 		//define the up_collider unity property, with the name "collider", no specific layer, the green_square_aspect aspect, the possibility to interact with the objects through the ray interactor, and the agents location are not sent back 
 		//to GAMA. 
@@ -127,12 +134,13 @@ species unity_linker parent: abstract_unity_linker {
 		unity_properties << up_ray_interaction;
 	
 	
-		//define a unity_aspect called gray_square_aspect that will display the agents using their geometries, with a height of 2 meters, the pink color, and we use the default precision. 
-		unity_aspect pink_square_aspect <- geometry_aspect(2.0, #pink, precision);
+		//define a unity_aspect called gray_square_aspect that will display in Unity the agents with the Pink Cube prefab, with a scale of 1.0, a y-offset of 0.5, 
+		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		unity_aspect pink_square_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/Pink Cube",1.0,0.5,1.0,0.0, precision);
 		
 		//define the up_grab_interaction unity property, with the name "grab interaction", no specific layer, the pink_square_aspect aspect, the possibility to grab the object, and the agents location are sent back 
 		//to GAMA. 
-		up_grab_interaction <- geometry_properties("grab interaction", nil, pink_square_aspect, #grabable, false);
+		up_grab_interaction <- geometry_properties("grab interaction", nil, pink_square_aspect, #grabable, true);
 		
 		// add the up_geom up_grab_interaction to the list of unity_properties
 		unity_properties << up_grab_interaction;
@@ -157,7 +165,37 @@ species unity_linker parent: abstract_unity_linker {
 
 
 //species used to represent an unity player, with the default attributes. It has to inherit from the built-in species asbtract_unity_player
-species unity_player parent: abstract_unity_player;
+species unity_player parent: abstract_unity_player {
+	//size of the player in GAMA
+	float player_size <- 1.0;
+
+	//color of the player in GAMA
+	rgb color <- #red ;
+	
+	//vision cone distance in GAMA
+	float cone_distance <- 10.0 * player_size;
+	
+	//vision cone amplitude in GAMA
+	float cone_amplitude <- 90.0;
+
+	//rotation to apply from the heading of Unity to GAMA
+	float player_rotation <- 90.0;
+	
+	//display the player
+	bool to_display <- true;
+	
+	
+	//default aspect to display the player as a circle with its cone of vision
+	aspect default {
+		if to_display {
+			if selected {
+				 draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
+			}
+			draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;
+			draw player_perception_cone() color: rgb(color, 0.5);
+		}
+	}
+}
 
 
 experiment main type: gui {

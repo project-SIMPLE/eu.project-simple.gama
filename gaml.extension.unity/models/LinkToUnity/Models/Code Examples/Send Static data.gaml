@@ -34,7 +34,7 @@ global {
 
 species static_punctual_agent {
 	aspect default {
-		draw circle(10) color: #red;
+		draw circle(10) color: #green;
 	}
 }
 
@@ -53,6 +53,10 @@ species unity_linker parent: abstract_unity_linker {
 
 	//in this model, no information will be automatically sent to the Player at every step, so we set do_info_world to false
 	bool do_send_world <- false;
+	
+	
+	//initial location of the player
+	list<point> init_locations <- [world.location];
 	
 	
 	init {
@@ -94,9 +98,38 @@ species unity_linker parent: abstract_unity_linker {
 	}
 }
 
-
 //species used to represent an unity player, with the default attributes. It has to inherit from the built-in species asbtract_unity_player
-species unity_player parent: abstract_unity_player;
+species unity_player parent: abstract_unity_player {
+	//size of the player in GAMA
+	float player_size <- 1.0;
+
+	//color of the player in GAMA
+	rgb color <- #red ;
+	
+	//vision cone distance in GAMA
+	float cone_distance <- 10.0 * player_size;
+	
+	//vision cone amplitude in GAMA
+	float cone_amplitude <- 90.0;
+
+	//rotation to apply from the heading of Unity to GAMA
+	float player_rotation <- 90.0;
+	
+	//display the player
+	bool to_display <- true;
+	
+	
+	//default aspect to display the player as a circle with its cone of vision
+	aspect default {
+		if to_display {
+			if selected {
+				 draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
+			}
+			draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;
+			draw player_perception_cone() color: rgb(color, 0.5);
+		}
+	}
+}
 
 
 experiment main type: gui {

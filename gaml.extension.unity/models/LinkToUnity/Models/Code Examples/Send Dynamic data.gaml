@@ -17,7 +17,7 @@ global {
 	
  	init {
  		create dynamic_geometry_agent number: 10 {
- 			shape <- circle(5);
+ 			shape <- square(5);
  		}
  		
  		create dynamic_punctual_agent number: 10 ;
@@ -54,6 +54,9 @@ species unity_linker parent: abstract_unity_linker {
 	//in this model, the agents location and heading will be sent to the Players at every step, so we set do_info_world to true
 	bool do_send_world <- true;
 	
+	//initial location of the player
+	list<point> init_locations <- [world.location];
+	
 	
 	init {
 		//define the unity properties
@@ -89,14 +92,43 @@ species unity_linker parent: abstract_unity_linker {
 	reflex send_agents when: not empty(unity_player) {
 		do add_geometries_to_send(dynamic_punctual_agent,up_car);
 		do add_geometries_to_send(dynamic_geometry_agent,up_geom);
+		
+		
 	}
 }
 
-
 //species used to represent an unity player, with the default attributes. It has to inherit from the built-in species asbtract_unity_player
-species unity_player parent: abstract_unity_player;
+species unity_player parent: abstract_unity_player {
+	//size of the player in GAMA
+	float player_size <- 1.0;
 
+	//color of the player in GAMA
+	rgb color <- #red ;
+	
+	//vision cone distance in GAMA
+	float cone_distance <- 10.0 * player_size;
+	
+	//vision cone amplitude in GAMA
+	float cone_amplitude <- 90.0;
 
+	//rotation to apply from the heading of Unity to GAMA
+	float player_rotation <- 90.0;
+	
+	//display the player
+	bool to_display <- true;
+	
+	
+	//default aspect to display the player as a circle with its cone of vision
+	aspect default {
+		if to_display {
+			if selected {
+				 draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
+			}
+			draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;
+			draw player_perception_cone() color: rgb(color, 0.5);
+		}
+	}
+}
 experiment main type: gui {
 	output {
 		display map {
@@ -110,7 +142,7 @@ experiment main type: gui {
 //The unity type allows to create at the initialization one unity_linker agent
 experiment vr_xp parent:main autorun: false type: unity {
 	//minimal time between two simulation step
-	float minimum_cycle_duration <- 0.25;
+	float minimum_cycle_duration <- 0.05;
 
 	//name of the species used for the unity_linker
 	string unity_linker_species <- string(unity_linker);

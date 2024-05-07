@@ -23,7 +23,7 @@ species unity_linker parent: abstract_unity_linker {
 		//send a message to all players; the message should be a map (key: name of the attribute; value: value of this attribute)
 		//the name of the attribute should be the same as the variable in the serialized class in Unity (c# script) 
 		write "Send message: "  + cycle;
-		do send_message players: unity_player as list mes: ["cycle:":: cycle];
+		do send_message players: unity_player as list mes: ["cycle":: cycle];
 	}
 	
 	//action that will be called by the Unity player to send a message to the GAMA simulation
