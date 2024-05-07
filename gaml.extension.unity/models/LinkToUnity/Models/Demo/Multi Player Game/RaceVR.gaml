@@ -11,31 +11,32 @@ model Race_to_token_model_VR
  
 import "Race.gaml"
 
+
 species unity_linker parent: abstract_unity_linker {
 	string player_species <- string(unity_player);
-	list<point> init_locations <- define_init_locations();
+	list<point> init_locations <- random_loc();
 	
-	int nb_players <- 1;
+	int nb_players <-1;
 	int max_num_players  <- nb_players;
 	int min_num_players  <- nb_players;
 
 	unity_property up_wall;
 	unity_property up_token;
-	unity_property up_ghost; 
+	unity_property up_ghost;
 	unity_property up_lg;
 	unity_property up_slime;
-	unity_property up_turtle; 
+	unity_property up_turtle;
 	
 	map<string,int> score_players;
 	
 
-	init {  
+	init {
 		do define_properties;
 		do add_background_geometries(wall,up_wall);
 		player_unity_properties <- [ up_lg,up_turtle, up_slime, up_ghost ];
 		
 	}
-	list<point> define_init_locations {
+	list<point> random_loc {
 		list<point> locs ;
 		list<cell> free_cells <- list(cell);
 		ask token {
@@ -48,7 +49,6 @@ species unity_linker parent: abstract_unity_linker {
 		}
 		return locs;
 	} 
-	
 	
 	map<string, int> rank {
 		map<string, int> ranking;
@@ -76,7 +76,7 @@ species unity_linker parent: abstract_unity_linker {
 			map_to_send["numTokens"] <- length(token);
 		}	
 	}
-	   
+	
 	reflex end_of_game when: empty(token) {
 		map<string, int> ranking <- rank();
 		string mes <- "";
@@ -100,23 +100,23 @@ species unity_linker parent: abstract_unity_linker {
 		up_wall <- geometry_properties("wall","",wall_aspect,#collider,false);
 		unity_properties << up_wall;
 
-		unity_aspect token_aspect <- prefab_aspect("Prefabs/Visual Prefabs/City/Vehicles/Scooter",30,0.2,-1.0,-90.0, precision);
+		unity_aspect token_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Chest/Death_Chest",1,0.63,1.0,0.0, precision);
 		up_token <- geometry_properties("token","",token_aspect,#ray_interactable,false);
 		unity_properties << up_token;
 
-		unity_aspect ghost_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Ghost",2.0,0.0,1.0,0.0,precision);
+		unity_aspect ghost_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Ghost",2.0,0.0,-1.0,90.0,precision);
 		up_ghost <- geometry_properties("ghost","",ghost_aspect,new_geometry_interaction(true, false,false,[]),false);
 		unity_properties << up_ghost; 
 		
-		unity_aspect slime_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Slime",2.0,0.0,1.0,0.0,precision);
+		unity_aspect slime_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Slime",2.0,0.0,-1.0,90.0,precision);
 		up_slime <- geometry_properties("slime","",slime_aspect,new_geometry_interaction(true, false,false,[]),false);
 		unity_properties << up_slime; 
 		
-		unity_aspect lg_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/LittleGhost",2.0,0.0,1.0,0.0,precision);
+		unity_aspect lg_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/LittleGhost",2.0,0.0,-1.0,90.0,precision);
 		up_lg <- geometry_properties("little_ghost","",lg_aspect,new_geometry_interaction(true, false,false,[]),false);
 		unity_properties << up_lg; 
 		
-		unity_aspect turtle_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/TurtleShell",2.0,0.0,1.0,0.0,precision);
+		unity_aspect turtle_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/TurtleShell",2.0,0.0,-1.0,90.0,precision);
 		up_turtle <- geometry_properties("turtle","",turtle_aspect,new_geometry_interaction(true, false,false,[]),false);
 		unity_properties << up_turtle; 
 	}
@@ -135,6 +135,8 @@ species unity_linker parent: abstract_unity_linker {
 			
 		}
 	}
+	
+	
 }
 
 species unity_player parent: abstract_unity_player{
@@ -144,6 +146,8 @@ species unity_player parent: abstract_unity_player{
 	float cone_amplitude <- 90.0;
 	float player_rotation <- 90.0;
 	bool to_display <- true;
+	
+	
 	aspect default {
 		if to_display {
 			if selected {

@@ -18,7 +18,7 @@ import "DemoModel.gaml"
  
 
 species unity_linker parent: abstract_unity_linker {
-	list<point> init_locations <- [{50.0, 50.0}, {60.0, 60.0}];
+	list<point> init_locations <- [{50.0, 50.0}];
 	string player_species <- string(unity_player);
 	int min_num_players <- 1;
 	int max_num_players <- 4; 
@@ -102,7 +102,7 @@ species unity_player parent: abstract_unity_player{
 	float player_agents_min_dist <- 0.0;
 	
 	float player_size <- 3.0;
-	rgb color <- #red;
+	rgb color <- #blue;
 	float cone_distance <- 10.0 * player_size;
 	float cone_amplitude <- 90.0;
 	float player_rotation <- 90.0;
