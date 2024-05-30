@@ -183,7 +183,7 @@ experiment vr_xp parent:begin_race autorun: false type: unity {
 		 display map_VR parent:map{
 			 species unity_player;
 			 event #mouse_down{
-				 float t <- machine_time;
+				 float t <- gama.machine_time;
 				 if (t - t_ref) > 500 {
 					 ask unity_linker {
 						 move_player_event <- true;

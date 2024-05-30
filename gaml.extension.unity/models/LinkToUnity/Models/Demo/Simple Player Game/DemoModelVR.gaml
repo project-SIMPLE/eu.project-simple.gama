@@ -14,8 +14,8 @@ model DemoModelVR
 
 import "DemoModel.gaml"
 
- 
- 
+  
+  
 
 species unity_linker parent: abstract_unity_linker {
 	list<point> init_locations <- [{50.0, 50.0}];
@@ -153,7 +153,7 @@ experiment vr_xp parent: simple_simulation autorun: false type: unity  {
 		display displayVR parent: map  {
 			species unity_player;
 			event #mouse_down  {
-				float t <- machine_time;
+				float t <- gama.machine_time;
 				if (t - t_ref) > 500 {
 					ask unity_linker {
 						move_player_event <- true;

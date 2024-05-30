@@ -62,7 +62,7 @@ species unity_linker parent: abstract_unity_linker {
 		//define the unity properties
 		do define_properties;
 	}
-	
+	 
 	
 	//action that defines the different unity properties
 	action define_properties {
@@ -177,7 +177,7 @@ experiment vr_xp parent:main autorun: false type: unity {
 		display displayVR parent: map  {
 			species unity_player;
 			event #mouse_down  {
-				float t <- machine_time;
+				float t <- gama.machine_time;
 				if (t - t_ref) > 500 {
 					ask unity_linker {
 						move_player_event <- true;

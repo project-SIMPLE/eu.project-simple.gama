@@ -139,7 +139,7 @@ public class VRModelGenerator {
 			modelExp.append("\t\t\t species unity_player;\n");
 			modelExp.append("\t\t\t event #mouse_down{\n");
 
-			modelExp.append("\t\t\t\t float t <- machine_time;\n");
+			modelExp.append("\t\t\t\t float t <- gama.machine_time;\n");
 			modelExp.append("\t\t\t\t if (t - t_ref) > 500 {\n");
 
 			modelExp.append("\t\t\t\t\t ask unity_linker {\n");

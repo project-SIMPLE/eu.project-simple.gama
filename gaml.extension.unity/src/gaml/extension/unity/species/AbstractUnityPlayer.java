@@ -26,7 +26,9 @@ import gama.core.metamodel.shape.IShape;
 import gama.core.runtime.IScope;
 import gama.core.runtime.exceptions.GamaRuntimeException;
 import gama.core.util.GamaColor;
-import gama.gaml.operators.Spatial;
+import gama.gaml.operators.spatial.SpatialCreation;
+import gama.gaml.operators.spatial.SpatialOperators;
+import gama.gaml.operators.spatial.SpatialTransformations;
 import gama.gaml.types.IType;
 
 /**
@@ -171,9 +173,9 @@ public class AbstractUnityPlayer extends GamlAgent{
 	private static IShape getCone(IScope scope, IAgent agent) {
 		Double rotation = getHeading(agent) * -1 ;
 		Double cone_amplitude = getConeAmplitude(agent);
-		IShape g = Spatial.Creation.cone(scope, (int)(rotation - cone_amplitude/2),(int)(rotation + cone_amplitude/2));
-		g = Spatial.Operators.inter(scope, g, Spatial.Creation.circle(scope, getConeDistance(agent)));
-		g = Spatial.Transformations.translated_by(scope, g, new GamaPoint(0,0,4.9));
+		IShape g = SpatialCreation.cone(scope, (int)(rotation - cone_amplitude/2),(int)(rotation + cone_amplitude/2));
+		g = SpatialOperators.inter(scope, g, SpatialCreation.circle(scope, getConeDistance(agent)));
+		g = SpatialTransformations.translated_by(scope, g, new GamaPoint(0,0,4.9));
 		return g;
 		
 	}

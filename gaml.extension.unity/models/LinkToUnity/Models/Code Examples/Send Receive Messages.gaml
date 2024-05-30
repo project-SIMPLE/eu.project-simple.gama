@@ -1,6 +1,6 @@
 /**
 * Name: SendAndReceiveMessage
-* Show how to send and recieve a message from Unity. It works with the Scene "Assets/Scenes/Code Example/Send Receive Message" from the Unity Template
+* Show how to send and receive a message from Unity. It works with the Scene "Assets/Scenes/Code Example/Send Receive Message" from the Unity Template
 * Author: Patrick Taillandier
 * Tags: Unity, messages
 */
@@ -17,7 +17,7 @@ species unity_linker parent: abstract_unity_linker {
 	bool do_send_world <- false;
 	
 	
-	//reflex activated only whhen there is at least one player and every 100 cycles
+	//reflex activated only when there is at least one player and every 100 cycles
 	reflex send_message when: every(100 #cycle) and not empty(unity_player){
 		
 		//send a message to all players; the message should be a map (key: name of the attribute; value: value of this attribute)

@@ -11,7 +11,6 @@
 package gaml.extension.unity.species;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import gama.core.metamodel.shape.IShape;
 import gama.core.runtime.GAMA;
 import gama.core.runtime.IScope;
 import gama.core.runtime.exceptions.GamaRuntimeException;
-import gama.core.util.GamaColor;
 import gama.core.util.GamaListFactory;
 import gama.core.util.GamaMap;
 import gama.core.util.GamaMapFactory;
@@ -48,10 +46,9 @@ import gama.core.util.IMap;
 import gama.extension.serialize.gaml.SerialisationOperators;
 import gama.gaml.descriptions.ConstantExpressionDescription;
 import gama.gaml.operators.Cast;
-import gama.gaml.operators.Spatial;
-import gama.gaml.operators.Spatial.Punctal;
-import gama.gaml.operators.Spatial.Queries;
-import gama.gaml.operators.Spatial.Transformations;
+import gama.gaml.operators.spatial.SpatialPunctal;
+import gama.gaml.operators.spatial.SpatialQueries;
+import gama.gaml.operators.spatial.SpatialTransformations;
 import gama.gaml.species.ISpecies;
 import gama.gaml.statements.Arguments;
 import gama.gaml.statements.IStatement.WithArgs;
@@ -971,7 +968,7 @@ public class AbstractUnityLinker extends GamlAgent {
 						.filter(a -> (Boolean) a.getAttribute("selected")).findFirst();
 				if (selected.isPresent()) { doAction2Arg(scope, "move_player", "player", selected.get(), "loc", pt); }
 			} else {
-				IAgent player = (IAgent) Queries.closest_to(scope, ags, pt);
+				IAgent player = (IAgent) SpatialQueries.closest_to(scope, ags, pt);
 
 				player.setAttribute(AbstractUnityPlayer.SELECTED,
 						!((Boolean) player.getAttribute(AbstractUnityPlayer.SELECTED)));
@@ -1089,7 +1086,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSentMessage(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		IList<IAgent> players = (IList) scope.getListArg("players");
-		IMap mes = (IMap) scope.getArg("mes");
+		IMap mes = (IMap) scope.getArg("mes", IType.MAP);
 
 		IMap message = GamaMapFactory.create();
 		message.put(CONTENTS, GamaListFactory.create());
@@ -1255,10 +1252,10 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "send the background geometries to the Unity client") })
 	public void primSentGeometries(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		Boolean isInit = scope.getBoolArg("is_init");
 		Boolean updatePos = scope.getBoolArg("update_position");
-		IMap<IShape, UnityProperties> geoms = (IMap<IShape, UnityProperties>) scope.getArg("geoms");
+		IMap<IShape, UnityProperties> geoms = (IMap<IShape, UnityProperties>) scope.getArg("geoms", IType.MAP);
 		IMap<String, Object> toSend = GamaMapFactory.create();
 		IList<Integer> posT = GamaListFactory.create(Types.INT);
 		int precision = getPrecision(ag);
@@ -1322,7 +1319,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "Action called by the send_world action that returns the message to send to Unity") })
 	public IMap primMessageGeomsShape(final IScope scope) throws GamaRuntimeException {
 		IList<Integer> vals = GamaListFactory.create();
-		IShape geom = (IShape) scope.getArg("geom");
+		IShape geom = (IShape) scope.getArg("geom", IType.GEOMETRY);
 		int precision = getPrecision(getAgent());
 
 		for (GamaPoint pt : geom.getPoints()) {
@@ -1364,7 +1361,7 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "Action called by the send_world action that returns the message to send to Unity") })
 	public IMap primMessageGeoms(final IScope scope) throws GamaRuntimeException {
 		IList<Integer> vals = GamaListFactory.create();
-		IShape geom = (IShape) scope.getArg("geom");
+		IShape geom = (IShape) scope.getArg("geom", IType.GEOMETRY);
 		int precision = getPrecision(getAgent());
 		vals.add((int) (geom.getLocation().x * precision));
 		vals.add((int) (geom.getLocation().y * precision));
@@ -1517,7 +1514,7 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		Map<String, Object> init = GamaMapFactory.create();
 		if (getPlayerLocationInit(ag).size() <= players.length(scope)) {
-			getPlayerLocationInit(ag).add(Punctal.any_location_in(scope, scope.getSimulation()));
+			getPlayerLocationInit(ag).add(SpatialPunctal.any_location_in(scope, scope.getSimulation()));
 		}
 		init.put(IKeyword.LOCATION, getPlayerLocationInit(ag).get(players.length(scope)));
 		init.put(IKeyword.NAME, id);
@@ -1563,7 +1560,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries"));
 		IAgent ag = getAgent();
 		Map gb = getBackgroundGeometries(ag);
-		UnityProperties property = (UnityProperties) scope.getArg("property");
+		UnityProperties property = (UnityProperties) scope.getArg("property",UnityPropertiesType.UNITYPROPERTIESTYPE_ID);
 		if (geometriesToFollow == null) { geometriesToFollow = GamaMapFactory.create(); }
 		for (IShape s : geometries) {
 			gb.put(s, property);
@@ -1597,7 +1594,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		IList<IShape> geometries = Cast.asList(scope, scope.getListArg("geometries"));
 		IAgent ag = getAgent();
 		Map gts = getGeometriesToSend(ag);
-		UnityProperties property = (UnityProperties) scope.getArg("property");
+		UnityProperties property = (UnityProperties) scope.getArg("property", UnityPropertiesType.UNITYPROPERTIESTYPE_ID);
 		if (geometriesToFollow == null) { geometriesToFollow = GamaMapFactory.create(); }
 		for (IShape s : geometries) {
 			gts.put(s, property);
@@ -1681,13 +1678,13 @@ public class AbstractUnityLinker extends GamlAgent {
 			doc = { @doc (
 					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a max distance to the player") })
 	public IList<IShape> primFilterDistance(final IScope scope) throws GamaRuntimeException {
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		IList<IShape> geoms = GamaListFactory.create();
-		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
+		geoms.addAll((IList<IShape>) scope.getArg("geometries", IType.GEOMETRY));
 
 		Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_PERCEPTION_RADIUS);
-		return (IList<IShape>) Spatial.Queries.overlapping(scope, geoms,
-				Transformations.enlarged_by(scope, player, dist));
+		return (IList<IShape>) SpatialQueries.overlapping(scope, geoms,
+				SpatialTransformations.enlarged_by(scope, player, dist));
 	}
 
 	/**
@@ -1713,16 +1710,16 @@ public class AbstractUnityLinker extends GamlAgent {
 			doc = { @doc (
 					value = "Action called by the send_world action that returns the sub-list of geometries to send to Unity from a given list of geometries according to a min proximity to the other geometries to send") })
 	public IList<IShape> primFilterOverlapping(final IScope scope) throws GamaRuntimeException {
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		IList<IShape> geoms = GamaListFactory.create();
-		geoms.addAll((IList<IShape>) scope.getArg("geometries"));
+		geoms.addAll((IList<IShape>) scope.getArg("geometries", IType.GEOMETRY));
 
 		IList<IShape> toRemove = GamaListFactory.create();
 		for (IShape g : geoms) {
 			if (!toRemove.contains(g)) {
 				Double dist = (Double) player.getAttribute(AbstractUnityPlayer.PLAYER_AGENTS_MIN_DIST);
 				toRemove.addAll(
-						Spatial.Queries.overlapping(scope, geoms, Transformations.enlarged_by(scope, player, dist)));
+						SpatialQueries.overlapping(scope, geoms, SpatialTransformations.enlarged_by(scope, player, dist)));
 			}
 		}
 		geoms.removeAll(toRemove);
@@ -1753,7 +1750,7 @@ public class AbstractUnityLinker extends GamlAgent {
 			doc = { @doc (
 					value = "Action called by the move_player action that returns the location to send to Unity from a given player location") })
 	public GamaPoint primNewPlayerLoc(final IScope scope) throws GamaRuntimeException {
-		return (GamaPoint) scope.getArg("loc");
+		return (GamaPoint) scope.getArg("loc", IType.POINT);
 	}
 
 	/**
@@ -1779,8 +1776,8 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "move the player agent") })
 	public void primMovePlayer(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
-		IAgent player = (IAgent) scope.getArg("player");
-		GamaPoint loc = (GamaPoint) scope.getArg("loc");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		GamaPoint loc = (GamaPoint) scope.getArg("loc", IType.POINT);
 		getReadyToMovePlayers(ag).remove(player);
 		loc = (GamaPoint) doAction2Arg(scope, "new_player_location", "player", player, "loc", loc);
 		player.setLocation(loc);
@@ -1911,7 +1908,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSendPlayerPosition(final IScope scope) throws GamaRuntimeException {
 		IAgent ag = getAgent();
 		if (!getConnectToUnity(ag)) return;
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		int precision = getPrecision(ag);
 		IList<Integer> pos = GamaListFactory.create();
 		pos.add((int) (player.getLocation().x * precision));
@@ -1982,7 +1979,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSendParameters(final IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		int precision = getPrecision(ag);
 		toSend.put(PRECISION, precision);
 		IList<Integer> worldT = GamaListFactory.create(Types.INT);
@@ -2017,7 +2014,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public void primSendUnityProperties(final IScope scope) throws GamaRuntimeException {
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
-		IAgent player = (IAgent) scope.getArg("player");
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
 		List<UnityProperties> props = getUnityProperties(ag);
 		List<Map> propMap = new ArrayList<>();
 		for (UnityProperties p : props) { propMap.add(p.toMap()); }
