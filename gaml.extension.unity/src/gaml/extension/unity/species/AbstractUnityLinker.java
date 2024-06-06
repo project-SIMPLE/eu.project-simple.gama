@@ -78,7 +78,7 @@ import gaml.extension.unity.types.UnityPropertiesType;
 		@variable (
 				name = AbstractUnityLinker.MIN_NUMBER_PLAYERS,
 				type = IType.INT,
-				init = "0",
+				init = "1",
 				doc = { @doc ("Number of Unity players required to start the simulation") }),
 		@variable (
 				name = AbstractUnityLinker.MAX_NUMBER_PLAYERS,
