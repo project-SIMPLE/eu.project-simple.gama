@@ -1414,6 +1414,7 @@ public class AbstractUnityLinker extends GamlAgent {
 				"update_position", true, "is_init", true);
 
 		//doActionNoArg(scope, "send_world");
+		if (currentMessage != null && !currentMessage.isEmpty()) { sendCurrentMessage(scope); }
 
 		startSimulation(scope);
 		if (playersInitialized == null) playersInitialized = GamaListFactory.create();
