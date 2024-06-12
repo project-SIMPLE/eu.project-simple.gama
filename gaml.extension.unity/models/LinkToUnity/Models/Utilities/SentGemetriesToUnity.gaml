@@ -6,106 +6,182 @@
 */
 model sendGeometriesToUnity
 
+
 global {
+	//unity properties that will be used for sending geometries/agents to Unity
+	unity_property up_road ;
+	unity_property up_building;
 	
 	
-	//Shapefile of the bound
-	shape_file bounds_shape_file <- shape_file("../Includes/bounds.shp");
+	shape_file bounds_shape_file <- shape_file("../../includes/bounds.shp");
 
-	//Shapefile of the buildings
-	file building_shapefile <- file("../includes/building.shp");
-	//Shapefile of the roads
-	file road_shapefile <- file("../includes/road.shp") ;
-	//Shape of the environment
+	shape_file road_shape_file <- shape_file("../../includes/road.shp");
 
-	geometry shape <- envelope(bounds_shape_file) ;
+	
+	shape_file building_shape_file <- shape_file("../../includes/building.shp");
+
+	geometry shape <- envelope(bounds_shape_file);
+ 	init {
+ 		create road from: road_shape_file;
+ 		
+ 		create building from: building_shape_file;
+ 		 		
+ 		
+ 	}
+
+}
+
+
+species road {
+	aspect default {
+		draw shape + 5.0 color: #black;
+	}
+}
+
+
+species building {
+	aspect default {
+		draw shape color: #gray;
+	}
+}
+
+
+//Species that will make the link between GAMA and Unity. It has to inherit from the built-in species asbtract_unity_linker
+species unity_linker parent: abstract_unity_linker {
+	//name of the species used to represent a Unity player
+	string player_species <- string(unity_player);
+
+	//in this model, no information will be automatically sent to the Player at every step, so we set do_info_world to false
+	bool do_send_world <- false;
 	
 	
-				
+	//initial location of the player
+	list<point> init_locations <- [world.location];
+	
+	
 	init {
-		//Initialization of the building using the shapefile of buildings
-		create building from: building_shapefile {
-			if (shape.area < 0.1) {
+		//define the unity properties
+		do define_properties;
+		
+		do add_background_geometries(road collect (each.shape + 3.0),up_road);
+		do add_background_geometries(building,up_building);
+	}
+	
+	
+	//action that defines the different unity properties
+	action define_properties {
+		unity_aspect road_aspect <- geometry_aspect(0.1, #black, precision);
+		
+		//define the up_tree unity property, with the name "tree", no specific layer, no interaction, and the agents location are not sent back 
+		//to GAMA. 
+		up_road<- geometry_properties("road", nil, road_aspect, #collider, false);
+		
+		// add the up_tree unity_property to the list of unity_properties
+		unity_properties << up_road;
+		
+		
+		unity_aspect building_aspect <- geometry_aspect(10.0, #gray, precision);
+		
+		//define the up_geom unity property, with the name "polygon", no specific layer, no interaction, and the agents location are not sent back 
+		//to GAMA. 
+		up_building <- geometry_properties("building", nil, building_aspect, #collider, false);
+		
+		// add the up_geom unity_property to the list of unity_properties
+		unity_properties << up_building;
+	}
+}
+
+//species used to represent an unity player, with the default attributes. It has to inherit from the built-in species asbtract_unity_player
+species unity_player parent: abstract_unity_player {
+	//size of the player in GAMA
+	float player_size <- 1.0;
+
+	//color of the player in GAMA
+	rgb color <- #red ;
+	
+	//vision cone distance in GAMA
+	float cone_distance <- 10.0 * player_size;
+	
+	//vision cone amplitude in GAMA
+	float cone_amplitude <- 90.0;
+
+	//rotation to apply from the heading of Unity to GAMA
+	float player_rotation <- 90.0;
+	
+	//display the player
+	bool to_display <- true;
+	
+	
+	//default aspect to display the player as a circle with its cone of vision
+	aspect default {
+		if to_display {
+			if selected {
+				 draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);
+			}
+			draw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;
+			draw player_perception_cone() color: rgb(color, 0.5);
+		}
+	}
+}
+
+
+experiment main type: gui {
+	output {
+		display map {
+			species road;
+			species building;
+		}
+	}
+}
+
+//default Unity (VR) experiment that inherit from the SimpleMessage experiment
+//The unity type allows to create at the initialization one unity_linker agent
+experiment vr_xp parent:main autorun: false type: unity {
+	//minimal time between two simulation step
+	float minimum_cycle_duration <- 0.05;
+
+	//name of the species used for the unity_linker
+	string unity_linker_species <- string(unity_linker);
+	
+	//allow to hide the "map" display and to only display the displayVR display 
+	list<string> displays_to_hide <- ["map"];
+	
+
+
+	//action called by the middleware when a player connects to the simulation
+	action create_player(string id) {
+		ask unity_linker {
+			do create_player(id);
+		}
+	}
+
+	//action called by the middleware when a plyer is remove from the simulation
+	action remove_player(string id_input) {
+		if (not empty(unity_player)) {
+			ask first(unity_player where (each.name = id_input)) {
 				do die;
 			}
 		}
-	
-		//Initialization of the road using the shapefile of roads
-		create road from: road_shapefile {
-			float dist <- (building closest_to self) distance_to self;
-			width <- min(5.0, max(2.0,  dist - 0.5));
-		}
-	
 	}
 	
-	action after_sending_background {
-		do pause;
-	}
-}
+	//variable used to avoid to move too fast the player agent
+	float t_ref;
 
-	//Species to represent the buildings
-species building {
-
-	aspect default {
-		draw shape color: darker(#darkgray).darker depth: rnd(10) + 2;
-	}
-
-}
-//Species to represent the roads
-species road {
-
-	float width;
-	aspect default {
-		draw (shape + width) color: #white;
-	}
-
-}
-
-
-
-
-species unity_linker parent: abstract_unity_linker {
-	list<point> init_locations <- [{50.0, 50.0}];
-	int port <- 8000;
-	string player_species <- string(unity_player);
-	int min_num_players <- 0;
-	int max_num_players <- 1;
-	bool do_send_world <- false;
-	unity_property up_building;
-	unity_property up_road;
-	
-	
-	init {
-		do define_properties;
-	
-		do add_background_geometries(building,up_building);
-		do add_background_geometries(road collect (each.shape buffer each.width),up_road);
-	}
-	
-	action define_properties {
-		unity_aspect building_aspect <- geometry_aspect(10.0, #gray, precision);
-		up_building <- geometry_properties("building", "building", building_aspect, #no_interaction , false);
-		unity_properties << up_building;
-		
-		unity_aspect road_aspect <- geometry_aspect(10.0, #gray, precision);
-		up_road <- geometry_properties("road", "road", road_aspect, #ray_interactable , false);
-		unity_properties << up_road;
-	}
-}
-
-//Defaut species for the player
-species unity_player parent: abstract_unity_player;
-
-
-//Default xp with the possibility to move the player
-experiment sendGeometriesToUnity  autorun: true type: unity  {
-	float minimum_cycle_duration <- 0.1;
-	string unity_linker_species <- string(unity_linker);
-	
+		 
 	output { 
-		display carte type: 3d axes: false background: #black {
-			species road refresh: false;
-			species building refresh: false;
+		//In addition to the layers in the map display, display the unity_player and let the possibility to the user to move players by clicking on it.
+		display displayVR parent: map  {
+			species unity_player;
+			event #mouse_down  {
+				float t <- gama.machine_time;
+				if (t - t_ref) > 500 {
+					ask unity_linker {
+						move_player_event <- true;
+					}
+					t_ref <- t;
+				}
+				
+			}
 		}
 		
 	} 

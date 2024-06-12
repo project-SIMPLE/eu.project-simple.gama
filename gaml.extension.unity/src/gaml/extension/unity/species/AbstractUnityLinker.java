@@ -1071,7 +1071,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	 * @throws GamaRuntimeException
 	 *             the gama runtime exception
 	 */
-	@action (
+	@action ( 
 			name = "send_message",
 			args = { @arg (
 					name = "players",
@@ -1506,6 +1506,11 @@ public class AbstractUnityLinker extends GamlAgent {
 					value = "Create a new unity player agent") })
 	public void primInitPlayer(final IScope scope) throws GamaRuntimeException {
 		IMap<String, IAgent> players = getPlayers(getAgent());
+		for(String id : new ArrayList<String>(players.keySet())) {
+			if (players.get(id).dead()) {
+				players.remove(id);
+			}
+		}
 		IAgent ag = getAgent();
 		String id = scope.getStringArg("id");
 
@@ -1939,6 +1944,10 @@ public class AbstractUnityLinker extends GamlAgent {
 	@action (
 			name = "add_to_send_parameter",
 			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which send the information")),
+					@arg (
 					name = "map_to_send",
 					type = IType.MAP,
 					doc = @doc ("data already sent to the client")) },
@@ -1991,7 +2000,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("world", worldT);
 
 
-		doAction1Arg(scope, "add_to_send_parameter", "map_to_send", toSend);
+		doAction2Arg(scope, "add_to_send_parameter", "player", player, "map_to_send", toSend);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 	}
 

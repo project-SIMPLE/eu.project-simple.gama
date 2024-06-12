@@ -63,7 +63,7 @@ species unity_linker parent: abstract_unity_linker {
 		do add_geometries_to_send(simple_agentB,up_moto);
 	}
 
-	action add_to_send_parameter(map map_to_send) {
+	action add_to_send_parameter(agent player, map map_to_send) {
 		map_to_send["hotspots"] <- (block where (each.is_hotspot)) collect string(int(each));
 	}
 	
