@@ -27,7 +27,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <eclipse-version>2023-12</eclipse-version>
     
-    <jdk.version>17</jdk.version>
+    <jdk.version>21</jdk.version>
     <gama.version>2024.3.0</gama.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <wagon.version>3.5.3</wagon.version>
