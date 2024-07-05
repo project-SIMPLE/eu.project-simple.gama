@@ -11,6 +11,7 @@
 package gaml.extension.unity.species;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ import gama.core.util.GamaMap;
 import gama.core.util.GamaMapFactory;
 import gama.core.util.IList;
 import gama.core.util.IMap;
+import gama.core.util.matrix.GamaIntMatrix;
+import gama.core.util.matrix.GamaMatrix;
 import gama.extension.serialize.gaml.SerialisationOperators;
 import gama.gaml.descriptions.ConstantExpressionDescription;
 import gama.gaml.operators.Cast;
@@ -1382,6 +1385,94 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		return map;
 	}
+	
+	
+	/**
+	 * Prim message geoms.
+	 *
+	 * @param scope
+	 *            the scope
+	 * @return the i map
+	 * @throws GamaRuntimeException
+	 *             the gama runtime exception
+	 */
+	@action (
+			name = "update_terrain",
+			args = {@arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("player to send the information to"))
+					  ,@arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("id of to terrain to update")),
+					  @arg (
+					name = "matrix",
+					type = IType.MATRIX,
+					doc = @doc ("Matrix to send to Unity")),
+					  @arg (
+								name = "size_x",
+								type = IType.FLOAT,
+								doc = @doc ("x-size of the terrain in Unity")),
+					  @arg (
+								name = "size_y",
+								type = IType.FLOAT,
+								doc = @doc ("y-size of the terrain in Unity")),
+					 @arg (
+								name = "resolution_width",
+								type = IType.INT,
+								doc = @doc ("Width resolution of the terrain in Unity")),
+					 @arg (
+								name = "resolution_height",
+								type = IType.INT,
+								doc = @doc ("Height resolution of the terrain in Unity"))},
+			doc = { @doc (
+					value = "Action called by the send_world action that returns the message to send to Unity") })
+	public void primUpdateTerrain(final IScope scope) throws GamaRuntimeException {
+		
+		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
+		IAgent ag = getAgent();
+		GamaMatrix matrix = (GamaMatrix) scope.getArg("matrix", IType.MATRIX);
+		
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		
+		String id = scope.getStringArg("id");
+		
+		Double width = scope.getFloatArg("resolution_width");
+		Double height = scope.getFloatArg("resolution_height");
+		Double sizeX = scope.getFloatArg("size_x");
+		Double sizeY = scope.getFloatArg("size_y");
+		
+		boolean simpleCase = width == matrix.numCols && height == matrix.numRows  ;
+		int valMax = -1 * Integer.MAX_VALUE;
+		List<Map<String,List<Integer>>> mat = new ArrayList<>();
+		for (int i = 0; i < height; i++) {
+			Map<String,List<Integer>> row = new Hashtable<>();
+			List<Integer> v = new ArrayList<>();
+			row.put("h", v);
+			for (int j = 0; j < width; j++) {
+				int iV  = Cast.asInt(scope, matrix.get(scope, j, i));
+				if (iV > valMax) {
+					valMax = iV;
+				}
+				v.add(iV);
+			}
+			mat.add(row);
+		}
+		toSend.put("rows", mat);
+		toSend.put("valMax", valMax);
+		toSend.put("sizeX", sizeX);
+		toSend.put("sizeY", sizeY);
+		
+		toSend.put("id", id);
+		System.out.println("mat: " + mat);
+		
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+		
+		if (currentMessage != null && !currentMessage.isEmpty()) { sendCurrentMessage(scope); }
+
+	}
+
 
 	/**
 	 * Prim sent init data.
