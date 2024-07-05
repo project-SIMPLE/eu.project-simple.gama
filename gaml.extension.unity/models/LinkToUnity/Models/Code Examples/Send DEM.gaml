@@ -10,7 +10,7 @@ model SendDEM
 
 global {
 	
-	grid_file mnt_grid_file <- grid_file("../../includes/DEM.tif");
+	grid_file mnt_grid_file <- grid_file("../../includes/mnt.asc");
 
 	geometry shape <- envelope(mnt_grid_file);
  	matrix<int> mat;
@@ -30,23 +30,24 @@ species unity_linker parent: abstract_unity_linker {
 	//initial location of the player
 	list<point> init_locations <- [world.location];
 	 
+	reflex change_mnt {
+		ask cell {
+			grid_value <- grid_value * 0.95;
+		}
+	}
 	
+	reflex send_mnt when: every(100 #cycle){
 	
-	bool done <- false;
-	reflex send_mnt {
-		if not done {
-			
-			mat <- {257,257} matrix_with(0);
-			ask cell {
-				mat[grid_x, grid_y] <- round(grid_value);
-				write sample(mat[grid_x, grid_y]);
+		field f <- field(cell);
+		loop p over: unity_player {
+			ask unity_linker {
+				do update_terrain (
+					player:p, 
+					id:"dem", 
+					field:f,
+					resolution:257
+				);
 			}
-			loop p over: unity_player {
-				ask unity_linker {
-					do update_terrain(p, "dem", mat,257,257 );
-				}
-			}
-			done <- true;
 		}
 	}
 	
@@ -88,7 +89,7 @@ species unity_player parent: abstract_unity_player {
 experiment main type: gui {
 	output {
 		display map type: 3d{
-			mesh cell grayscale: true triangulation: true smooth: true refresh: false ;
+			mesh cell grayscale: true triangulation: true smooth: true  ;
 		}
 	}
 }
@@ -97,7 +98,7 @@ experiment main type: gui {
 //The unity type allows to create at the initialization one unity_linker agent
 experiment vr_xp parent:main autorun: false type: unity {
 	//minimal time between two simulation step
-	float minimum_cycle_duration <- 0.05;
+	float minimum_cycle_duration <- 0.1;
 
 	//name of the species used for the unity_linker
 	string unity_linker_species <- string(unity_linker);

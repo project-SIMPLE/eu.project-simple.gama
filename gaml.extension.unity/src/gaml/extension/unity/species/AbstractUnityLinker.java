@@ -42,8 +42,10 @@ import gama.core.runtime.exceptions.GamaRuntimeException;
 import gama.core.util.GamaListFactory;
 import gama.core.util.GamaMap;
 import gama.core.util.GamaMapFactory;
+import gama.core.util.IContainer;
 import gama.core.util.IList;
 import gama.core.util.IMap;
+import gama.core.util.matrix.GamaField;
 import gama.core.util.matrix.GamaIntMatrix;
 import gama.core.util.matrix.GamaMatrix;
 import gama.extension.serialize.gaml.SerialisationOperators;
@@ -1387,15 +1389,8 @@ public class AbstractUnityLinker extends GamlAgent {
 	}
 	
 	
-	/**
-	 * Prim message geoms.
-	 *
-	 * @param scope
-	 *            the scope
-	 * @return the i map
-	 * @throws GamaRuntimeException
-	 *             the gama runtime exception
-	 */
+	
+	
 	@action (
 			name = "update_terrain",
 			args = {@arg (
@@ -1407,51 +1402,82 @@ public class AbstractUnityLinker extends GamlAgent {
 					type = IType.STRING,
 					doc = @doc ("id of to terrain to update")),
 					  @arg (
+							name = "field",
+							type = IType.FIELD,
+							optional = true,
+						doc = @doc ("Field to send to Unity")),
+					  @arg (
 					name = "matrix",
 					type = IType.MATRIX,
+					optional = true,
 					doc = @doc ("Matrix to send to Unity")),
 					  @arg (
 								name = "size_x",
 								type = IType.FLOAT,
+								optional = true,
 								doc = @doc ("x-size of the terrain in Unity")),
 					  @arg (
 								name = "size_y",
 								type = IType.FLOAT,
+								optional = true,
 								doc = @doc ("y-size of the terrain in Unity")),
 					 @arg (
-								name = "resolution_width",
+								name = "resolution",
 								type = IType.INT,
-								doc = @doc ("Width resolution of the terrain in Unity")),
-					 @arg (
-								name = "resolution_height",
-								type = IType.INT,
-								doc = @doc ("Height resolution of the terrain in Unity"))},
+								doc = @doc ("Resolution of the terrain in Unity"))},
 			doc = { @doc (
-					value = "Action called by the send_world action that returns the message to send to Unity") })
+					value = "send a matrix/cell/field to update a Terrain in Unity") })
 	public void primUpdateTerrain(final IScope scope) throws GamaRuntimeException {
 		
 		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
 		IAgent ag = getAgent();
 		GamaMatrix matrix = (GamaMatrix) scope.getArg("matrix", IType.MATRIX);
-		
+		GamaField field = (GamaField) scope.getArg("field", IType.FIELD);
 		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		if (matrix == null && field == null) return;
+		int numCols = 0;
+		int numRows = 0;
 		
 		String id = scope.getStringArg("id");
 		
-		Double width = scope.getFloatArg("resolution_width");
-		Double height = scope.getFloatArg("resolution_height");
-		Double sizeX = scope.getFloatArg("size_x");
-		Double sizeY = scope.getFloatArg("size_y");
+		Double size = scope.getFloatArg("resolution");
+		Double sizeX = 1.0 ; 
+		Double sizeY = 1.0;
+		if (field != null) {
+			numCols = field.numCols;
+			numRows = field.numRows;
+			GamaPoint s= field.getCellSize(scope);
+			sizeX = numCols * s.x; 
+			sizeY = numRows * s.y; 
+		} else  {
+			numCols = matrix.numCols;
+			numRows = matrix.numRows;
+			sizeX = scope.getFloatArg("size_x");
+			sizeY = scope.getFloatArg("size_y");
 		
-		boolean simpleCase = width == matrix.numCols && height == matrix.numRows  ;
+		}
+		double coeffX = numCols / size;
+		double coeffY = numRows / size;
+		boolean simpleCase = ((size == numCols) && (size == numRows))  ;
 		int valMax = -1 * Integer.MAX_VALUE;
 		List<Map<String,List<Integer>>> mat = new ArrayList<>();
-		for (int i = 0; i < height; i++) {
+		for (int i = 0; i < size; i++) {
 			Map<String,List<Integer>> row = new Hashtable<>();
 			List<Integer> v = new ArrayList<>();
 			row.put("h", v);
-			for (int j = 0; j < width; j++) {
-				int iV  = Cast.asInt(scope, matrix.get(scope, j, i));
+			for (int j = 0; j < size; j++) {
+				int dX = j;
+				int dY = i;
+				if (! simpleCase) {
+					dX = (int)(j * coeffX);
+					dY = (int)(i * coeffY);
+				}
+				int iV  = 0;
+				if (field != null) {
+					iV = Cast.asInt(scope, field.get(scope, dX, dY));
+				} else  {
+					iV = Cast.asInt(scope, matrix.get(scope, dX, dY));
+				}
 				if (iV > valMax) {
 					valMax = iV;
 				}
@@ -1465,7 +1491,6 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("sizeY", sizeY);
 		
 		toSend.put("id", id);
-		System.out.println("mat: " + mat);
 		
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 		
