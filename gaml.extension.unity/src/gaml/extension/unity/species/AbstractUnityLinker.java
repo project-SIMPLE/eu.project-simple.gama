@@ -1042,6 +1042,15 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	}
 
+	
+	@action ( 
+			name = "send_current_message",
+			doc = { @doc (
+					value = "send the current message to the Unity Client") })
+	public void primSentCurrentMessage(final IScope scope) throws GamaRuntimeException {
+		sendCurrentMessage(scope);
+	}
+		
 	/**
 	 * Adds the to current message.
 	 *
