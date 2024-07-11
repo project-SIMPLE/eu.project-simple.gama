@@ -1421,6 +1421,12 @@ public class AbstractUnityLinker extends GamlAgent {
 					optional = true,
 					doc = @doc ("Matrix to send to Unity")),
 					  @arg (
+								name = "max_value",
+								type = IType.FLOAT,
+								optional = true,
+								doc = @doc ("max possible value for the grid (if missing, use the max value in the grid/matrix)")),
+					 
+					  @arg (
 								name = "size_x",
 								type = IType.FLOAT,
 								optional = true,
@@ -1448,6 +1454,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		int numRows = 0;
 		
 		String id = scope.getStringArg("id");
+		Double maxV = scope.getFloatArg("max_value");
 		
 		Double size = scope.getFloatArg("resolution");
 		Double sizeX = 1.0 ; 
@@ -1468,7 +1475,7 @@ public class AbstractUnityLinker extends GamlAgent {
 		double coeffX = numCols / size;
 		double coeffY = numRows / size;
 		boolean simpleCase = ((size == numCols) && (size == numRows))  ;
-		int valMax = -1 * Integer.MAX_VALUE;
+		int valMax = maxV != null ? ((int) maxV.doubleValue()) : -1 * Integer.MAX_VALUE;
 		List<Map<String,List<Integer>>> mat = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Map<String,List<Integer>> row = new Hashtable<>();
@@ -1498,6 +1505,90 @@ public class AbstractUnityLinker extends GamlAgent {
 		toSend.put("valMax", valMax);
 		toSend.put("sizeX", sizeX);
 		toSend.put("sizeY", sizeY);
+		
+		toSend.put("id", id);
+		
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+		
+		if (currentMessage != null && !currentMessage.isEmpty()) { sendCurrentMessage(scope); }
+
+	}
+
+	@action (
+			name = "set_terrain_values",
+			args = {@arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("player to send the information to"))
+					  ,@arg (
+					name = "id",
+					type = IType.STRING,
+					doc = @doc ("id of to terrain to update")),
+					  @arg (
+							name = "field",
+							type = IType.FIELD,
+							optional = true,
+						doc = @doc ("Field to send to Unity")),
+					  @arg (
+					name = "matrix",
+					type = IType.MATRIX,
+					optional = true,
+					doc = @doc ("Matrix to send to Unity")),
+					  @arg (
+								name = "index_x",
+								type = IType.INT,
+								optional = false,
+								doc = @doc ("index-x (column) of the matrix/field")),
+					  @arg (
+								name = "index_y",
+								type = IType.INT,
+								optional = false,
+								doc = @doc ("index-y (row) of the matrix/field"))},
+			doc = { @doc (
+					value = "send a sub-part of a Terrain in Unity at a given index") })
+	public void primSetTerrainValues(final IScope scope) throws GamaRuntimeException {
+		
+		GamaMap<String, Object> toSend = (GamaMap<String, Object>) GamaMapFactory.create();
+		IAgent ag = getAgent();
+		GamaMatrix matrix = (GamaMatrix) scope.getArg("matrix", IType.MATRIX);
+		GamaField field = (GamaField) scope.getArg("field", IType.FIELD);
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		if (matrix == null && field == null) return;
+		
+		String id = scope.getStringArg("id");
+		
+		Integer indexX  = scope.getIntArg("index_x");
+		Integer indexY  = scope.getIntArg("index_y");
+		int num_rows = matrix != null ? matrix.numRows : field.numRows;
+		int num_cols = matrix != null ? matrix.numCols : field.numCols;
+		int valMax = -1 * Integer.MAX_VALUE;
+		List<Map<String,List<Integer>>> mat = new ArrayList<>();
+		for (int i = 0; i < num_cols; i++) {
+			Map<String,List<Integer>> row = new Hashtable<>();
+			List<Integer> v = new ArrayList<>();
+			row.put("h", v);
+			for (int j = 0; j < num_rows; j++) {
+				int dX = j;
+				int dY = i;
+				
+				int iV  = 0;
+				if (field != null) {
+					iV = Cast.asInt(scope, field.get(scope, dX, dY));
+				} else  {
+					iV = Cast.asInt(scope, matrix.get(scope, dX, dY));
+				}
+				if (iV > valMax) {
+					valMax = iV;
+				}
+				v.add(iV);
+			}
+			mat.add(row);
+		}
+		toSend.put("indexX", indexX);
+		toSend.put("indexY", indexY);
+	
+		toSend.put("rows", mat);
+		toSend.put("valMax", valMax);
 		
 		toSend.put("id", id);
 		

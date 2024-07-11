@@ -10,11 +10,50 @@ model SendDEM
 
 global {
 	
-	grid_file mnt_grid_file <- grid_file("../../includes/mnt.asc");
+	grid_file mnt_grid_file <- grid_file("../../includes/dem.asc");
 
 	geometry shape <- envelope(mnt_grid_file);
- 	matrix<int> mat;
+ 	
+ 	unity_property up_sphere ;
+ 	
+ 	
+ 	float added_height <- 2.0 #m;
+	
+	float max_value <- 100.0;
+	init {
+		create sphere_ag with:(location:{20,20,70});
+	}
+	
+	action change_height(bool increase) {
+		cell c <- cell(#user_location) ;
+		if (c != nil) {
+			ask c {
+				
+				grid_value <-grid_value + (increase ? added_height : -added_height);
+				grid_value <- max(0, min(max_value,grid_value));
+				write sample(grid_value);
+			}
+			
+			ask unity_linker {
+				do set_terrain_values(
+					player:last(unity_player), 
+					id:"dem", 
+					matrix: {1,1} matrix_with c.grid_value,
+					index_x : c.grid_x,
+					index_y : c.grid_y
+				);
+			}
+		}
+	}
+	
+	
 
+}
+
+species sphere_ag {
+	aspect default {
+		draw sphere(1) color: #magenta;
+	}
 }
 
 grid cell file: mnt_grid_file ;
@@ -30,24 +69,36 @@ species unity_linker parent: abstract_unity_linker {
 	//initial location of the player
 	list<point> init_locations <- [world.location];
 	 
+	 
+	 	
+	init {
+		//define the unity properties
+		do define_properties;
+		
+			//add the static_geometry agents as static agents/geometries to send to unity with the up_geom unity properties.
+		do add_background_geometries(sphere_ag,up_sphere);
+	
+	}
+	 
+	
+	//action that defines the different unity properties
+	action define_properties {
+		//define a unity_aspect called tree_aspect that will display in Unity the agents with the SM_arbres_001 prefab, with a scale of 2.0, no y-offset, 
+		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		unity_aspect sphere_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/SphereRigidBody",1.0,0.0,0.0,0.0, precision);
+		
+		//define the up_car unity property, with the name "car", no specific layer, the car_aspect unity aspect, no interaction, and the agents location are not sent back 
+		//to GAMA. 
+		up_sphere<- geometry_properties("sphere_ag", nil, sphere_aspect, #grabable, true);
+		
+		// add the up_tree unity_property to the list of unity_properties
+		unity_properties << up_sphere;
+		
+		
+	}
 	reflex change_mnt {
 		ask cell {
-			grid_value <- grid_value * 0.95;
-		}
-	}
-	
-	reflex send_mnt when: every(100 #cycle){
-	
-		field f <- field(cell);
-		loop p over: unity_player {
-			ask unity_linker {
-				do update_terrain (
-					player:p, 
-					id:"dem", 
-					field:f,
-					resolution:257
-				);
-			}
+			//grid_value <- grid_value * 0.95;
 		}
 	}
 	
@@ -90,6 +141,7 @@ experiment main type: gui {
 	output {
 		display map type: 3d{
 			mesh cell grayscale: true triangulation: true smooth: true  ;
+			species sphere_ag;
 		}
 	}
 }
@@ -106,13 +158,24 @@ experiment vr_xp parent:main autorun: false type: unity {
 	//allow to hide the "map" display and to only display the displayVR display 
 	list<string> displays_to_hide <- ["map"];
 	
-
-
+	
+	
+	
 	//action called by the middleware when a player connects to the simulation
 	action create_player(string id) {
+		field f <- field(matrix(cell));
 		ask unity_linker {
 			do create_player(id);
+			
+			do update_terrain (
+					player:last(unity_player), 
+					id:"dem", 
+					field:f,
+					resolution:65,
+					max_value:max_value
+				);
 		}
+		
 	}
 
 	//action called by the middleware when a plyer is remove from the simulation
@@ -132,6 +195,16 @@ experiment vr_xp parent:main autorun: false type: unity {
 		//In addition to the layers in the map display, display the unity_player and let the possibility to the user to move players by clicking on it.
 		display displayVR parent: map  {
 			species unity_player;
+			event "r" {
+				ask world {
+					do change_height(true);
+				}	
+			}
+			event "t" {
+				ask world {
+					do change_height(false);
+				}	
+			}
 			event #mouse_down  {
 				float t <- gama.machine_time;
 				if (t - t_ref) > 500 {
