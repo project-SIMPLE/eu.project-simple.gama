@@ -44,6 +44,9 @@ import gama.gaml.types.IType;
 			doc = { @doc ("display or not the agent in GAMA")}),
 	@variable(name = AbstractUnityPlayer.SELECTED, type = IType.BOOL,
 	doc = { @doc ("is the agent selected")}),
+	@variable(name = AbstractUnityPlayer.ZOFFSET, type = IType.FLOAT,init = "2.0",
+	doc = { @doc ("offset along the z-axis for the the display of the agent in GAMA")}),
+
 	@variable(name = AbstractUnityPlayer.CONE_DISTANCE, type = IType.FLOAT,
 			doc = { @doc ("distance of the cone for the display of the agent in GAMA")}),
 	@variable(name = AbstractUnityPlayer.CONE_AMPLITUDE, type = IType.FLOAT,
@@ -68,6 +71,7 @@ public class AbstractUnityPlayer extends GamlAgent{
 	public static final String PLAYER_AGENTS_MIN_DIST = "player_agents_min_dist";
 	public static final String PLAYER_SIZE = "player_size";
 	public static final String PLAYER_ROTATION = "player_rotation";
+	public static final String ZOFFSET = "z_offset"; 
 	
 	
 	public AbstractUnityPlayer(IPopulation<? extends IAgent> s, int index) {
@@ -106,6 +110,15 @@ public class AbstractUnityPlayer extends GamlAgent{
 	@setter(IKeyword.COLOR)
 	public static void setColor(final IAgent agent, final GamaColor val) {
 		agent.setAttribute(IKeyword.COLOR, val);
+	}
+	
+	@getter (ZOFFSET)
+	public static Double getZOffset(final IAgent agent) {
+		return (Double) agent.getAttribute(ZOFFSET);
+	}
+	@setter(ZOFFSET)
+	public static void setZOffset(final IAgent agent, final Double val) {
+		agent.setAttribute(ZOFFSET, val);
 	}
 	
 	@getter (CONE_DISTANCE)
@@ -175,7 +188,7 @@ public class AbstractUnityPlayer extends GamlAgent{
 		Double cone_amplitude = getConeAmplitude(agent);
 		IShape g = SpatialCreation.cone(scope, (int)(rotation - cone_amplitude/2),(int)(rotation + cone_amplitude/2));
 		g = SpatialOperators.inter(scope, g, SpatialCreation.circle(scope, getConeDistance(agent)));
-		g = SpatialTransformations.translated_by(scope, g, new GamaPoint(0,0,4.9));
+		g = SpatialTransformations.translated_by(scope, g, new GamaPoint(0,0,getZOffset(agent)));
 		return g;
 		
 	}

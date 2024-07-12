@@ -180,15 +180,16 @@ public class VRModelGenerator {
 		modelPlayer.append("\tfloat cone_amplitude <- 90.0;\n");
 		modelPlayer.append("\tfloat player_rotation <- 90.0;\n");
 		modelPlayer.append("\tbool to_display <- true;\n");
+		modelPlayer.append("\tfloat z_offset <- 2.0;\n");
 
 		modelPlayer.append("\taspect default {\n");
 		modelPlayer.append("\t\tif to_display {\n");
 		modelPlayer.append("\t\t\tif selected {\n");
-		modelPlayer.append("\t\t\t\t draw circle(player_size) at: location + {0, 0, 4.9} color: rgb(#blue, 0.5);\n");
+		modelPlayer.append("\t\t\t\t draw circle(player_size) at: location + {0, 0, z_offset} color: rgb(#blue, 0.5);\n");
 
 		modelPlayer.append("\t\t\t}\n");
 
-		modelPlayer.append("\t\t\tdraw circle(player_size/2.0) at: location + {0, 0, 5} color: color ;\n");
+		modelPlayer.append("\t\t\tdraw circle(player_size/2.0) at: location + {0, 0, z_offset} color: color ;\n");
 		modelPlayer.append("\t\t\tdraw player_perception_cone() color: rgb(color, 0.5);");
 		modelPlayer.append("\n\t\t}");
 		modelPlayer.append("\n\t}");
