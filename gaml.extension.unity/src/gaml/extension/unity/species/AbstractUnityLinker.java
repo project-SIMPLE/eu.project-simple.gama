@@ -1177,8 +1177,7 @@ public class AbstractUnityLinker extends GamlAgent {
 				getPlayers(ag).remove(playerName);
 				continue;
 			}
-			if (getDoSendWorld(getAgent())) {
-
+			
 				IMap<IShape, UnityProperties> geoms = getGeometriesToSend(ag);
 						
 				
@@ -1225,7 +1224,7 @@ public class AbstractUnityLinker extends GamlAgent {
 							getNewPlayerPosition(ag) !=null	&& getNewPlayerPosition(ag).get(player.getName()) !=null	&&!getNewPlayerPosition(ag).get(player.getName()).isEmpty(), "is_init", false);
 
 				}
-			}
+			
 			if (! toSend.isEmpty())
 				addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
 
@@ -1276,7 +1275,8 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		List<String> names = new ArrayList<>();
 		List<String> propertyID = new ArrayList<>();
-
+		List<Integer> yOffset = new ArrayList<>();
+		
 		List pointsLoc = new ArrayList<>();
 		List pointsGeom = new ArrayList<>();
 
@@ -1291,10 +1291,12 @@ public class AbstractUnityLinker extends GamlAgent {
 				pointsLoc.add(doAction1Arg(scope, "message_geometry_loc", "geom", g));
 			} else {
 				pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", g));
+				yOffset.add((int)(g.getLocation().z * precision));
 			}
 		}
 		toSend.put("pointsLoc", pointsLoc);
 		toSend.put("isInit", isInit);
+		toSend.put("offsetYGeom", yOffset);
 		
 		toSend.put("names", names);
 		toSend.put("propertyID", propertyID);

@@ -16,13 +16,18 @@ model SendDEM
 global {
 	
 	//the dem used for this model
-	grid_file mnt_grid_file <- grid_file("../../includes/dem.asc");
+	grid_file dem_grid_file <- grid_file("../../includes/dem_water_level.asc");
 
-	geometry shape <- envelope(mnt_grid_file);
+	grid_file dem_altitude_grid_file <- grid_file("../../includes/altitude_water_level.asc");
+
+	field dem <- field(grid_file("../../includes/dem_river.asc"));
+
+
+	geometry shape <- envelope(dem_grid_file);
  	
  	
- 	//propoerty used for the ball
- 	unity_property up_sphere ;
+ 	//propoerty used for the water
+ 	unity_property up_water ;
  	
  	//height increased/drecreased with the R/T events 	
  	float added_height <- 2.0 #m;
@@ -31,45 +36,75 @@ global {
 	float max_value <- 100.0;
 	
 	
+	float global_water_level <- 1.5 min: 1.5;
+	
+	int cycle_ref <- 0 ;
+	
 	init {
-		//create a sphere agent (ball)
-		create sphere_ag with:(location:{20,20,70});
+		ask cell {
+			 altitude <- bands[1];
+		}
+		
 	}
 	
-	
-	//action to increase/decrease the height of a cell
-	action change_height(bool increase) {
-		cell c <- cell(#user_location) ;
-		if (c != nil) {
-			//increase/decrease the height of the cell located at user_location (mouse pointer)
-			ask c {
-				grid_value <-grid_value + (increase ? added_height : -added_height);
-				grid_value <- max(0, min(max_value,grid_value));
-			}
+	action add_water  {
+		global_water_level <- cycle_ref < 40 ?  global_water_level + 0.1 : global_water_level - 0.1  ;
+		ask cell {
+			do add_water(global_water_level);
+		}
+		list<cell> water_cells <- cell where (each.water_level > 0.5);
+		if empty(water_cells) {
+			ask water {do die;}
+		} else {
+			geometry g <- union (water_cells collect each.shape_union );
+		
+			if (g != nil) {
+				ask water {do die;}
+				create water from: g.geometries collect (each simplification 1.0);
 			
-			//ask the unity linker to send the modification of the dem to Unity
+			}
+		}	
+		cycle_ref <- cycle_ref + 1;
+		if (cycle_ref mod 85)= 0 {
+			cycle_ref <- 0;
+		}
+	}
+	
+	reflex add_water_reflex when: every(10#cycle) {
+		do add_water;
+		if not empty(water) and not empty(unity_player){
 			ask unity_linker {
-				do set_terrain_values(
-					player:last(unity_player), //player concerned 
-					id:"Dem",  //name of the Terrain in Unity
-					matrix: {1,1} matrix_with c.grid_value, //matrix containing the new values - in this example only the height of one cell (c) is modified
-					index_x : c.grid_x, //index x (column) of the matrix in the total grid
-					index_y : c.grid_y //index y (row) of the matrix in the total grid
-				);
+				do add_geometries_to_send(water collect (each.shape at_location {each.location.x,each.location.y, global_water_level}),up_water);
+				do send_world;
+				do send_current_message;
 			}
 		}
 	}
+	
+	
+	
 }
 
-//sphere agent represented by a sphere in GAMA
-species sphere_ag {
+species water {
+	list<geometry> to_send;
 	aspect default {
-		draw sphere(1) color: #magenta;
+		draw shape color: #blue;
 	}
 }
 
+
+
 //grid initiliazed by the mnt_grid_file
-grid cell file: mnt_grid_file ;
+grid cell files:[dem_grid_file, dem_altitude_grid_file] neighbors: 4{
+	float altitude;
+	float water_level <- 0.0 min: 0.0 ;
+	geometry shape_union <- shape + 0.1;
+	
+	action add_water(float wl)  {
+		water_level <- wl - altitude;
+	}	
+}
+
 
 //Species that will make the link between GAMA and Unity. It has to inherit from the built-in species asbtract_unity_linker
 species unity_linker parent: abstract_unity_linker {
@@ -88,8 +123,6 @@ species unity_linker parent: abstract_unity_linker {
 		//define the unity properties
 		do define_properties;
 		
-		//add the sphere_ag agent as static geometry to send to unity with the up_sphere unity properties.
-		do add_background_geometries(sphere_ag,up_sphere);
 	
 	}
 	 
@@ -98,17 +131,19 @@ species unity_linker parent: abstract_unity_linker {
 	action define_properties {
 		//define a unity_aspect called sphere_aspect that will display in Unity the agents with the SphereRigidBody prefab, with a scale of 1.0, no y-offset, 
 		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
-		unity_aspect sphere_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Basic shape/SphereRigidBody",1.0,0.0,1.0,0.0, precision);
+		unity_aspect water_aspect <- geometry_aspect(1.0, "Materials/Water/Water Material",#white, precision);
 		
 		//define the up_sphere unity property, with the name "sphere_ag", no specific layer, the sphere_aspect unity aspect, grabable, and the agent location is sent back 
 		//to GAMA. 
-		up_sphere<- geometry_properties("sphere_ag", nil, sphere_aspect, #grabable, true);
+		up_water<- geometry_properties("water", nil, water_aspect, #no_interaction,false);
 		
 		// add the up_sphere unity_property to the list of unity_properties
-		unity_properties << up_sphere;
+		unity_properties << up_water;
 		
 		
 	}
+		
+		
 }
 
 //species used to represent an unity player, with the default attributes. It has to inherit from the built-in species asbtract_unity_player
@@ -146,10 +181,14 @@ species unity_player parent: abstract_unity_player {
 	}
 }
 experiment main type: gui {
-	output {
-		display map type: 3d{
+		float minimum_cycle_duration <- 0.01;
+	
+	output synchronized: true{
+		display map type: 2d {
+			//grid cell;
 			mesh cell grayscale: true triangulation: true smooth: true  ;
-			species sphere_ag;
+			species water;
+			
 		}
 	}
 }
@@ -158,7 +197,7 @@ experiment main type: gui {
 //The unity type allows to create at the initialization one unity_linker agent
 experiment vr_xp parent:main autorun: false type: unity {
 	//minimal time between two simulation step
-	float minimum_cycle_duration <- 0.1;
+	float minimum_cycle_duration <- 0.03;
 
 	//name of the species used for the unity_linker
 	string unity_linker_species <- string(unity_linker);
@@ -170,7 +209,6 @@ experiment vr_xp parent:main autorun: false type: unity {
 	
 	//action called by the middleware when a player connects to the simulation
 	action create_player(string id) {
-		field f <- field(matrix(cell));
 		ask unity_linker {
 			do create_player(id);
 			
@@ -178,7 +216,7 @@ experiment vr_xp parent:main autorun: false type: unity {
 			do update_terrain (
 					player:last(unity_player),  //player concerned 
 					id:"Dem",  //name of the Terrain in Unity
-					field:f, //it is possible to send the grid either as a field or as a matrix
+					field:dem, //it is possible to send the grid either as a field or as a matrix
 					resolution:65, //resolution of the target Terrain in Unity. Ideally, the resolution of the field/matrix should be the same as this one
 					max_value:max_value //optional : max possible of the grid - if not defined, GAMA will set it with the max value in the field/matrix
 				);
@@ -205,19 +243,7 @@ experiment vr_xp parent:main autorun: false type: unity {
 			species unity_player;
 			
 			//increase the height of a cell when cliking on "R"
-			event "r" {
-				ask world {
-					do change_height(true);
-				}	
-			}
-			
-			
-			//decrease the height of a cell when cliking on "T"
-			event "t" {
-				ask world {
-					do change_height(false);
-				}	
-			}
+		
 			event #mouse_down  {
 				float t <- gama.machine_time;
 				if (t - t_ref) > 500 {

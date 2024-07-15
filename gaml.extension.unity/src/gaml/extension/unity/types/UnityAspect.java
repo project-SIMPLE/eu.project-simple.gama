@@ -54,7 +54,11 @@ import gama.gaml.types.IType;
 		name = "height",
 		type = IType.FLOAT,
 		doc = @doc ("Geometry: height of the geometry displayed in Unity (extrusion along the y-axe); if the height is 0, the geometry is considered as 2D")),
-	 @variable (
+	@variable (
+			name = "material",
+			type = IType.STRING,
+			doc = @doc ("The material used to display the agent/geometry")),
+		 @variable (
 		name = "color",
 		type = IType.COLOR,
 		doc = @doc ("Geometry: color of the geometry displayed in Unity"))
@@ -64,6 +68,7 @@ import gama.gaml.types.IType;
 public class UnityAspect implements IValue {
 
 	private String prefab;
+	private String material;
 	private double size;
 	private double rotation_coeff;
 	private double rotation_offset;
@@ -82,6 +87,15 @@ public class UnityAspect implements IValue {
 		super();
 		this.precision =  precision;
 		this.height = height;
+		this.color = color;
+		this.prefabAspect = false;
+	}
+	
+	public UnityAspect(double height, String material,GamaColor color, int precision) {
+		super();
+		this.precision =  precision;
+		this.height = height;
+		this.material = material;
 		this.color = color;
 		this.prefabAspect = false;
 	}
@@ -109,6 +123,11 @@ public class UnityAspect implements IValue {
 	@getter ("prefab")
 	public String getPrefab() {
 		return prefab;
+	}
+	
+	@getter ("material")
+	public String getMaterial() {
+		return material;
 	}
 
 	@getter ("size")
@@ -158,6 +177,7 @@ public class UnityAspect implements IValue {
 			map.put("green", color.green());
 			map.put("blue", color.blue());
 			map.put("alpha", color.alpha());
+			map.put("material", material);
 		}
 		return map;
 	}

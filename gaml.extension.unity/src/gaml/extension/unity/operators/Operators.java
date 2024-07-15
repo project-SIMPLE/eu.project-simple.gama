@@ -53,11 +53,27 @@ public class Operators {
 			value = "creates a new unity geometry aspect for Unity with the given properties: geometry to display, height, color",
 			masterDoc = true,
 			examples = @example (
-					value = "geometry_aspect(10.0, #red)",
+					value = "geometry_aspect(10.0, #red, precision)",
 					isExecutable = false))
 	@no_test
 	public static UnityAspect newUnityGeometryAspect(final double height, final GamaColor color, final int precision) throws GamaRuntimeException {
 		return new UnityAspect(height,color, precision); 
+	}
+	
+	@operator (
+			value = "geometry_aspect",
+			can_be_const = true,
+			category = { "Unity" },
+			concept = {"Unity"})
+	@doc (
+			value = "creates a new unity geometry aspect for Unity with the given properties: geometry to display, height, material, color",
+			masterDoc = true,
+			examples = @example (
+					value = "geometry_aspect(0.1,\"Materials/Water/Water Material\" #white, precision)",
+					isExecutable = false))
+	@no_test
+	public static UnityAspect newUnityGeometryAspect(final double height, final String material, final GamaColor color, final int precision) throws GamaRuntimeException {
+		return new UnityAspect(height, material, color, precision); 
 	}
 	
 	
