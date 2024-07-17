@@ -51,6 +51,7 @@ import gama.core.util.matrix.GamaMatrix;
 import gama.extension.serialize.gaml.SerialisationOperators;
 import gama.gaml.descriptions.ConstantExpressionDescription;
 import gama.gaml.operators.Cast;
+import gama.gaml.operators.spatial.SpatialCreation;
 import gama.gaml.operators.spatial.SpatialPunctal;
 import gama.gaml.operators.spatial.SpatialQueries;
 import gama.gaml.operators.spatial.SpatialTransformations;
@@ -971,7 +972,9 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (ags.isEmpty()) {
 				Optional<IAgent> selected = getPlayers(ag).getValues().stream()
 						.filter(a -> (Boolean) a.getAttribute("selected")).findFirst();
-				if (selected.isPresent()) { doAction2Arg(scope, "move_player", "player", selected.get(), "loc", pt); }
+				IAgent pl = selected.get();
+				pt.z = pl.getLocation().z;
+				if (selected.isPresent()) { doAction2Arg(scope, "move_player", "player",pl , "loc", pt); }
 			} else {
 				IAgent player = (IAgent) SpatialQueries.closest_to(scope, ags, pt);
 
@@ -1234,6 +1237,140 @@ public class AbstractUnityLinker extends GamlAgent {
 			getGeometriesToSend(ag).clear();
 		
 	}
+	
+	@action (
+			name = "send_teleport_area",
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")),
+					@arg (
+							name = "id",
+							type = IType.STRING,
+							doc = @doc ("id of the teleoprtation area")),
+				@arg (
+							name = "geoms",
+							type = IType.LIST,
+							doc = @doc ("list of geometries of the walls")) },
+			doc = { @doc (
+					value = "send a geometry to be used a teleportation area. "
+							+ "If a telepoprtation with the same id already existed,"
+							+ "update its geometry. It the send geometry is null or empty, destroy this teleportation area") })
+	public void primSentTeleportationArea(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = getAgent();
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		String id = scope.getStringArg("id");
+		
+		IMap<String, Object> toSend = GamaMapFactory.create();
+		IList<Integer> posT = GamaListFactory.create(Types.INT);
+		int precision = getPrecision(ag);
+
+		IList<IShape> geoms = (IList<IShape>) scope.getArg("geoms", IType.LIST);
+		
+		List<Integer> yOffset = new ArrayList<>();
+		List pointsGeom = new ArrayList<>();
+
+		for (IShape g : geoms) {
+			pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", g));
+			yOffset.add((int)(g.getLocation().z * precision));
+		}
+		toSend.put("teleportId", id);
+		toSend.put("offsetYGeom", yOffset);
+		toSend.put("height", (int)(0.1 * precision));
+		
+		toSend.put("pointsGeom", pointsGeom);
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+	}
+	
+	@action (
+			name = "build_invisible_walls",
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which the message will be sent")),
+					@arg (
+							name = "id",
+							type = IType.STRING,
+							doc = @doc ("id of the walls")),
+					@arg (
+							name = "height",
+							type = IType.FLOAT,
+							doc = @doc ("height of the walls")),
+					@arg (
+							name = "wall_width",
+							type = IType.FLOAT,
+							doc = @doc ("width of the walls")),
+					@arg (
+							name = "geoms",
+							type = IType.LIST,
+							doc = @doc ("list of geometries of the walls")) },
+			doc = { @doc (
+					value = "send a list of geometry to be used to build walls at the given height. "
+							+ "If walls with the same id already existed,"
+							+ "destroy them before creating the new walls") })
+	public void primBuildInvisibleWalls(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = getAgent();
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		IList<IShape> geoms = (IList<IShape>) scope.getArg("geoms", IType.LIST);
+		IMap<String, Object> toSend = GamaMapFactory.create();
+		IList<Integer> posT = GamaListFactory.create(Types.INT);
+		int precision = getPrecision(ag);
+		String id = scope.getStringArg("id");
+		
+		List<Integer> yOffset = new ArrayList<>();
+		List pointsGeom = new ArrayList<>();
+		double wallWidth = scope.getFloatArg("wall_width");
+		
+		for (IShape g : geoms) {
+			for (int i = 0 ; i < g.getPoints().length(scope) - 2; i++) {
+				IList<IShape> pts = GamaListFactory.create();
+				pts.add( g.getPoints().get(i));
+				pts.add( g.getPoints().get(i+1));
+				IShape l = SpatialCreation.line(scope, pts);
+				l = SpatialTransformations.enlarged_by(scope, l, wallWidth);
+				
+				pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", l));
+				yOffset.add((int)(g.getLocation().z * precision));
+			}
+			
+		}
+		toSend.put("wallId", id);
+		
+		toSend.put("offsetYGeom", yOffset);
+		
+		double height = scope.getFloatArg("height");
+		toSend.put("height", (int)(height * precision));
+		
+		
+		toSend.put("pointsGeom", pointsGeom);
+	
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+
+
+	}
+
+	@action (
+			name = "enable_player_movement",
+			args = { @arg (
+					name = "player",
+					type = IType.AGENT,
+					doc = @doc ("Player to which to enable/disable the movement")),
+					@arg (
+							name = "enable",
+							type = IType.BOOL,
+							doc = @doc ("Enable (true) or disable (false) the movement of the player"))},
+			doc = { @doc (
+					value = "Enable (true) or disable (false) the movement (teleportation, continuous move) of a player") })
+	public void primAllowPlayerMovement(final IScope scope) throws GamaRuntimeException {
+		IAgent ag = getAgent();
+		IAgent player = (IAgent) scope.getArg("player", IType.AGENT);
+		Boolean enable = scope.getBoolArg("enable");
+		IMap<String, Object> toSend = GamaMapFactory.create();
+		toSend.put("enableMove", enable);
+		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);	
+	}
+		
+
 
 	/**
 	 * Prim sent geometries.
@@ -1259,7 +1396,7 @@ public class AbstractUnityLinker extends GamlAgent {
 							doc = @doc ("send the geometries for the initialization?")),
 					@arg (
 							name = "geoms",
-							type = IType.MAP,
+							type = IType.LIST,
 							doc = @doc ("Map of geometry to send (geometry::unity_property)")) },
 			doc = { @doc (
 					value = "send the background geometries to the Unity client") })
@@ -1336,6 +1473,7 @@ public class AbstractUnityLinker extends GamlAgent {
 	public IMap primMessageGeomsShape(final IScope scope) throws GamaRuntimeException {
 		IList<Integer> vals = GamaListFactory.create();
 		IShape geom = (IShape) scope.getArg("geom", IType.GEOMETRY);
+		if (geom == null) return  GamaMapFactory.create();
 		int precision = getPrecision(getAgent());
 
 		for (GamaPoint pt : geom.getPoints()) {
