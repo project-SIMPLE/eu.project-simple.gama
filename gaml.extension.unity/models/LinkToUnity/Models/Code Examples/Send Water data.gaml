@@ -1,17 +1,15 @@
 /**
 * Name: SendDEM
-* Show how to send a grid/matrix to Unity and modify it on the fly. It works with the Scene "Assets/Scenes/Code Example/Receive DEM Data" from the Unity Template.
-* In this model, a DEM is loaded from GAMA as soon as a player logs on. The player, who is in the centre of a crater at the start of the game, can then move around 
-* this DEM and catch/throw a ball whose physics are managed by Unity. From GAMA, you can dynamically increase the height of a cell by pressing 'R'. 
-* The cell whose height is increased will be the one where the mouse is located. Similarly, you can decrease the height of a cell by pressing 'T'. 
-* The player in the VR headset will automatically see the DEM changed in the game. 
+* Show how to send water data to Unity and modify it on the fly. It works with the Scene "Assets/Scenes/Code Example/Receive Water Data" from the Unity Template.
+* The model simulates a flood in a river and sent to Unity the water area with water material. In addition, a DEM is used a background.
+*  
 * 
 * Author: Patrick Taillandier
-* Tags: Unity, DEM, grid, field, Terrain
+* Tags: Unity, Water, DEM, grid, field, Terrain
 */
 
 
-model SendDEM
+model SendWater
 
 global {
 	
@@ -36,17 +34,22 @@ global {
 	float max_value <- 100.0;
 	
 	
+	//global level of water in the river
 	float global_water_level <- 1.5 min: 1.5;
+	
 	
 	int cycle_ref <- 0 ;
 	
 	init {
+		//set the altitude of each cell 
 		ask cell {
 			 altitude <- bands[1];
 		}
 		
 	}
 	
+	
+	//add water in the river and compute its dispersion - a set a water is created from this computing representing the area where the level of water is higher than 0.5m
 	action add_water  {
 		global_water_level <- cycle_ref < 40 ?  global_water_level + 0.1 : global_water_level - 0.1  ;
 		ask cell {
@@ -70,23 +73,28 @@ global {
 		}
 	}
 	
+	
 	reflex add_water_reflex when: every(10#cycle) {
+		//add the water and compute the water dispersion ("water" agent)
 		do add_water;
+		
+		//if there is at least a player, send the geometries of the water agents with the up_water Unity property
 		if not empty(water) and not empty(unity_player){
 			ask unity_linker {
+				//add the geometry of the water agents to the geometry to send - add a z offset correspoding to the level of water.
 				do add_geometries_to_send(water collect (each.shape at_location {each.location.x,each.location.y, global_water_level}),up_water);
+				
+				//force the action to send the world (and send the current message) as the "do_send_world" to false to just send the world information at the right moment.
 				do send_world;
 				do send_current_message;
 			}
 		}
 	}
-	
-	
-	
 }
 
+
+//agent representing the water area
 species water {
-	list<geometry> to_send;
 	aspect default {
 		draw shape color: #blue;
 	}
@@ -94,10 +102,16 @@ species water {
 
 
 
-//grid initiliazed by the mnt_grid_file
+//grid initiliazed by the dem_grid_file and the altitude file
 grid cell files:[dem_grid_file, dem_altitude_grid_file] neighbors: 4{
+	
+	//the altitude correspond to the min level of water in the river that is necessary to have water on this cell
 	float altitude;
+	
+	//current level of water on the cell
 	float water_level <- 0.0 min: 0.0 ;
+	
+	//just used for the computation of the geometries of the water agents
 	geometry shape_union <- shape + 0.1;
 	
 	action add_water(float wl)  {
@@ -129,15 +143,14 @@ species unity_linker parent: abstract_unity_linker {
 	
 	//action that defines the different unity properties
 	action define_properties {
-		//define a unity_aspect called sphere_aspect that will display in Unity the agents with the SphereRigidBody prefab, with a scale of 1.0, no y-offset, 
-		//a rotation coefficient of 1.0 (no change of rotation from the prefab), no rotation offset, and we use the default precision. 
+		//define a unity_aspect called water_aspect that will display in Unity the agents from its geometry, with a height of 1m, the material "Water Material", the white color, and the default precision
 		unity_aspect water_aspect <- geometry_aspect(1.0, "Materials/Water/Water Material",#white, precision);
 		
-		//define the up_sphere unity property, with the name "sphere_ag", no specific layer, the sphere_aspect unity aspect, grabable, and the agent location is sent back 
+		//define the up_water unity property, with the name "water", no specific layer, the water_aspect unity aspect, no interaction, and the agent location is not sent back 
 		//to GAMA. 
 		up_water<- geometry_properties("water", nil, water_aspect, #no_interaction,false);
 		
-		// add the up_sphere unity_property to the list of unity_properties
+		// add the up_water unity_property to the list of unity_properties
 		unity_properties << up_water;
 		
 		
@@ -185,7 +198,6 @@ experiment main type: gui {
 	
 	output synchronized: true{
 		display map type: 2d {
-			//grid cell;
 			mesh cell grayscale: true triangulation: true smooth: true  ;
 			species water;
 			
