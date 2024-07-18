@@ -298,7 +298,11 @@ public class VRModelGenerator {
 					if (!color.startsWith("#") && ! color.startsWith("rgb")) {
 						color = "#"+color;
 					}
-					modelUnityLinker.append("geometry_aspect(" + data.get("height")+","+ color +",precision);" );	
+					String material = data.get("material");
+					if (material != null && ! material.isBlank())
+						modelUnityLinker.append("geometry_aspect(" + data.get("height")+",\""+ material +"\","+color +",precision);" );
+					else 
+						modelUnityLinker.append("geometry_aspect(" + data.get("height")+","+ color +",precision);" );	
 				}
 				String interaction = "";
 				if ("false".equals(data.get("collider"))) {

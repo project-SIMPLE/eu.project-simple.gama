@@ -10,7 +10,6 @@
  ********************************************************************************************************/
 package gaml.extension.unity.types;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import gama.annotations.precompiler.GamlAnnotations.doc;

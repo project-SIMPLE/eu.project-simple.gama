@@ -11,8 +11,6 @@
 package gaml.extension.unity.commands;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
