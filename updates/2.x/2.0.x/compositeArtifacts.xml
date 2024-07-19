@@ -2,15 +2,16 @@
 <?compositeArtifactRepository version='1.0.0'?>
 <repository name='&quot;Project SIMPLE - GAMA&apos;s extension Site&quot; 2.0.x' type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
   <properties size='2'>
-    <property name='p2.timestamp' value='1720500339491'/>
+    <property name='p2.timestamp' value='1721378268500'/>
     <property name='p2.atomic.composite.loading' value='false'/>
   </properties>
-  <children size='6'>
+  <children size='7'>
     <child location='../../../releases/2.0.0.v20240308-0914'/>
     <child location='../../../releases/2.0.0.v20240308-0915'/>
     <child location='../../../releases/2.0.0.v20240423-0314'/>
     <child location='../../../releases/2.0.0.v20240530-0242'/>
     <child location='../../../releases/2.0.0.v20240701-0709'/>
     <child location='../../../releases/2.0.0.v20240709-0442'/>
+    <child location='../../../releases/2.0.0.v20240719-0834'/>
   </children>
 </repository>
