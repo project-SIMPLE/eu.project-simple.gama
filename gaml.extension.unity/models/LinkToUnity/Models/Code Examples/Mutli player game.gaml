@@ -62,6 +62,7 @@ species unity_linker parent: abstract_unity_linker {
 		
 	}
 	
+	//return for each player a random location inside the init_space
 	list<point> random_loc {
 		list<point> points;
 		loop times: max_num_players {
@@ -76,34 +77,61 @@ species unity_linker parent: abstract_unity_linker {
 	//action that defines the different unity properties
 	action define_properties {
 		
+		//define a unity_aspect called ghost_aspect that will display in Unity a player with the Ghost prefab, with a scale of 2.0, no y-offset, 
+		//a rotation coefficient of -1.0, a rotation offset of 90°, and we use the default precision. 
 		unity_aspect ghost_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Ghost",2.0,0.0,-1.0,90.0,precision);
-		up_ghost <- geometry_properties("ghost","",ghost_aspect,new_geometry_interaction(true, false,false,[]),false);
+		//define the up_ghost unity property, with the name "ghost", no specific layer, a collider, and the agents location are not sent back to GAMA. 
+		up_ghost <- geometry_properties("ghost","",ghost_aspect,#collider,false);
+		// add the up_ghost unity_property to the list of unity_properties
 		unity_properties << up_ghost; 
 		
+		//define a unity_aspect called slime_aspect that will display in Unity a player with the Slime prefab, with a scale of 2.0, no y-offset, 
+		//a rotation coefficient of -1.0, a rotation offset of 90°, and we use the default precision. 
 		unity_aspect slime_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/Slime",2.0,0.0,-1.0,90.0,precision);
+		//define the up_slime unity property, with the name "slime", no specific layer, a collider, and the agents location are not sent back to GAMA. 
 		up_slime <- geometry_properties("slime","",slime_aspect,new_geometry_interaction(true, false,false,[]),false);
+		// add the up_slime unity_property to the list of unity_properties
 		unity_properties << up_slime; 
 		
+			//define a unity_aspect called lg_aspect that will display in Unity a player with the LittleGhost prefab, with a scale of 2.0, no y-offset, 
+		//a rotation coefficient of -1.0, a rotation offset of 90°, and we use the default precision. 
 		unity_aspect lg_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/LittleGhost",2.0,0.0,-1.0,90.0,precision);
+		//define the up_lg unity property, with the name "little_ghost", no specific layer, a collider, and the agents location are not sent back to GAMA. 
 		up_lg <- geometry_properties("little_ghost","",lg_aspect,new_geometry_interaction(true, false,false,[]),false);
+		// add the up_lg unity_property to the list of unity_properties
 		unity_properties << up_lg; 
 		
+		//define a unity_aspect called turtle_aspect that will display in Unity a player with the TurtleShell prefab, with a scale of 2.0, no y-offset, 
+		//a rotation coefficient of -1.0, a rotation offset of 90°, and we use the default precision. 
 		unity_aspect turtle_aspect <- prefab_aspect("Prefabs/Visual Prefabs/Character/TurtleShell",2.0,0.0,-1.0,90.0,precision);
+		//define the up_turtle unity property, with the name "turtle", no specific layer, a collider, and the agents location are not sent back to GAMA. 
 		up_turtle <- geometry_properties("turtle","",turtle_aspect,new_geometry_interaction(true, false,false,[]),false);
+		// add the up_turtle unity_property to the list of unity_properties
 		unity_properties << up_turtle; 
 		
+	
+		//define a unity_aspect called pylon_aspect that will display the agents using their geometries, with a height of 10 meters, the gray color, and we use the default precision. 
 		unity_aspect pylon_aspect <- geometry_aspect(10.0,#gray,precision);
+		//define the up_pylon unity property, with the name "pylon", the layer "selectable", ray interaction, and the agents location are not sent back to GAMA. 
 		up_pylon <- geometry_properties("pylon","selectable",pylon_aspect,#ray_interactable,false);
+		// add the up_pylon unity_property to the list of unity_properties
 		unity_properties << up_pylon;
 		
 	}
 	
+	
+	//action that will be called from unity with two argument: the id of the pylon selected, the player that change the color of the pylon
 	action change_color(string id, string player) {
-		pylon ag <- pylon first_with (each.name = id) ;
-		unity_player pl <-  unity_player first_with (each.name = player) ;
-		if (ag != nil) {
-			ag.color <- pl.color; 
-			do send_message players: unity_player as list mes: ["id"::id, "color"::[ag.color.red,ag.color.green,ag.color.blue, ag.color.alpha]];
+		//pylon that was selected
+		pylon the_pylon <- pylon first_with (each.name = id) ;
+		//player that triggers the action
+		unity_player the_player <-  unity_player first_with (each.name = player) ;
+		
+		if (the_pylon != nil) {
+			// change the color of the pylon agent
+			the_pylon.color <- the_player.color; 
+			//send a massage to all the players to change the color of the given pylon for all the players
+			do send_message players: unity_player as list mes: ["id"::id, "color"::[the_pylon.color.red,the_pylon.color.green,the_pylon.color.blue, the_pylon.color.alpha]];
 		}
 	}
 	
