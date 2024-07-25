@@ -1320,15 +1320,18 @@ public class AbstractUnityLinker extends GamlAgent {
 		double wallWidth = scope.getFloatArg("wall_width");
 		
 		for (IShape g : geoms) {
-			for (int i = 0 ; i < g.getPoints().length(scope) - 2; i++) {
+			for (int i = 0 ; i < g.getPoints().length(scope) - 1; i++) {
 				IList<IShape> pts = GamaListFactory.create();
 				pts.add( g.getPoints().get(i));
-				pts.add( g.getPoints().get(i+1));
+				pts.add( g.getPoints().get(((i+1) == g.getPoints().length(scope)) ? 0 : i+1 ));
 				IShape l = SpatialCreation.line(scope, pts);
-				l = SpatialTransformations.enlarged_by(scope, l, wallWidth);
+				if (l.getPerimeter() > 0.0) {
+					l = SpatialTransformations.enlarged_by(scope, l, wallWidth);
+					
+					pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", l));
+					yOffset.add((int)(g.getLocation().z * precision));
+				}
 				
-				pointsGeom.add(doAction1Arg(scope, "message_geometry_shape", "geom", l));
-				yOffset.add((int)(g.getLocation().z * precision));
 			}
 			
 		}
