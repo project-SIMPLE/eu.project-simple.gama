@@ -39,6 +39,8 @@ global {
 species unity_linker parent: abstract_unity_linker {
 	//name of the species used to represent a Unity player
 	string player_species <- string(unity_player);
+	
+	float min_player_position_update_duration <- 0.01;
 
 	//in this model, information about other player will be automatically sent to the Player at every step, so we set do_info_world to true
 	bool do_send_world <- true;
@@ -206,6 +208,7 @@ experiment vr_xp parent:main autorun: false type: unity {
 
 	//action called by the middleware when a player connects to the simulation
 	action create_player(string id) {
+		write sample(id);
 		ask unity_linker {
 			do create_player(id);
 			

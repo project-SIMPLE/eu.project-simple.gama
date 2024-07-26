@@ -90,6 +90,12 @@ import gaml.extension.unity.types.UnityPropertiesType;
 				init = "1",
 				doc = { @doc ("Maximal number of Unity players") }),
 		@variable (
+				name = AbstractUnityLinker.MIN_PLAYER_POSITION_UPDATE_DURATION,
+				type = IType.FLOAT,
+				init = "0.01",
+				doc = { @doc ("Minimum delay between two transmissions of a player's position from Unity") }),
+		
+		@variable (
 				name = AbstractUnityLinker.PRECISION,
 				type = IType.INT,
 				init = "10000",
@@ -197,6 +203,8 @@ public class AbstractUnityLinker extends GamlAgent {
 
 	/** The Constant MAX_NUMBER_PLAYERS. */
 	public static final String MAX_NUMBER_PLAYERS = "max_num_players";
+	
+	public static final String MIN_PLAYER_POSITION_UPDATE_DURATION = "min_player_position_update_duration";
 
 	/** The Constant CONNECT_TO_UNITY. */
 	public static final String CONNECT_TO_UNITY = "connect_to_unity";
@@ -423,6 +431,18 @@ public class AbstractUnityLinker extends GamlAgent {
 	public static void setMaxPlayer(final IAgent agent, final Integer val) {
 		agent.setAttribute(MAX_NUMBER_PLAYERS, val);
 	}
+	
+	
+	@getter (AbstractUnityLinker.MIN_PLAYER_POSITION_UPDATE_DURATION)
+	public static Double getMinPlayerPoisitionUpdateDuration(final IAgent agent) {
+		return (Double) agent.getAttribute(MIN_PLAYER_POSITION_UPDATE_DURATION);
+	}
+
+	@setter (AbstractUnityLinker.MIN_PLAYER_POSITION_UPDATE_DURATION)
+	public static void setMinPlayerPoisitionUpdateDuration(final IAgent agent, final Double val) {
+		agent.setAttribute(MIN_PLAYER_POSITION_UPDATE_DURATION, val);
+	}
+
 
 	/**
 	 * Gets the precision.
@@ -970,9 +990,10 @@ public class AbstractUnityLinker extends GamlAgent {
 			if (ags.isEmpty()) {
 				Optional<IAgent> selected = getPlayers(ag).getValues().stream()
 						.filter(a -> (Boolean) a.getAttribute("selected")).findFirst();
-				IAgent pl = selected.get();
-				pt.z = pl.getLocation().z;
-				if (selected.isPresent()) { doAction2Arg(scope, "move_player", "player",pl , "loc", pt); }
+				if (selected.isPresent()) {
+					IAgent pl = selected.get();
+					pt.z = pl.getLocation().z;
+					doAction2Arg(scope, "move_player", "player",pl , "loc", pt); }
 			} else {
 				IAgent player = (IAgent) SpatialQueries.closest_to(scope, ags, pt);
 
@@ -2287,7 +2308,12 @@ public class AbstractUnityLinker extends GamlAgent {
 	 *            the scope
 	 */
 	private void startSimulation(final IScope scope) {
-		if (getPlayers(getAgent()).size() >= getMinPlayer(getAgent())) { scope.getSimulation().resume(scope); }
+		if (getPlayers(getAgent()).size() >= getMinPlayer(getAgent())) { 
+			for (IAgent player : getPlayers(getAgent()).values()) {
+				doAction2Arg(scope, "enable_player_movement", "player", player, "enable", true);
+			}
+			scope.getSimulation().resume(scope); 
+		}
 	}
 
 	/**
@@ -2356,9 +2382,12 @@ public class AbstractUnityLinker extends GamlAgent {
 
 		toSend.put("world", worldT);
 
-
+		worldT.add((int) (scope.getSimulation().getGeometricEnvelope().getHeight() * precision));
+		toSend.put("minPlayerUpdateDuration", getMinPlayerPoisitionUpdateDuration(ag) * precision);
+		
 		doAction2Arg(scope, "add_to_send_parameter", "player", player, "map_to_send", toSend);
 		addToCurrentMessage(scope, buildPlayerListfor1Player(scope, player), toSend);
+		doAction2Arg(scope, "enable_player_movement", "player", player, "enable", false);
 	}
 
 	/**
