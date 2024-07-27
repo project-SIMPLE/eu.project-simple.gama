@@ -23,7 +23,7 @@ global {
 	geometry init_space;
 	
 	//color of the different players
-	list<rgb> color_players <- [#red, #blue,#green, #violet];
+	list<rgb> color_players <- [#red, #yellow,#green, #violet];
 	
 	init {
 		//creation of the pylon and definition of the init space
@@ -45,11 +45,14 @@ species unity_linker parent: abstract_unity_linker {
 	//in this model, information about other player will be automatically sent to the Player at every step, so we set do_info_world to true
 	bool do_send_world <- true;
 	
-	//max number of players
-	int max_num_players  <- 4;
+	//number of players in the game
+	int number_players <- 4 max: 4;
 
-	//min number of players: as the value is 0, the model will start as soon as the experiment is launch
-	int min_num_players  <- 0;
+	//max number of players that can play the game
+	int max_num_players  <- number_players;
+
+	//min number of players to start the simulation
+	int min_num_players  <- number_players;
 	
 	//initial location of the player
 	list<point> init_locations <- random_loc();
