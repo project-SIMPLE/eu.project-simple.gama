@@ -60,7 +60,6 @@ release/*
 *.class
 .metadata/
 .metadata/*
-/*/gaml/
 /*/bin/
 /*/.apt_generated/
 stderr
